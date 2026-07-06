@@ -188,13 +188,14 @@ def classify_company_domain(company_name):
         
     return "software"
 
-# General Fallback Builder to dynamically synthesize data for any searched company
-def synthesize_company_data(company_name, category):
+def synthesize_company_data(company_name, category, branch="cse"):
     c_key = company_name.lower().strip()
     
     # Check cache first
     if c_key in COMPANY_KNOWLEDGE:
-        return COMPANY_KNOWLEDGE[c_key]
+        data = COMPANY_KNOWLEDGE[c_key].copy()
+        data["pyqs"] = generate_55_pyqs(company_name, "software" if branch in ["cse", "it"] else branch)
+        return data
         
     # Generate intelligent dynamic data based on company name
     # We will also pull from Google Search to supplement.
@@ -204,6 +205,20 @@ def synthesize_company_data(company_name, category):
     # Classify the domain of the target company
     domain = classify_company_domain(company_name)
     
+    # Override domain if branch parameter is provided
+    if branch:
+        b_clean = branch.lower().strip()
+        if b_clean in ["cse", "it"]:
+            domain = "software"
+        elif b_clean in ["mechanical"]:
+            domain = "mechanical"
+        elif b_clean in ["electrical", "ece", "ece_iot"]:
+            domain = "electrical"
+        elif b_clean in ["civil"]:
+            domain = "civil"
+        elif b_clean in ["chemical"]:
+            domain = "chemical"
+            
     if domain == "mechanical":
         skills = [
             {"name": "Thermodynamics & Heat Transfer", "level": 85},
@@ -238,19 +253,34 @@ def synthesize_company_data(company_name, category):
             "assessment": "Solve basic mechanical gate level MCQs and general numerical aptitude."
         }
     elif domain == "electrical":
-        skills = [
-            {"name": "Circuit Theory & Networks", "level": 85},
-            {"name": "Analog & Digital Electronics", "level": 80},
-            {"name": "Power Systems & Electrical Machines", "level": 75},
-            {"name": "Microcontrollers & VLSI Design", "level": 80},
-            {"name": "Quantitative Aptitude", "level": 85}
-        ]
-        topics = [
-            {"name": "Analog & VLSI Design", "weight": 35},
-            {"name": "AC/DC Machines & Power Electronics", "weight": 25},
-            {"name": "Microcontrollers & Signal Processing", "weight": 20},
-            {"name": "Logical & Aptitude Reasoning", "weight": 20}
-        ]
+        if branch == "ece_iot":
+            skills = [
+                {"name": "IoT Architectures & Sensors", "level": 85},
+                {"name": "Embedded C & RTOS", "level": 80},
+                {"name": "Microcontrollers & VLSI", "level": 75},
+                {"name": "Wireless Communication Protocols", "level": 80},
+                {"name": "Quantitative Aptitude", "level": 85}
+            ]
+            topics = [
+                {"name": "IoT Protocols (MQTT, CoAP, Zigbee)", "weight": 35},
+                {"name": "Embedded Systems & RTOS", "weight": 25},
+                {"name": "Microcontrollers (Arduino, ESP32, ARM)", "weight": 20},
+                {"name": "Quantitative Aptitude & Logic", "weight": 20}
+            ]
+        else:
+            skills = [
+                {"name": "Circuit Theory & Networks", "level": 85},
+                {"name": "Analog & Digital Electronics", "level": 80},
+                {"name": "Power Systems & Electrical Machines", "level": 75},
+                {"name": "Microcontrollers & VLSI Design", "level": 80},
+                {"name": "Quantitative Aptitude", "level": 85}
+            ]
+            topics = [
+                {"name": "Analog & VLSI Design", "weight": 35},
+                {"name": "AC/DC Machines & Power Electronics", "weight": 25},
+                {"name": "Microcontrollers & Signal Processing", "weight": 20},
+                {"name": "Logical & Aptitude Reasoning", "weight": 20}
+            ]
         salary = {
             "tiers": [
                 {"name": "GET (Electrical/Hardware)", "package": "5.0 - 7.5 LPA", "inhand": "₹38,000 - ₹52,000 / month", "details": "Base: ₹28K, HRA: ₹10K. Deductions: PF"},
@@ -532,12 +562,14 @@ def get_generic_pyqs(company_name):
 
 import google.generativeai as genai
 
-def fetch_company_data_via_gemini(company, category, api_key):
+def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel("gemini-1.5-flash")
         prompt = f"""
-        Provide a placement preparation guide for the company "{company}" under the category "{category}".
+        Provide a placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
+        All skills, topics weightages, salaries, and solved previous year questions (PYQs) must be tailored specifically to what a "{branch}" candidate is asked at "{company}".
+        If a core branch is selected (e.g. mechanical, electrical, civil, chemical), make sure the technical details, skills, and questions are core engineering questions (e.g. for Mechanical, ask about thermodynamics/fluids/CAD; for ECE IoT, ask about sensors/microcontrollers/embedded devices; for Civil, ask about RCC/concrete).
         You must return a raw JSON object and nothing else (do NOT include ```json wrappers, backticks, or any explanation).
         The structure must be exactly:
         {{
@@ -637,17 +669,18 @@ def home():
 def search_company():
     company = request.args.get("company", "").strip().lower()
     category = request.args.get("category", "technical").strip()
+    branch = request.args.get("branch", "cse").strip().lower()
     api_key = request.args.get("gemini_key", "").strip() or get_backend_gemini_key()
     
     if not company:
         return jsonify({"error": "Company name is required."}), 400
         
     if api_key:
-        data = fetch_company_data_via_gemini(company, category, api_key)
+        data = fetch_company_data_via_gemini(company, category, api_key, branch)
         if data:
             return jsonify(data)
             
-    data = synthesize_company_data(company, category)
+    data = synthesize_company_data(company, category, branch)
     return jsonify(data)
 
 @app.route("/api/query", methods=["POST"])

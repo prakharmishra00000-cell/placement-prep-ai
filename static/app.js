@@ -90,7 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
         searchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Researching...';
         searchBtn.disabled = true;
 
-        fetch(`/api/search?company=${encodeURIComponent(company)}&category=${category}`)
+        const branchSelect = document.getElementById("branch-select");
+        const branchVal = branchSelect ? branchSelect.value : "cse";
+
+        fetch(`/api/search?company=${encodeURIComponent(company)}&category=${category}&branch=${branchVal}`)
             .then(res => {
                 if (!res.ok) throw new Error("Search failed.");
                 return res.json();
