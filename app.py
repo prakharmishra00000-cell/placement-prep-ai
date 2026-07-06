@@ -6,6 +6,7 @@ import random
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, request, render_template
+from pyq_generator import generate_55_pyqs
 
 app = Flask(__name__)
 
@@ -246,6 +247,7 @@ def synthesize_company_data(company_name, category):
             "assessment": "Practice MCQs on OS, DBMS, Networks, and clean code pseudo-code logic."
         }
 
+    all_pyqs = (scraped_questions or []) + generate_55_pyqs(company_name)
     return {
         "name": company_name.title(),
         "skills": skills,
@@ -253,7 +255,7 @@ def synthesize_company_data(company_name, category):
         "salary": salary,
         "career_path": career_path,
         "tips": tips,
-        "pyqs": scraped_questions if scraped_questions else get_generic_pyqs(company_name)
+        "pyqs": all_pyqs
     }
 
 # Live DuckDuckGo search + parsing of target placement websites
