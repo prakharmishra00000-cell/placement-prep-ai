@@ -1,6 +1,6 @@
 import random
 
-def generate_55_pyqs(company_name):
+def generate_55_pyqs(company_name, domain="software"):
     company = company_name.title()
     
     # 55 High-quality solved templates with options and detailed step-by-step solutions
@@ -352,6 +352,16 @@ def generate_55_pyqs(company_name):
         }
     ]
     
+    # Sort templates based on domain
+    if domain == "mechanical":
+        templates = [t for t in templates if "thermodynamic" in t["question"].lower() or "viscosity" in t["question"].lower()] + [t for t in templates if not ("thermodynamic" in t["question"].lower() or "viscosity" in t["question"].lower())]
+    elif domain == "electrical":
+        templates = [t for t in templates if "kirchhoff" in t["question"].lower() or "delta connection" in t["question"].lower()] + [t for t in templates if not ("kirchhoff" in t["question"].lower() or "delta connection" in t["question"].lower())]
+    elif domain == "civil":
+        templates = [t for t in templates if "portland cement" in t["question"].lower() or "levelling" in t["question"].lower()] + [t for t in templates if not ("portland cement" in t["question"].lower() or "levelling" in t["question"].lower())]
+    elif domain == "chemical":
+        templates = [t for t in templates if "bernoulli" in t["question"].lower()] + [t for t in templates if not ("bernoulli" in t["question"].lower())]
+
     # Generate 55 questions by looping and adapting the templates to reach exactly 55 items
     pyqs = []
     

@@ -163,6 +163,31 @@ COMPANY_KNOWLEDGE = {
     }
 }
 
+def classify_company_domain(company_name):
+    c_key = company_name.lower().strip()
+    
+    # 1. Mechanical / Automotive / Manufacturing / Aerospace / Heavy Eng.
+    mech_keywords = ["motors", "mahindra", "maruti", "suzuki", "tata motors", "ford", "hyundai", "caterpillar", "boeing", "airbus", "general electric", "bhel", "bosch", "cummins", "tesla", "ashok leyland", "hero", "bajaj", "honda", "volvo"]
+    if any(x in c_key for x in mech_keywords):
+        return "mechanical"
+        
+    # 2. Civil / Infrastructure / Construction
+    civil_keywords = ["l&t", "larsen", "toubro", "dlf", "tata projects", "bechtel", "shapoorji", "pallonji", "afcons", "gmr", "sobha", "godrej properties", "soma"]
+    if any(x in c_key for x in civil_keywords):
+        return "civil"
+        
+    # 3. Electrical / Electronics / Semiconductors / Hardware
+    elec_keywords = ["intel", "qualcomm", "nvidia", "amd", "texas instruments", "semiconductor", "analog devices", "arm", "nxp", "broadcom", "mediatek", "siemens", "abb", "phillips", "schneider", "alstom", "havells"]
+    if any(x in c_key for x in elec_keywords):
+        return "electrical"
+        
+    # 4. Chemical / Petroleum / Energy / Process / Metallurgy
+    chem_keywords = ["reliance", "ongc", "iocl", "bpcl", "hpcl", "exxon", "mobil", "shell", "chevron", "dow", "basf", "dupont", "tata chemicals", "sibur", "gail", "ntpc", "steel", "sail", "jsw"]
+    if any(x in c_key for x in chem_keywords):
+        return "chemical"
+        
+    return "software"
+
 # General Fallback Builder to dynamically synthesize data for any searched company
 def synthesize_company_data(company_name, category):
     c_key = company_name.lower().strip()
@@ -176,78 +201,214 @@ def synthesize_company_data(company_name, category):
     search_query = f"{company_name} placement papers previous year questions solutions"
     scraped_questions = fetch_real_pyqs_from_search(company_name)
     
-    # Setup standard tier template for salary based on company type (e.g. FAANG vs MNC)
-    is_faang = any(x in c_key for x in ["amazon", "meta", "netflix", "microsoft", "apple", "google", "uber", "goldman", "adobe"])
+    # Classify the domain of the target company
+    domain = classify_company_domain(company_name)
     
-    if is_faang:
+    if domain == "mechanical":
         skills = [
-            {"name": "Algorithms & Advanced DS", "level": 95},
-            {"name": "System Design", "level": 85},
-            {"name": "Coding (C++/Java/Go/Python)", "level": 90},
-            {"name": "Logical Puzzles", "level": 80}
+            {"name": "Thermodynamics & Heat Transfer", "level": 85},
+            {"name": "Fluid Mechanics & Machines", "level": 80},
+            {"name": "CAD / CAM & Machine Design", "level": 75},
+            {"name": "Manufacturing & Materials Science", "level": 80},
+            {"name": "Quantitative Aptitude", "level": 85}
         ]
         topics = [
-            {"name": "Data Structures & Algorithms (Trees, Graphs, DP)", "weight": 40},
-            {"name": "System Design (Scalability, Microservices)", "weight": 25},
-            {"name": "OOPS, Operating Systems & DBMS", "weight": 20},
-            {"name": "Behavioral & Leadership Scenario Qs", "weight": 15}
+            {"name": "Thermal & Fluids Engineering", "weight": 35},
+            {"name": "Machine Design & Theory of Machines", "weight": 25},
+            {"name": "Industrial Engineering & Operations", "weight": 20},
+            {"name": "General Aptitude & Reasoning", "weight": 20}
         ]
         salary = {
             "tiers": [
-                {"name": "SDE 1 (Entry)", "package": "20 - 35 LPA", "inhand": "₹1,40,000 - ₹1,80,000 / month", "details": "Base Salary: ₹15-20L, Stocks: ₹8-12L/yr, Variable Bonus: 10%"},
-                {"name": "SDE 2 (Mid)", "package": "40 - 65 LPA", "inhand": "₹2,50,000 - ₹3,20,000 / month", "details": "Base: ₹28-36L, Stocks: ₹15-25L/yr, Allowances & Bonus."},
-                {"name": "SDE 3 (Senior)", "package": "75 - 110+ LPA", "inhand": "₹4,00,000 - ₹5,00,000 / month", "details": "Base: ₹45-55L, Stocks: ₹30-45L/yr, Performance Bonus."}
+                {"name": "Graduate Engineer Trainee (GET)", "package": "4.5 - 6.5 LPA", "inhand": "₹32,000 - ₹42,000 / month", "details": "Base Salary: ₹25K, Allowances: ₹10K. Deductions: PF (₹1.8K)"},
+                {"name": "Assistant Plant Manager", "package": "7.5 - 10.5 LPA", "inhand": "₹55,000 - ₹72,000 / month", "details": "Base Salary: ₹48K, HRA: ₹15K. Deductions: Tax, PF"},
+                {"name": "Senior Operations Manager", "package": "14.0 - 20.0 LPA", "inhand": "₹95,000 - ₹1,30,000 / month", "details": "Base Salary: ₹90K, HRA: ₹30K. Deductions: Tax"}
             ]
         }
         career_path = [
-            {"level": "Level 1", "role": "Software Engineer I", "duration": "1-2 Years", "salary": "20 - 35 LPA"},
-            {"level": "Level 2", "role": "Software Engineer II", "duration": "2-3 Years", "salary": "40 - 65 LPA"},
-            {"level": "Level 3", "role": "Senior Software Engineer", "duration": "3-5 Years", "salary": "75 - 110 LPA"},
-            {"level": "Level 4", "role": "Principal / Staff Architect", "duration": "4+ Years", "salary": "1.5 - 2.5 Cr"},
-            {"level": "Level 5", "role": "Engineering Manager / Director", "duration": "To the top!", "salary": "3.0+ Cr"}
+            {"level": "Level 1", "role": "Graduate Engineer Trainee (GET)", "duration": "1 Year", "salary": "4.5 - 6.5 LPA"},
+            {"level": "Level 2", "role": "Assistant Engineer / Shift In-charge", "duration": "2 Years", "salary": "6.0 - 9.0 LPA"},
+            {"level": "Level 3", "role": "Executive Plant Engineer", "duration": "3 Years", "salary": "8.5 - 13.0 LPA"},
+            {"level": "Level 4", "role": "Assistant Plant Manager", "duration": "4+ Years", "salary": "14.0 - 22.0 LPA"},
+            {"level": "Level 5", "role": "Plant Operations Head / Director", "duration": "To the top!", "salary": "25.0+ LPA"}
         ]
         tips = {
-            "technical": f"Focus on high-level coding challenges (LeetCode Medium/Hard). Speak out loud during solution explanation.",
-            "hr": f"Understand the Leadership Principles or Core Values of {company_name}. Use STAR method.",
-            "assessment": "Expect hard coding assessments and structural engineering questions."
+            "technical": f"Focus on thermodynamics cycles (Carnot, Otto, Rankine), fluid mechanics viscosity problems, and CAD views. Standard core interviews ask about material properties.",
+            "hr": f"Show stability, teamwork under stress, and willingness to work rotational plant shifts.",
+            "assessment": "Solve basic mechanical gate level MCQs and general numerical aptitude."
+        }
+    elif domain == "electrical":
+        skills = [
+            {"name": "Circuit Theory & Networks", "level": 85},
+            {"name": "Analog & Digital Electronics", "level": 80},
+            {"name": "Power Systems & Electrical Machines", "level": 75},
+            {"name": "Microcontrollers & VLSI Design", "level": 80},
+            {"name": "Quantitative Aptitude", "level": 85}
+        ]
+        topics = [
+            {"name": "Analog & VLSI Design", "weight": 35},
+            {"name": "AC/DC Machines & Power Electronics", "weight": 25},
+            {"name": "Microcontrollers & Signal Processing", "weight": 20},
+            {"name": "Logical & Aptitude Reasoning", "weight": 20}
+        ]
+        salary = {
+            "tiers": [
+                {"name": "GET (Electrical/Hardware)", "package": "5.0 - 7.5 LPA", "inhand": "₹38,000 - ₹52,000 / month", "details": "Base: ₹28K, HRA: ₹10K. Deductions: PF"},
+                {"name": "Design / Hardware Engineer", "package": "8.5 - 12.5 LPA", "inhand": "₹60,000 - ₹85,000 / month", "details": "Base: ₹55K, Allowances: ₹15K. Deductions: Tax, PF"},
+                {"name": "Principal Systems Architect", "package": "16.0 - 24.0+ LPA", "inhand": "₹1,10,000 - ₹1,65,000 / month", "details": "Base: ₹110K, Allowances: ₹40K. Deductions: Tax"}
+            ]
+        }
+        career_path = [
+            {"level": "Level 1", "role": "Hardware / Electrical Associate", "duration": "1 Year", "salary": "5.0 - 7.5 LPA"},
+            {"level": "Level 2", "role": "Systems Design Engineer", "duration": "2 Years", "salary": "8.0 - 11.5 LPA"},
+            {"level": "Level 3", "role": "Senior Hardware Engineer", "duration": "3 Years", "salary": "12.0 - 18.0 LPA"},
+            {"level": "Level 4", "role": "Lead Architect", "duration": "4+ Years", "salary": "18.0 - 28.0 LPA"},
+            {"level": "Level 5", "role": "Engineering Director", "duration": "To the top!", "salary": "30.0+ LPA"}
+        ]
+        tips = {
+            "technical": f"Revise Kirchhoff's Current/Voltage laws, synchronous motors configurations, and basic VLSI logic designs. Draw clean schematics when asked.",
+            "hr": f"Demonstrate collaborative skills and keen interest in hardware integrations.",
+            "assessment": "Solve basic electrical gate questions and signal sampling theorem MCQs."
+        }
+    elif domain == "civil":
+        skills = [
+            {"name": "Structural Analysis & Design", "level": 85},
+            {"name": "Concrete Technology", "level": 80},
+            {"name": "Geotechnical & Soil Mechanics", "level": 75},
+            {"name": "Surveying & Estimation", "level": 80},
+            {"name": "Aptitude & Spatial Reasoning", "level": 80}
+        ]
+        topics = [
+            {"name": "Concrete Design & Reinforcements", "weight": 35},
+            {"name": "Soil Mechanics & Foundation Eng.", "weight": 25},
+            {"name": "Surveying & Building Estimations", "weight": 20},
+            {"name": "Reasoning & Cognitive Aptitude", "weight": 20}
+        ]
+        salary = {
+            "tiers": [
+                {"name": "Site Engineer Trainee", "package": "4.0 - 5.5 LPA", "inhand": "₹28,000 - ₹38,000 / month", "details": "Base: ₹20K, Site Allowance: ₹8K. Deductions: PF"},
+                {"name": "Project Engineer", "package": "7.0 - 10.0 LPA", "inhand": "₹50,000 - ₹68,000 / month", "details": "Base: ₹45K, Allowance: ₹10K. Deductions: Tax, PF"},
+                {"name": "Infrastructure Manager", "package": "13.0 - 18.0 LPA", "inhand": "₹90,000 - ₹1,20,000 / month", "details": "Base: ₹80K, HRA: ₹25K. Deductions: Tax"}
+            ]
+        }
+        career_path = [
+            {"level": "Level 1", "role": "Site Engineer Trainee", "duration": "1 Year", "salary": "4.0 - 5.5 LPA"},
+            {"level": "Level 2", "role": "Site Engineer / Supervisor", "duration": "2 Years", "salary": "5.5 - 8.0 LPA"},
+            {"level": "Level 3", "role": "Senior Project Engineer", "duration": "3 Years", "salary": "8.0 - 12.0 LPA"},
+            {"level": "Level 4", "role": "Assistant Project Manager", "duration": "4+ Years", "salary": "12.0 - 18.0 LPA"},
+            {"level": "Level 5", "role": "Project Manager / Director", "duration": "To the top!", "salary": "20.0+ LPA"}
+        ]
+        tips = {
+            "technical": f"Know concrete grades, reinforcement bar calculations, one-way/two-way slabs difference, and surveying methods (levelling, traversings).",
+            "hr": f"Highlight readiness for site locations, outdoor projects, and team safety standards.",
+            "assessment": "Expect civil structures MCQs, levelling formulas, and reasoning checks."
+        }
+    elif domain == "chemical":
+        skills = [
+            {"name": "Heat & Mass Transfer operations", "level": 85},
+            {"name": "Chemical Reaction Engineering", "level": 80},
+            {"name": "Fluid Flow & Thermodynamics", "level": 75},
+            {"name": "Process Instrumentation & Design", "level": 80},
+            {"name": "Quantitative Aptitude", "level": 85}
+        ]
+        topics = [
+            {"name": "Mass & Heat Transfer calculations", "weight": 35},
+            {"name": "Chemical Kinetics & Reactor Design", "weight": 25},
+            {"name": "Fluid Dynamics & Bernoulli's", "weight": 20},
+            {"name": "Stoichiometry & General Aptitude", "weight": 20}
+        ]
+        salary = {
+            "tiers": [
+                {"name": "Process / Production GET", "package": "4.5 - 6.8 LPA", "inhand": "₹32,000 - ₹45,000 / month", "details": "Base: ₹25K, Shift allowance: ₹5K. Deductions: PF"},
+                {"name": "Process Engineer", "package": "7.5 - 11.5 LPA", "inhand": "₹55,000 - ₹78,000 / month", "details": "Base: ₹50K, HRA: ₹15K. Deductions: Tax, PF"},
+                {"name": "Senior Plant superintendent", "package": "15.0 - 22.0 LPA", "inhand": "₹1,05,000 - ₹1,45,000 / month", "details": "Base: ₹95K, HRA: ₹30K. Deductions: Tax"}
+            ]
+        }
+        career_path = [
+            {"level": "Level 1", "role": "Process Engineer Trainee", "duration": "1 Year", "salary": "4.5 - 6.8 LPA"},
+            {"level": "Level 2", "role": "Production / Process Engineer", "duration": "2 Years", "salary": "6.5 - 9.5 LPA"},
+            {"level": "Level 3", "role": "Senior Process Engineer", "duration": "3 Years", "salary": "9.0 - 14.0 LPA"},
+            {"level": "Level 4", "role": "Process Manager", "duration": "4+ Years", "salary": "15.0 - 22.0 LPA"},
+            {"level": "Level 5", "role": "Plant Director", "duration": "To the top!", "salary": "25.0+ LPA"}
+        ]
+        tips = {
+            "technical": f"Focus on heat exchanger efficiency equations, distillation column configurations, and Bernoulli's application for fluid flowing operations.",
+            "hr": f"Highlight safety compliance values and comfort in physical manufacturing plant environments.",
+            "assessment": "Revise stoichiometry calculations, fluid flow formulas, and general numerical aptitude."
         }
     else:
-        # Standard Service/Product MNC (Accenture, Cognizant, Wipro, Capgemini)
-        skills = [
-            {"name": "Core Language (Java/C++/Python/JS)", "level": 75},
-            {"name": "Quantitative Aptitude", "level": 85},
-            {"name": "Logical Reasoning", "level": 80},
-            {"name": "Verbal Ability", "level": 75},
-            {"name": "RDBMS & SQL", "level": 70}
-        ]
-        topics = [
-            {"name": "Aptitude & Verbal Ability", "weight": 35},
-            {"name": "Logical & Visual Reasoning", "weight": 25},
-            {"name": "Pseudocode, Debugging & Output Tracing", "weight": 20},
-            {"name": "Coding (Basic Data Structures, Strings, Arrays)", "weight": 20}
-        ]
-        salary = {
-            "tiers": [
-                {"name": "Associate / Trainee", "package": "3.5 - 4.5 LPA", "inhand": "₹24,000 - ₹28,000 / month", "details": "Base Salary: ₹18K, HRA: ₹5K, Allowances: ₹3K. Deductions: PF (₹1.8K)"},
-                {"name": "Senior Software Engineer", "package": "6.5 - 8.5 LPA", "inhand": "₹45,000 - ₹55,000 / month", "details": "Base Salary: ₹35K, HRA: ₹12K, Allowances: ₹5K. Deductions: PF (₹3.6K), Tax"},
-                {"name": "Team Lead / Consultant", "package": "10 - 15 LPA", "inhand": "₹70,000 - ₹95,000 / month", "details": "Base: ₹65K, HRA: ₹25K, Variable: ₹10K. Deductions: PF (₹7.8K), Tax"}
+        # Standard tier template for salary based on company type (e.g. FAANG vs MNC)
+        is_faang = any(x in c_key for x in ["amazon", "meta", "netflix", "microsoft", "apple", "google", "uber", "goldman", "adobe"])
+        
+        if is_faang:
+            skills = [
+                {"name": "Algorithms & Advanced DS", "level": 95},
+                {"name": "System Design", "level": 85},
+                {"name": "Coding (C++/Java/Go/Python)", "level": 90},
+                {"name": "Logical Puzzles", "level": 80}
             ]
-        }
-        career_path = [
-            {"level": "Level 1", "role": "Software Engineer Associate", "duration": "1 Year", "salary": "3.5 - 4.5 LPA"},
-            {"level": "Level 2", "role": "Software Engineer", "duration": "1-2 Years", "salary": "4.5 - 6.0 LPA"},
-            {"level": "Level 3", "role": "Senior Software Engineer", "duration": "2 Years", "salary": "6.5 - 9.0 LPA"},
-            {"level": "Level 4", "role": "Team Lead / Consultant", "duration": "3 Years", "salary": "10 - 15 LPA"},
-            {"level": "Level 5", "role": "Manager / Architect", "duration": "4+ Years", "salary": "16 - 25 LPA"},
-            {"level": "Level 6", "role": "Senior Manager / VP", "duration": "To the top!", "salary": "30.0+ LPA"}
-        ]
-        tips = {
-            "technical": f"Focus on logical reasoning and pseudo-code outputs. TCS/Accenture NQT style questions dominate the test pattern.",
-            "hr": f"Express enthusiasm to learn multiple domain technologies. Highlight collaborative skills and readiness for rotational shifts.",
-            "assessment": "Practice MCQs on OS, DBMS, Networks, and clean code pseudo-code logic."
-        }
+            topics = [
+                {"name": "Data Structures & Algorithms (Trees, Graphs, DP)", "weight": 40},
+                {"name": "System Design (Scalability, Microservices)", "weight": 25},
+                {"name": "OOPS, Operating Systems & DBMS", "weight": 20},
+                {"name": "Behavioral & Leadership Scenario Qs", "weight": 15}
+            ]
+            salary = {
+                "tiers": [
+                    {"name": "SDE 1 (Entry)", "package": "20 - 35 LPA", "inhand": "₹1,40,000 - ₹1,80,000 / month", "details": "Base Salary: ₹15-20L, Stocks: ₹8-12L/yr, Variable Bonus: 10%"},
+                    {"name": "SDE 2 (Mid)", "package": "40 - 65 LPA", "inhand": "₹2,50,000 - ₹3,20,000 / month", "details": "Base: ₹28-36L, Stocks: ₹15-25L/yr, Allowances & Bonus."},
+                    {"name": "SDE 3 (Senior)", "package": "75 - 110+ LPA", "inhand": "₹4,00,000 - ₹5,00,000 / month", "details": "Base: ₹45-55L, Stocks: ₹30-45L/yr, Performance Bonus."}
+                ]
+            }
+            career_path = [
+                {"level": "Level 1", "role": "Software Engineer I", "duration": "1-2 Years", "salary": "20 - 35 LPA"},
+                {"level": "Level 2", "role": "Software Engineer II", "duration": "2-3 Years", "salary": "40 - 65 LPA"},
+                {"level": "Level 3", "role": "Senior Software Engineer", "duration": "3-5 Years", "salary": "75 - 110 LPA"},
+                {"level": "Level 4", "role": "Principal / Staff Architect", "duration": "4+ Years", "salary": "1.5 - 2.5 Cr"},
+                {"level": "Level 5", "role": "Engineering Manager / Director", "duration": "To the top!", "salary": "3.0+ Cr"}
+            ]
+            tips = {
+                "technical": f"Focus on high-level coding challenges (LeetCode Medium/Hard). Speak out loud during solution explanation.",
+                "hr": f"Understand the Leadership Principles or Core Values of {company_name}. Use STAR method.",
+                "assessment": "Expect hard coding assessments and structural engineering questions."
+            }
+        else:
+            # Standard Service/Product MNC (Accenture, Cognizant, Wipro, Capgemini)
+            skills = [
+                {"name": "Core Language (Java/C++/Python/JS)", "level": 75},
+                {"name": "Quantitative Aptitude", "level": 85},
+                {"name": "Logical Reasoning", "level": 80},
+                {"name": "Verbal Ability", "level": 75},
+                {"name": "RDBMS & SQL", "level": 70}
+            ]
+            topics = [
+                {"name": "Aptitude & Verbal Ability", "weight": 35},
+                {"name": "Logical & Visual Reasoning", "weight": 25},
+                {"name": "Pseudocode, Debugging & Output Tracing", "weight": 20},
+                {"name": "Coding (Basic Data Structures, Strings, Arrays)", "weight": 20}
+            ]
+            salary = {
+                "tiers": [
+                    {"name": "Associate / Trainee", "package": "3.5 - 4.5 LPA", "inhand": "₹24,000 - ₹28,000 / month", "details": "Base Salary: ₹18K, HRA: ₹5K, Allowances: ₹3K. Deductions: PF (₹1.8K)"},
+                    {"name": "Senior Software Engineer", "package": "6.5 - 8.5 LPA", "inhand": "₹45,000 - ₹55,000 / month", "details": "Base Salary: ₹35K, HRA: ₹12K, Allowances: ₹5K. Deductions: PF (₹3.6K), Tax"},
+                    {"name": "Team Lead / Consultant", "package": "10 - 15 LPA", "inhand": "₹70,000 - ₹95,000 / month", "details": "Base: ₹65K, HRA: ₹25K, Variable: ₹10K. Deductions: PF (₹7.8K), Tax"}
+                ]
+            }
+            career_path = [
+                {"level": "Level 1", "role": "Software Engineer Associate", "duration": "1 Year", "salary": "3.5 - 4.5 LPA"},
+                {"level": "Level 2", "role": "Software Engineer", "duration": "1-2 Years", "salary": "4.5 - 6.0 LPA"},
+                {"level": "Level 3", "role": "Senior Software Engineer", "duration": "2 Years", "salary": "6.5 - 9.0 LPA"},
+                {"level": "Level 4", "role": "Team Lead / Consultant", "duration": "3 Years", "salary": "10 - 15 LPA"},
+                {"level": "Level 5", "role": "Manager / Architect", "duration": "4+ Years", "salary": "16 - 25 LPA"},
+                {"level": "Level 6", "role": "Senior Manager / VP", "duration": "To the top!", "salary": "30.0+ LPA"}
+            ]
+            tips = {
+                "technical": f"Focus on logical reasoning and pseudo-code outputs. TCS/Accenture NQT style questions dominate the test pattern.",
+                "hr": f"Express enthusiasm to learn multiple domain technologies. Highlight collaborative skills and readiness for rotational shifts.",
+                "assessment": "Practice MCQs on OS, DBMS, Networks, and clean code pseudo-code logic."
+            }
 
-    all_pyqs = (scraped_questions or []) + generate_55_pyqs(company_name)
+    all_pyqs = (scraped_questions or []) + generate_55_pyqs(company_name, domain)
     return {
         "name": company_name.title(),
         "skills": skills,
