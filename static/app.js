@@ -274,13 +274,31 @@ document.addEventListener("DOMContentLoaded", () => {
             interviewQuestions = [
                 `Welcome. Let's start the mechanical round. Can you explain the difference between stress and strain?`,
                 `Explain the working principle of a four-stroke internal combustion engine.`,
-                `How do you determine the critical speed of a shaft?`
+                `How do you determine the critical speed of a rotating shaft?`
+            ];
+        } else if (role.includes("Electrical")) {
+            interviewQuestions = [
+                `Welcome. Let's start the electrical round. Can you explain Kirchhoff's Current and Voltage laws?`,
+                `What is the difference between a synchronous motor and an induction motor?`,
+                `How does a transformer step up or step down AC voltage?`
+            ];
+        } else if (role.includes("Civil")) {
+            interviewQuestions = [
+                `Welcome. Let's start the civil round. Can you explain the concept of workability in fresh concrete?`,
+                `What is the difference between one-way and two-way slabs?`,
+                `Explain the purpose of providing reinforcement bars in concrete structures.`
+            ];
+        } else if (role.includes("Data Analyst")) {
+            interviewQuestions = [
+                `Welcome. Let's start the data analysis round. Can you explain the difference between inner join and outer join in SQL?`,
+                `What is the difference between supervised and unsupervised machine learning?`,
+                `How do you handle missing or duplicate values in a large dataset?`
             ];
         } else {
             interviewQuestions = [
-                `Welcome. Let's start the electronics round. Can you explain the working of a PN junction diode?`,
-                `What is the difference between a microprocessor and a microcontroller?`,
-                `Explain Shannon's sampling theorem and its significance.`
+                `Welcome. Let's start the general round. Can you explain the concept of conservation of energy?`,
+                `What is Bernoulli's principle and where is it applied?`,
+                `Explain step-by-step how you would approach a complex problem in your domain.`
             ];
         }
 
