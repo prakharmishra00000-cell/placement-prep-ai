@@ -530,7 +530,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(res => res.json())
         .then(data => {
-            appendCopilotMsg("system", data.answer);
+            appendCopilotMsg("system", data.answer || data.error || "Error processing request.");
         })
         .catch(err => {
             console.error(err);
