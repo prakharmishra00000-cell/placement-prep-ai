@@ -434,16 +434,23 @@ def query_gemini_chat(prompt, company, category, api_key):
         print("Gemini Chat integration error:", e)
         return None
 
+def is_valid_key(k):
+    if not k:
+        return False
+    if any(p in k for p in ["YOUR_KEY", "PASTE_YOUR", "PLACEHOLDER", "YOUR_GEMINI"]):
+        return False
+    return True
+
 def get_backend_gemini_key():
     key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if key:
+    if is_valid_key(key):
         return key
     if os.path.exists("config.json"):
         try:
             with open("config.json", "r") as f:
                 cfg = json.load(f)
                 val = cfg.get("GEMINI_API_KEY", "").strip()
-                if val:
+                if is_valid_key(val):
                     return val
         except:
             pass
@@ -452,7 +459,9 @@ def get_backend_gemini_key():
             with open(".env", "r") as f:
                 for line in f:
                     if line.strip().startswith("GEMINI_API_KEY="):
-                        return line.split("GEMINI_API_KEY=")[1].strip()
+                        val = line.split("GEMINI_API_KEY=")[1].strip()
+                        if is_valid_key(val):
+                            return val
         except:
             pass
     return ""
