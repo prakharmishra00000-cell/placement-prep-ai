@@ -236,6 +236,22 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Explanation Box inside Digital Twin Tab -->
+                <div class="glass-card panel-card mt-1-5">
+                    <h4 class="panel-title"><i class="fa-solid fa-graduation-cap text-neon-cyan"></i> Guide: What is the AI Digital Twin & Agent and How to Use It?</h4>
+                    <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);">
+                        <p><strong>What is the AI Digital Twin?</strong> The digital twin is a real-time behavioral representation of your placement readiness. It models five distinct core vectors: DSA Skill Level, Aptitude Speed, HR Confidence, Communication Ability, and Resume Quality. The values automatically update after your interactions with other tabs on the dashboard.</p>
+                        <p style="margin-top: 0.5rem;"><strong>What is the Autonomous Agent?</strong> The agent scans hiring boards and analyzes interview data. It uses the digital twin profile to calculate your matching probabilities against different pipeline steps (e.g. Resume screen, online tests, and managerial rounds) for target companies.</p>
+                        <p style="margin-top: 0.5rem;"><strong>How to Use it:</strong>
+                            <ul style="margin-left: 1.25rem; margin-top: 0.25rem;">
+                                <li>Attempt simulated questions in the <strong>AI Coding IDE</strong> or practice responses in the <strong>AI Interview Simulator</strong> to improve your twin's scores.</li>
+                                <li>Directly browse and upload your resume in the <strong>Resume & JD Analyzer</strong> to calculate matching and ATS scores.</li>
+                                <li>The probabilities updates instantly as the agent compiles new data.</li>
+                            </ul>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab Content: AI Interview Simulator -->
@@ -339,6 +355,20 @@
                             <span class="selection-rate-tag">Selection Rate: <strong id="hiring-selection-rate">18%</strong></span>
                         </div>
 
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label for="hiring-branch-select"><i class="fa-solid fa-code-branch"></i> Select Target Branch</label>
+                            <select id="hiring-branch-select">
+                                <option value="cse" selected>Computer Science Engineering (CSE)</option>
+                                <option value="it">Information Technology (IT)</option>
+                                <option value="ece">Electronics & Communication (ECE)</option>
+                                <option value="mechanical">Mechanical Engineering (Mechanical)</option>
+                                <option value="electrical">Electrical Engineering (Electrical)</option>
+                                <option value="civil">Civil Engineering (Civil)</option>
+                                <option value="chemical">Chemical Engineering (Chemical)</option>
+                                <option value="ece_iot">ECE IoT (Internet of Things)</option>
+                            </select>
+                        </div>
+
                         <div class="hiring-flow">
                             <div class="flow-step">
                                 <div class="step-num">1</div>
@@ -408,6 +438,11 @@
                         <div class="input-group">
                             <label for="resume-text">Paste Resume Text</label>
                             <textarea id="resume-text" rows="8" placeholder="Paste all textual content of your resume here..."></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="resume-file"><i class="fa-solid fa-file-pdf"></i> Or Browse & Upload Resume (PDF / DOCX / TXT)</label>
+                            <input type="file" id="resume-file" accept=".txt,.pdf,.docx">
                         </div>
 
                         <div class="input-group">

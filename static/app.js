@@ -386,15 +386,160 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----------------------------------------------------
     // Tab 3: Hiring Pattern Analyzer
     // ----------------------------------------------------
+    const hiringBranchSelect = document.getElementById("hiring-branch-select");
+
+    if (hiringBranchSelect) {
+        hiringBranchSelect.addEventListener("change", () => {
+            const currentCompanyName = document.getElementById("hiring-company-name").textContent || "TCS";
+            updateHiringAnalyzer({ name: currentCompanyName });
+        });
+    }
+
     function updateHiringAnalyzer(data) {
         document.getElementById("hiring-company-name").textContent = data.name;
         
-        // Randomise some hiring data for dynamic outputs
         const rate = Math.floor(Math.random() * 15) + 8; // 8% - 23%
         document.getElementById("hiring-selection-rate").textContent = `${rate}%`;
         
         const diffStars = ["★★☆☆☆ (Easy)", "★★★☆☆ (Medium)", "★★★★☆ (Hard)"];
         document.getElementById("hiring-difficulty").textContent = diffStars[rate % 3];
+
+        const branchVal = hiringBranchSelect ? hiringBranchSelect.value : "cse";
+
+        // Dynamic hiring step data by branch
+        const flowSteps = document.querySelectorAll("#tab-hiring .flow-step");
+        const distContainer = document.querySelector("#tab-hiring .hiring-distribution");
+        
+        const branchFlows = {
+            cse: {
+                steps: [
+                    "Aptitude (30%), DSA (40%), Core CS Concepts (30%)",
+                    "Dynamic Programming, System Design, Live coding IDE check",
+                    "Teamwork, behavioral metrics, SDE career objectives"
+                ],
+                topics: [
+                    { name: "Problem Solving / Algorithms", weight: "40%", bg: "var(--neon-pink)" },
+                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-blue)" },
+                    { name: "DBMS & SQL", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "OS & Computer Networks", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            },
+            it: {
+                steps: [
+                    "Aptitude (30%), Basic Coding (35%), OOPs (35%)",
+                    "Web Technologies, Databases, System Debugging",
+                    "Customer interaction, agile processes, tech stack growth"
+                ],
+                topics: [
+                    { name: "Coding / Scripting", weight: "35%", bg: "var(--neon-pink)" },
+                    { name: "Aptitude & Reasoning", weight: "25%", bg: "var(--neon-blue)" },
+                    { name: "Database Design", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "OS & Cloud Concepts", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            },
+            ece: {
+                steps: [
+                    "Digital Circuits (35%), Analog VLSI (35%), Quant Aptitude (30%)",
+                    "Hardware description languages (Verilog), circuit layout debugging",
+                    "Interfacing team collaboration, micro-architecture projects"
+                ],
+                topics: [
+                    { name: "Digital Circuits & VLSI", weight: "35%", bg: "var(--neon-pink)" },
+                    { name: "Quantitative Aptitude", weight: "25%", bg: "var(--neon-blue)" },
+                    { name: "Signal Processing & Comm", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "Microcontrollers", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            },
+            mechanical: {
+                steps: [
+                    "Thermodynamics (30%), Fluids (30%), Materials (20%), Aptitude (20%)",
+                    "Engine components, CAD layout designs, manufacturing cycles",
+                    "Rotational shifts, industrial workplace safety standards"
+                ],
+                topics: [
+                    { name: "Thermal & Fluids Engineering", weight: "35%", bg: "var(--neon-pink)" },
+                    { name: "CAD / CAM & Design", weight: "25%", bg: "var(--neon-blue)" },
+                    { name: "Industrial & Production", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            },
+            electrical: {
+                steps: [
+                    "Power Systems (30%), AC/DC Machines (30%), Networks (20%), Aptitude (20%)",
+                    "Grid calculations, transformer configurations, electronics interfacing",
+                    "Substation safety, multi-disciplinary engineering projects"
+                ],
+                topics: [
+                    { name: "Electrical Machines & Grid", weight: "35%", bg: "var(--neon-pink)" },
+                    { name: "Analog Electronics", weight: "25%", bg: "var(--neon-blue)" },
+                    { name: "Control Systems", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            },
+            civil: {
+                steps: [
+                    "Structural Mechanics (30%), Concrete Design (30%), Surveying (20%), Aptitude (20%)",
+                    "AutoCAD blueprinting, RCC material parameters, soil testing analysis",
+                    "Site supervision, vendor communication, environmental compliance"
+                ],
+                topics: [
+                    { name: "Structural Analysis & RCC", weight: "35%", bg: "var(--neon-pink)" },
+                    { name: "Concrete & Surveying", weight: "25%", bg: "var(--neon-blue)" },
+                    { name: "Soil Mechanics", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            },
+            chemical: {
+                steps: [
+                    "Mass & Heat Transfer (35%), Reaction kinetics (35%), Aptitude (30%)",
+                    "Distillation design, reactor temperature controllers, safety valves",
+                    "Refinery operations, plant environmental standards"
+                ],
+                topics: [
+                    { name: "Reaction Kinetics & Thermo", weight: "35%", bg: "var(--neon-pink)" },
+                    { name: "Transport Phenomena", weight: "25%", bg: "var(--neon-blue)" },
+                    { name: "Process Calculations", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            },
+            ece_iot: {
+                steps: [
+                    "Sensors & Actuators (30%), Embedded C (30%), Network protocols (20%), Aptitude (20%)",
+                    "ESP32/Arduino microcontroller configurations, MQTT client setup",
+                    "Hardware debugging, smart city application architectures"
+                ],
+                topics: [
+                    { name: "IoT Protocols & Systems", weight: "35%", bg: "var(--neon-pink)" },
+                    { name: "Embedded C & RTOS", weight: "25%", bg: "var(--neon-blue)" },
+                    { name: "Microcontrollers", weight: "20%", bg: "var(--neon-cyan)" },
+                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                ]
+            }
+        };
+
+        const flow = branchFlows[branchVal] || branchFlows.cse;
+
+        // Populate steps description
+        if (flowSteps.length >= 3) {
+            flowSteps[0].querySelector(".step-details").textContent = flow.steps[0];
+            flowSteps[1].querySelector(".step-details").textContent = flow.steps[1];
+            flowSteps[2].querySelector(".step-details").textContent = flow.steps[2];
+        }
+
+        // Populate weightages charts
+        if (distContainer) {
+            distContainer.innerHTML = "";
+            flow.topics.forEach(t => {
+                const item = document.createElement("div");
+                item.className = "distribution-item";
+                item.innerHTML = `
+                    <span>${t.name}</span>
+                    <div class="distribution-bar"><span style="width: ${t.weight}; background: ${t.bg}"></span></div>
+                    <span>${t.weight}</span>
+                `;
+                distContainer.appendChild(item);
+            });
+        }
     }
 
     // ----------------------------------------------------
@@ -406,36 +551,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
     analyzeResumeBtn.addEventListener("click", () => {
         const resumeText = document.getElementById("resume-text").value.trim();
-        if (!resumeText) {
-            alert("Please paste your resume content.");
+        const jdText = document.getElementById("jd-text").value.trim();
+        const fileInput = document.getElementById("resume-file");
+
+        if (!resumeText && (!fileInput || !fileInput.files.length)) {
+            alert("Please paste your resume content or upload a resume file.");
             return;
         }
 
         resumeLoader.classList.remove("hide");
         resumeResultPanel.classList.add("hide");
 
-        setTimeout(() => {
+        const formData = new FormData();
+        formData.append("jd_text", jdText);
+        if (resumeText) formData.append("resume_text", resumeText);
+        if (fileInput && fileInput.files.length) {
+            formData.append("file", fileInput.files[0]);
+        }
+
+        fetch("/api/analyze-resume", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Resume analysis failed.");
+            return res.json();
+        })
+        .then(data => {
             resumeLoader.classList.add("hide");
             resumeResultPanel.classList.remove("hide");
 
-            const generatedScore = Math.floor(Math.random() * 20) + 70; // 70-90
-            document.getElementById("ats-score-num").textContent = generatedScore;
+            const score = data.score || 75;
+            document.getElementById("ats-score-num").textContent = score;
 
-            document.getElementById("match-google").textContent = `${generatedScore - 5}%`;
-            document.getElementById("match-microsoft").textContent = `${generatedScore + 8}%`;
-            document.getElementById("match-amazon").textContent = `${generatedScore - 2}%`;
+            document.getElementById("match-google").textContent = `${Math.max(50, score - 5)}%`;
+            document.getElementById("match-microsoft").textContent = `${Math.min(99, score + 4)}%`;
+            document.getElementById("match-amazon").textContent = `${Math.max(50, score - 2)}%`;
 
             // Keywords suggestions
-            document.getElementById("ats-missing-keywords").innerHTML = `
-                <li>System Design Metrics</li>
-                <li>Docker / Containerization</li>
-                <li>Quantitative Analysis</li>
-            `;
-            document.getElementById("ats-suggestions").innerHTML = `
-                <li>Re-write your projects using the STAR method action verbs (e.g. 'Optimized', 'Engineered').</li>
-                <li>Add a dedicated Skills matrix block.</li>
-            `;
-        }, 1500);
+            const missingContainer = document.getElementById("ats-missing-keywords");
+            missingContainer.innerHTML = "";
+            if (data.missing_keywords && data.missing_keywords.length > 0) {
+                data.missing_keywords.forEach(kw => {
+                    const li = document.createElement("li");
+                    li.textContent = kw;
+                    missingContainer.appendChild(li);
+                });
+            } else {
+                missingContainer.innerHTML = "<li>No missing keywords found! Excellent job.</li>";
+            }
+
+            const suggestionsContainer = document.getElementById("ats-suggestions");
+            suggestionsContainer.innerHTML = "";
+            if (data.suggestions && data.suggestions.length > 0) {
+                data.suggestions.forEach(sug => {
+                    const li = document.createElement("li");
+                    li.textContent = sug;
+                    suggestionsContainer.appendChild(li);
+                });
+            } else {
+                suggestionsContainer.innerHTML = "<li>Formatting looks great. Ready to apply!</li>";
+            }
+
+            // Sync with Digital Twin Profile
+            const twinSkills = document.querySelectorAll(".twin-skill");
+            twinSkills.forEach(skill => {
+                if (skill.textContent.includes("Resume Quality")) {
+                    const meter = skill.querySelector(".skill-meter span");
+                    const val = skill.querySelector(".val");
+                    if (meter) meter.style.width = `${score}%`;
+                    if (val) val.textContent = `${score}%`;
+                }
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error running resume ATS analysis.");
+            resumeLoader.classList.add("hide");
+        });
     });
 
     // ----------------------------------------------------
