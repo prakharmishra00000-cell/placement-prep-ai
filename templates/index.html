@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlacementPrep AI - Ultimate PYQ & Interview Bot</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="glow-bg">
+        <div class="ball ball1"></div>
+        <div class="ball ball2"></div>
+        <div class="ball ball3"></div>
+    </div>
+
+    <div class="container animate-fade-in">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-brain-circuit neon-icon"></i>
+                <h1>PlacementPrep <span>AI</span></h1>
+            </div>
+            <div class="status-badge">
+                <span class="pulse-dot"></span> Search Engaged
+            </div>
+        </header>
+
+        <!-- Main Search Section -->
+        <section class="search-section glass-card">
+            <div class="search-inputs">
+                <div class="input-group">
+                    <label for="company-name"><i class="fa-solid fa-building"></i> Target Company Name</label>
+                    <input type="text" id="company-name" placeholder="Enter company name (e.g., Google, TCS, Infosys...)" value="TCS">
+                </div>
+                
+                <div class="category-selector">
+                    <label><i class="fa-solid fa-sliders"></i> Select Interview Category</label>
+                    <div class="radio-cards">
+                        <label class="radio-card active">
+                            <input type="radio" name="category" value="technical" checked>
+                            <i class="fa-solid fa-laptop-code"></i>
+                            <span>Technical Round</span>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="category" value="assessment">
+                            <i class="fa-solid fa-file-invoice"></i>
+                            <span>Assessments / Aptitude</span>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="category" value="hr">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span>HR Interview</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="search-btn" class="glow-btn">
+                <i class="fa-solid fa-magnifying-glass"></i> Analyze & Retrieve PYQs
+            </button>
+        </section>
+
+        <!-- Results Grid Layout -->
+        <div id="results-container" class="dashboard-grid hide">
+            <!-- Left Panel: Job profile, Salary & Promotion Ladder -->
+            <div class="left-panel grid-column">
+                <!-- Salary Details -->
+                <div class="glass-card panel-card" id="salary-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-wallet text-neon-blue"></i> Salary & In-Hand Breakdown</h3>
+                    <div id="salary-info-container"></div>
+                </div>
+
+                <!-- Career Path Ladder -->
+                <div class="glass-card panel-card" id="career-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-stairs text-neon-purple"></i> Career Progression & Levels</h3>
+                    <p class="timeline-subtitle">Typical promotion path & min. time to reach top positions</p>
+                    <div class="timeline" id="career-timeline"></div>
+                </div>
+            </div>
+
+            <!-- Middle Panel: Placement Topics, Required Skills, and Tips -->
+            <div class="middle-panel grid-column">
+                <!-- Required Skills -->
+                <div class="glass-card panel-card" id="skills-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-wand-magic-sparkles text-neon-green"></i> Required Skills</h3>
+                    <div class="skills-list" id="skills-progress-list"></div>
+                </div>
+
+                <!-- Weightage Topics -->
+                <div class="glass-card panel-card" id="topics-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-chart-pie text-neon-yellow"></i> Topics & Test Weightage</h3>
+                    <div class="topics-list" id="topics-weight-list"></div>
+                </div>
+
+                <!-- Category Tips -->
+                <div class="glass-card panel-card" id="tips-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-lightbulb text-neon-cyan"></i> Critical Prep Tips</h3>
+                    <div class="tips-box" id="category-tips-box"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Scraped PYQs Feed -->
+            <div class="right-panel grid-column">
+                <div class="glass-card panel-card" id="pyq-card">
+                    <div class="pyq-header">
+                        <h3 class="panel-title"><i class="fa-solid fa-book-open-reader text-neon-pink"></i> Real Previous Year Questions (PYQs)</h3>
+                        <span class="source-tag">Live Scraped</span>
+                    </div>
+                    <div class="pyq-list" id="pyqs-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Query Console -->
+        <section class="chat-section glass-card">
+            <h3 class="panel-title"><i class="fa-solid fa-comments"></i> PlacementPrep AI Agent Console</h3>
+            <div class="chat-display" id="chat-messages">
+                <div class="message system-msg">
+                    <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+                    <div class="msg-body">
+                        Hello! I am your real-time placement assistant. Ask me anything about any company's recruitment, selection rounds, puzzle patterns, or salary breakdown.
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-bar">
+                <input type="text" id="chat-input" placeholder="Ask a custom query (e.g., 'What is the difficulty of TCS Ninja coding round?')">
+                <button id="send-chat-btn" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </section>
+
+        <!-- Sources Footer -->
+        <footer class="app-footer">
+            <p>Engaging search spiders on: 
+                <a href="https://m4maths.com/placement-puzzles.php" target="_blank">M4Maths</a> | 
+                <a href="https://placement.freshersworld.com/" target="_blank">Freshersworld</a> | 
+                <a href="https://www.prep.youth4work.com/placement-papers?amp=true" target="_blank">Youth4Work</a> | 
+                <a href="https://www.freshersnow.com/placement-papers-download/" target="_blank">FreshersNow</a> | 
+                IndiaBIX
+            </p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
