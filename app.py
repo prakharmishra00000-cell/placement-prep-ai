@@ -672,7 +672,48 @@ def custom_query():
 def generate_smart_answer(prompt, company, category):
     p_lower = prompt.lower()
     comp_title = company.title() if company else "the company"
+    domain = classify_company_domain(company)
     
+    if domain == "mechanical":
+        if "salary" in p_lower or "lpa" in p_lower or "hand" in p_lower:
+            return f"For {comp_title} (Core Mechanical/Automotive), the salary packages are structured as:\n- **Graduate Engineer Trainee (GET)**: 4.5 - 6.5 LPA (In-hand: ~₹32,000 - ₹42,000 / month)\n- **Assistant Plant Manager**: 7.5 - 10.5 LPA (In-hand: ~₹55,000 - ₹72,000 / month)\n- **Senior Operations Manager / Lead**: 14 - 20 LPA (In-hand: ~₹95,000 - ₹1,30,000 / month).\nPromotions occur every 2 years based on plant production metrics and project milestones."
+        if "rounds" in p_lower or "interview" in p_lower or "selection" in p_lower:
+            return f"The recruitment process at {comp_title} for Core Mechanical profiles consists of:\n1. Online Assessment: Numerical Aptitude, Mechanical Reasoning, and Basic Engineering MCQs (Strength of Materials, Thermodynamics).\n2. Technical Interview: Discussion of final-year engineering projects, CAD modeling concepts, and physical machinery principles.\n3. Plant Operations/Managerial Round: Situation handling, manufacturing safety protocols, and plant layout coordination.\n4. HR Round: Relocation check, shift timings flexibility, and document checks."
+        if "topic" in p_lower or "prepare" in p_lower or "syllabus" in p_lower:
+            return f"To crack the mechanical interview at {comp_title}, focus on:\n- **Core Engineering**: Thermodynamic cycles (Carnot, Rankine, Otto), fluid dynamics, viscosity and Bernoulli applications, and Strength of Materials.\n- **CAD/CAM**: Projection views, tolerance calculations, and assembly basics.\n- **Aptitude**: Quantitative Reasoning and Spatial Visualization from IndiaBIX."
+        if "easy" in p_lower or "tough" in p_lower or "difficulty" in p_lower:
+            return f"The difficulty rating for {comp_title} mechanical profiles is moderate. Standard concepts from fluid mechanics and machine design are tested. Re-read standard textbooks on Thermodynamics and Strength of Materials."
+            
+    elif domain == "electrical":
+        if "salary" in p_lower or "lpa" in p_lower or "hand" in p_lower:
+            return f"For {comp_title} (Core Electrical/Electronics), the salary packages are structured as:\n- **GET (Hardware/Systems)**: 5.0 - 7.5 LPA (In-hand: ~₹38,000 - ₹52,000 / month)\n- **Design / Systems Engineer**: 8.5 - 12.5 LPA (In-hand: ~₹60,000 - ₹85,000 / month)\n- **Principal Systems Architect**: 16 - 24+ LPA (In-hand: ~₹1,10,000 - ₹1,65,000 / month)."
+        if "rounds" in p_lower or "interview" in p_lower or "selection" in p_lower:
+            return f"The recruitment process at {comp_title} for Core Electrical/Electronics profiles consists of:\n1. Written Test: Aptitude, Network Analysis, Signal Processing, and basic Digital Logic.\n2. Technical Interview: Drawing circuit schematics, explaining transformer working principles, and FPGA/VLSI design concepts.\n3. Managerial Round: Teamwork scenarios and hardware design cycles.\n4. HR Interview: Document check and culture fit."
+        if "topic" in p_lower or "prepare" in p_lower or "syllabus" in p_lower:
+            return f"To prepare for the electrical round at {comp_title}, concentrate on:\n- **Network Analysis**: Kirchhoff's current/voltage laws (KCL/KVL), mesh analysis.\n- **Electronics**: Analog & Digital circuits, PN junction diode working, and 3-phase delta-star connections.\n- **Signal Processing**: Sampling theorem and microcontrollers."
+        if "easy" in p_lower or "tough" in p_lower or "difficulty" in p_lower:
+            return f"The difficulty rating for {comp_title} electrical profiles is moderate-high. Design-based questions require deep network analysis and logical circuitry knowledge."
+            
+    elif domain == "civil":
+        if "salary" in p_lower or "lpa" in p_lower or "hand" in p_lower:
+            return f"For {comp_title} (Core Civil/Construction), the salary packages are structured as:\n- **Site Engineer Trainee**: 4.0 - 5.5 LPA (In-hand: ~₹28,000 - ₹38,000 / month)\n- **Project Engineer**: 7.0 - 10.0 LPA (In-hand: ~₹50,000 - ₹68,000 / month)\n- **Infrastructure Manager**: 13 - 18 LPA (In-hand: ~₹90,000 - ₹1,20,000 / month)."
+        if "rounds" in p_lower or "interview" in p_lower or "selection" in p_lower:
+            return f"The recruitment process at {comp_title} for Core Civil profiles consists of:\n1. Technical & General Written Test: Concrete technology, surveying parameters, and reasoning.\n2. Technical Interview: RCC design principles, concrete mix ratios, and soil mechanics.\n3. Site Managerial Round: Safety standards, material management, and project timeline estimation.\n4. HR Interview."
+        if "topic" in p_lower or "prepare" in p_lower or "syllabus" in p_lower:
+            return f"To prepare for the civil interview at {comp_title}, focus on:\n- **Concrete Technology**: Cement constituents, workability slump tests.\n- **Surveying**: Levelling, contouring, and traversing equations.\n- **Structural Engineering**: One-way vs two-way slab load distributions, concrete grade load values."
+        if "easy" in p_lower or "tough" in p_lower or "difficulty" in p_lower:
+            return f"The difficulty level at {comp_title} for civil roles is moderate. Solid basics in concrete mechanics and site management are highly valued."
+            
+    elif domain == "chemical":
+        if "salary" in p_lower or "lpa" in p_lower or "hand" in p_lower:
+            return f"For {comp_title} (Core Chemical/Process), the salary packages are structured as:\n- **Process SDE Trainee**: 4.5 - 6.8 LPA (In-hand: ~₹32,000 - ₹45,000 / month)\n- **Process Engineer**: 7.5 - 11.5 LPA (In-hand: ~₹55,000 - ₹78,000 / month)\n- **Senior Plant Superintendent**: 15 - 22 LPA (In-hand: ~₹1,05,000 - ₹1,45,000 / month)."
+        if "rounds" in p_lower or "interview" in p_lower or "selection" in p_lower:
+            return f"The recruitment process at {comp_title} for Chemical Engineering roles consists of:\n1. Online Test: Stoichiometry, Fluid Flow operations, Heat and Mass transfer.\n2. Technical Interview: Process design, distillation columns calculations, and reactor dynamics.\n3. Plant Managerial Round: Plant safety, hazard assessments (HAZOP), and output optimization.\n4. HR Interview."
+        if "topic" in p_lower or "prepare" in p_lower or "syllabus" in p_lower:
+            return f"To prepare for the chemical round at {comp_title}, focus on:\n- **Fluid Dynamics**: Bernoulli's conservation of energy equations, pipe friction.\n- **Heat & Mass Transfer**: Heat exchanger efficiency, distillation reflux ratios.\n- **Reaction Kinetics**: Reactor designs and process control parameters."
+        if "easy" in p_lower or "tough" in p_lower or "difficulty" in p_lower:
+            return f"The difficulty rating for {comp_title} chemical/process roles is moderate. Focus on reaction kinetics and fluid flows."
+            
     if "salary" in p_lower or "lpa" in p_lower or "hand" in p_lower:
         return f"For {comp_title}, the in-hand salary depends heavily on the role. Entry level (Ninja/Associate) offers around 3.5 - 4.5 LPA, translating to ~₹24,000 - ₹28,000 in hand per month. Mid-level roles (Digital/Specialist SDE) scale up to 7 - 9.5 LPA (in-hand ~₹50,000 - ₹64,000/month). Top tier developers (Prime/SDE-3) command over 12 - 25 LPA with monthly take-homes exceeding ₹85,000 to ₹1.8 Lakhs. Regular promotions happen every 1.5 to 2 years."
         
