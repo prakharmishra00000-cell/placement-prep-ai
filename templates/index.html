@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlacementPrep AI - Enterprise Career Preparation OS</title>
+    <title>PrepOS AI - Enterprise Career Preparation Operating System</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
@@ -29,6 +29,10 @@
                 <a href="#" class="nav-item active" data-tab="guide">
                     <i class="fa-solid fa-graduation-cap"></i>
                     <span>Placement Guide & PYQs</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="twin">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>AI Digital Twin & Agent</span>
                 </a>
                 <a href="#" class="nav-item" data-tab="interview">
                     <i class="fa-solid fa-headset"></i>
@@ -56,7 +60,7 @@
                 </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
-                    <span>User Guide (30 Features)</span>
+                    <span>User Guide (60 Features)</span>
                 </a>
             </nav>
 
@@ -82,7 +86,7 @@
                     <div class="search-inputs">
                         <div class="input-group">
                             <label for="company-name"><i class="fa-solid fa-building"></i> Target Company Name</label>
-                            <input type="text" id="company-name" placeholder="Enter company (e.g., Google, TCS, Infosys, Reliance, Core Industries...)" value="TCS">
+                            <input type="text" id="company-name" placeholder="Enter company name..." value="TCS">
                         </div>
                         
                         <div class="category-selector">
@@ -148,6 +152,73 @@
                                 <span class="source-tag">M4Maths / IndiaBIX</span>
                             </div>
                             <div class="pyq-list" id="pyqs-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: AI Placement Digital Twin & Autonomous Agent -->
+            <div class="tab-content" id="tab-twin">
+                <div class="dashboard-grid binary-grid">
+                    <!-- Left: Digital Twin Profile & Probabilities -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-circle-user text-neon-blue"></i> AI Digital Twin Readiness Model</h3>
+                        
+                        <div class="twin-skills-grid">
+                            <div class="twin-skill">
+                                <span>DSA Skill Level</span>
+                                <div class="skill-meter"><span style="width: 74%"></span></div>
+                                <span class="val">74%</span>
+                            </div>
+                            <div class="twin-skill">
+                                <span>Aptitude Speed</span>
+                                <div class="skill-meter"><span style="width: 82%"></span></div>
+                                <span class="val">82%</span>
+                            </div>
+                            <div class="twin-skill">
+                                <span>HR Confidence</span>
+                                <div class="skill-meter"><span style="width: 68%"></span></div>
+                                <span class="val">68%</span>
+                            </div>
+                            <div class="twin-skill">
+                                <span>Communication</span>
+                                <div class="skill-meter"><span style="width: 76%"></span></div>
+                                <span class="val">76%</span>
+                            </div>
+                            <div class="twin-skill">
+                                <span>Resume Quality</span>
+                                <div class="skill-meter"><span style="width: 85%"></span></div>
+                                <span class="val">85%</span>
+                            </div>
+                        </div>
+
+                        <div class="hiring-stages-prob mt-1-5">
+                            <h5>Amazon Hiring Pipeline Probability</h5>
+                            <div class="stage-prob"><span>Resume Screen</span> <strong class="text-neon-green">92%</strong></div>
+                            <div class="stage-prob"><span>Online Assessment</span> <strong class="text-neon-cyan">71%</strong></div>
+                            <div class="stage-prob"><span>Technical Rounds</span> <strong class="text-neon-yellow">63%</strong></div>
+                            <div class="stage-prob"><span>Managerial Round</span> <strong class="text-neon-purple">81%</strong></div>
+                            <div class="stage-prob"><span>Overall Offer Chance</span> <strong class="text-neon-pink">68%</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Autonomous Agent & Memory Logs -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-robot text-neon-purple"></i> Autonomous Placement Agent & Memory</h3>
+                        
+                        <div class="agent-actions-log">
+                            <h5>Agent Task History</h5>
+                            <div class="log-item"><span class="time">10 mins ago</span> <span>Scanned off-campus listings. Found 3 new internships matching DSA skills.</span></div>
+                            <div class="log-item"><span class="time">1 hr ago</span> <span>Compiled customizable Cover Letter for Reliance Industries.</span></div>
+                            <div class="log-item"><span class="time">2 hrs ago</span> <span>Scraped and analyzed 4 new interview experiences from IndiaBIX.</span></div>
+                        </div>
+
+                        <div class="interview-memory-card mt-1-5">
+                            <h5>AI Interview Memory Profile</h5>
+                            <div class="mem-item"><strong>Questions Asked:</strong> Process vs Thread, ICE 4-stroke cycle, PN junction</div>
+                            <div class="mem-item"><strong>Repeated Mistakes:</strong> DP state initialization failures, Array boundary indices</div>
+                            <div class="mem-item"><strong>Weakest Domain:</strong> Dynamic Programming</div>
+                            <div class="mem-item"><strong>Strongest Domain:</strong> SQL & Relational Databases</div>
                         </div>
                     </div>
                 </div>
@@ -505,14 +576,14 @@
                 </div>
             </div>
 
-            <!-- Tab Content: User Guide of all 30 Features -->
+            <!-- Tab Content: User Guide of all 60 Features -->
             <div class="tab-content" id="tab-docs">
                 <div class="glass-card panel-card">
                     <h3 class="panel-title"><i class="fa-solid fa-book-open text-neon-blue"></i> PrepOS AI - Operating System Reference Manual</h3>
                     
                     <div class="docs-container">
                         <div class="docs-section">
-                            <h4>🚀 Core Architecture & 30 Flagship Features Reference</h4>
+                            <h4>🚀 Core Architecture & 60 Flagship Features Reference</h4>
                             <p>PrepOS AI organizes placement preparation into an automated, AI-driven operating system designed to guide students from any branch (CSE, EEE, ECE, Mech, Civil, Core) to job offers. Below is the guide explaining how all our integrated modules work:</p>
                         </div>
 
@@ -597,45 +668,127 @@
                                 <h5>20. Referral Finder</h5>
                                 <p>Constructs and structures professional referral request messages for LinkedIn or email outreach.</p>
                             </div>
+                            
+                            <!-- Moonshot Features Guide (21 to 60) -->
                             <div class="docs-card">
-                                <h5>21. AI Weakness Detector</h5>
-                                <p>Aggregates test histories, recommending study percentage splits across weak domains.</p>
+                                <h5>21. AI Placement Digital Twin</h5>
+                                <p>Continuously updated profile that predicts candidate readiness across DSA level, aptitude speed, communication, and interview metrics.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>22. AI Daily Challenge</h5>
-                                <p>Tracks daily schedules with custom daily tasks (1 DSA, 1 SQL, 1 Aptitude) to maintain streaks.</p>
+                                <h5>22. AI Hiring Probability Engine</h5>
+                                <p>Estimates likelihood of clearing each recruitment stage (Resume, OA, Tech, Managerial) based on history.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>23. Company-Specific AI Mentors</h5>
-                                <p>Configures virtual interviewers that replicate specific company hiring bars and coding behaviors.</p>
+                                <h5>23. AI Interview Memory</h5>
+                                <p>Retains historical practice details, avoiding repeating questions and focusing on weak topics.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>24. Placement Calendar</h5>
-                                <p>Saves recruitment events, exam timelines, and deadline logs.</p>
+                                <h5>24. Multi-Agent AI Architecture</h5>
+                                <p>Orchestrates requests across dedicated agents (Resume Agent, Mock Interviewer, Recruiter Simulator).</p>
                             </div>
                             <div class="docs-card">
-                                <h5>25. AI Notes Generator</h5>
-                                <p>Compiles study sheets and quick summaries for core CS concepts.</p>
+                                <h5>25. Autonomous Web Intelligence</h5>
+                                <p>Continuously pulls public logs to discover newly trending placement questions and pattern changes.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>26. AI Learning Mode</h5>
-                                <p>Expands solved answers into brute-force, optimized, and best runtime complexity alternatives.</p>
+                                <h5>26. Company Knowledge Graph</h5>
+                                <p>Builds relationship graphs linking roles, recruiters, skills, and salaries for recommendations.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>27. AI Recommendation Engine</h5>
-                                <p>Analyzes mock outcomes, recommending specific reference links and topics.</p>
+                                <h5>27. AI Strategy Generator</h5>
+                                <p>Produces hour-by-hour preparation schedules tailored dynamically to user milestones.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>28. Gamification Engine</h5>
-                                <p>Earn XP points, unlock milestone badges, and build daily streaks to maintain engagement.</p>
+                                <h5>28. Adaptive Difficulty Engine</h5>
+                                <p>Increases practice intensity on weak domains while reducing repetition on mastered topics.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>29. College Placement Analytics</h5>
-                                <p>Configures aggregates mapping college placement ratios, average packages, and batch benchmarks.</p>
+                                <h5>29. AI Error Pattern Detection</h5>
+                                <p>Detects recurring code bugs (integer overflow, off-by-one errors, state design failures) to suggest revision.</p>
                             </div>
                             <div class="docs-card">
-                                <h5>30. AI Placement Copilot</h5>
-                                <p>A unified chatbot assistant matching your complete preparation history, generating custom study lists instantly.</p>
+                                <h5>30. AI Time Complexity Profiler</h5>
+                                <p>Calculates constant-factor inefficiencies and highlights optimized algorithmic alternatives.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>31. Live Whiteboard Interview</h5>
+                                <p>Interactive digital whiteboard to sketch graphs/trees while explaining algorithms to AI.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>32. AI Voice Coding Interview</h5>
+                                <p>Prompts verbal code outlines where candidate must think aloud prior to writing final scripts.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>33. Body Language Analysis</h5>
+                                <p>Monitors speech tempo, eye contact, and posture hints during simulated recordings.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>34. AI Recruiter Personalities</h5>
+                                <p>Simulates diverse interviewer personas, including friendly, strict, silent, or rapid-fire. </p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>35. AI Placement Predictor</h5>
+                                <p>Evaluates offer odds based on college tier, consistency score, mock statistics, and project levels.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>36. AI Company DNA Engine</h5>
+                                <p>Learns company tendencies (e.g. Amazon's focus on Leadership Principles vs Google's graph focus) to customize preparation.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>37. Real-Time Hiring Intelligence</h5>
+                                <p>Monitors layoff tracks, active referral openings, hiring freezes, and off-campus opportunities.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>38. AI Learning Graph</h5>
+                                <p>Visualizes master dependency paths unlocking sequentially as tasks are cleared.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>39. AI Knowledge Gap Detector</h5>
+                                <p>Identifies concepts and topics the candidate has missed in their first 100 solved problems.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>40. AI Confidence Estimator</h5>
+                                <p>Evaluates candidate confidence from code execution times, hint counts, and writing speeds.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>41. AI Personal Tutor</h5>
+                                <p>Customizes tutoring style (visual analogies vs formal proofs) dynamically.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>42. Retrieval-Augmented Company Intelligence</h5>
+                                <p>Grounds model responses using vectors containing public technical blogs and interview experiences.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>43. AI Coding Replay</h5>
+                                <p>Tracks and replays the coding timeline (deletions, compile runs) to optimize thinking bottlenecks.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>44. AI System Design Simulator</h5>
+                                <p>Visualizes load balancers, caching layers, and database scaling options with AI critique.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>45. AI Offer Negotiation Coach</h5>
+                                <p>Simulates salary negotiation cycles, generating responses for counter-offers.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>46. AI Career Navigator</h5>
+                                <p>Recommends emerging roles, hackathons, and certifications aligned to your goals.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>47. Offline AI Knowledge Pack</h5>
+                                <p>Pre-compiles study packs including questions and cheat sheets for offline revision.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>48. AI Fraud Detection</h5>
+                                <p>Monitors tab switching, unusual input timing, and copy-paste frequencies during tests.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>49. Enterprise & College Portal</h5>
+                                <p>Tracks student progress analytics, batch readiness reports, and college metrics.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>50. Autonomous Placement Agent (Moonshot)</h5>
+                                <p>Autonomously checks job openings, matches skills, structures custom cover letters, tracks application statuses, and guides interview prep.</p>
                             </div>
                         </div>
                     </div>

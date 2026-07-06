@@ -9,13 +9,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tabMeta = {
         "guide": { title: "Placement Guide & PYQ Hub", sub: "Retrieve previous year questions, salaries, and scope for any target company" },
+        "twin": { title: "AI Digital Twin & Autonomous Agent", sub: "Analyze candidate readiness, estimated offer probabilities, and run autonomous tasks" },
         "interview": { title: "AI Interview Simulator", sub: "Realistic interactive voice & technical interview simulation with scorecard feedback" },
         "hiring": { title: "Hiring Pattern Analyzer", sub: "Detailed hiring structures, selection rates, and test weightages" },
         "resume": { title: "ATS Resume & JD Matcher", sub: "Check your resume score and match percentage against target job descriptions" },
         "roadmap": { title: "Personalized Roadmap Generator", sub: "Generate customized study schedules, weekly goals, and calendars" },
         "coding": { title: "AI Coding IDE & Debugger", sub: "Write, trace, and debug programming solutions against hidden test cases" },
         "copilot": { title: "AI Doubt Solver & Copilot", sub: "Ask doubt queries, generate flashcards, and revise CS concepts" },
-        "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 30 flagship features work" }
+        "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 60 flagship features work" }
     };
 
     navItems.forEach(item => {
