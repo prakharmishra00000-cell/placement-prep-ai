@@ -110,98 +110,119 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderDashboard(data) {
+        if (!data) return;
+
         // 1. Salary Tiers
         salaryContainer.innerHTML = "";
-        data.salary.tiers.forEach(tier => {
-            const div = document.createElement("div");
-            div.className = "salary-tier";
-            div.innerHTML = `
-                <div class="tier-name">${tier.name}</div>
-                <div class="tier-package">${tier.package}</div>
-                <div class="tier-inhand">${tier.inhand}</div>
-                <div class="tier-details">${tier.details}</div>
-            `;
-            salaryContainer.appendChild(div);
-        });
+        if (data.salary && data.salary.tiers && Array.isArray(data.salary.tiers)) {
+            data.salary.tiers.forEach(tier => {
+                const div = document.createElement("div");
+                div.className = "salary-tier";
+                div.innerHTML = `
+                    <div class="tier-name">${tier.name || "Default Role"}</div>
+                    <div class="tier-package">${tier.package || "N/A"}</div>
+                    <div class="tier-inhand">${tier.inhand || "N/A"}</div>
+                    <div class="tier-details">${tier.details || "N/A"}</div>
+                `;
+                salaryContainer.appendChild(div);
+            });
+        } else {
+            salaryContainer.innerHTML = '<p class="text-muted">Salary information unavailable.</p>';
+        }
 
         // 2. Career Path Timeline
         careerTimeline.innerHTML = "";
-        data.career_path.forEach(level => {
-            const item = document.createElement("div");
-            item.className = "timeline-item";
-            item.innerHTML = `
-                <div class="timeline-marker"></div>
-                <div class="timeline-content">
-                    <div class="timeline-role">${level.role} (${level.level})</div>
-                    <div class="timeline-meta">
-                        <span>Avg. Package: ${level.salary}</span>
-                        <span class="time">${level.duration}</span>
+        if (data.career_path && Array.isArray(data.career_path)) {
+            data.career_path.forEach(level => {
+                const item = document.createElement("div");
+                item.className = "timeline-item";
+                item.innerHTML = `
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-role">${level.role || "Trainee"} (${level.level || "L1"})</div>
+                        <div class="timeline-meta">
+                            <span>Avg. Package: ${level.salary || "N/A"}</span>
+                            <span class="time">${level.duration || "N/A"}</span>
+                        </div>
                     </div>
-                </div>
-            `;
-            careerTimeline.appendChild(item);
-        });
+                `;
+                careerTimeline.appendChild(item);
+            });
+        } else {
+            careerTimeline.innerHTML = '<p class="text-muted">Career path timeline unavailable.</p>';
+        }
 
         // 3. Required Skills
         skillsList.innerHTML = "";
-        data.skills.forEach(skill => {
-            const wrapper = document.createElement("div");
-            wrapper.className = "skill-bar-wrapper";
-            wrapper.innerHTML = `
-                <div class="skill-label">
-                    <span>${skill.name}</span>
-                    <span class="skill-pct">${skill.level}%</span>
-                </div>
-                <div class="bar-bg">
-                    <div class="bar-fill" style="width: 0%"></div>
-                </div>
-            `;
-            skillsList.appendChild(wrapper);
-            setTimeout(() => {
-                const fill = wrapper.querySelector(".bar-fill");
-                if (fill) fill.style.width = `${skill.level}%`;
-            }, 100);
-        });
+        if (data.skills && Array.isArray(data.skills)) {
+            data.skills.forEach(skill => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "skill-bar-wrapper";
+                wrapper.innerHTML = `
+                    <div class="skill-label">
+                        <span>${skill.name || "Core Skills"}</span>
+                        <span class="skill-pct">${skill.level || 75}%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: 0%"></div>
+                    </div>
+                `;
+                skillsList.appendChild(wrapper);
+                setTimeout(() => {
+                    const fill = wrapper.querySelector(".bar-fill");
+                    if (fill) fill.style.width = `${skill.level || 75}%`;
+                }, 100);
+            });
+        } else {
+            skillsList.innerHTML = '<p class="text-muted">Skills assessment unavailable.</p>';
+        }
 
         // 4. Topic Weightages
         topicsList.innerHTML = "";
-        data.topics.forEach(topic => {
-            const wrapper = document.createElement("div");
-            wrapper.className = "topic-bar-wrapper";
-            wrapper.innerHTML = `
-                <div class="topic-label">
-                    <span>${topic.name}</span>
-                    <span class="topic-pct">${topic.weight}%</span>
-                </div>
-                <div class="bar-bg">
-                    <div class="bar-fill" style="width: 0%"></div>
-                </div>
-            `;
-            topicsList.appendChild(wrapper);
-            setTimeout(() => {
-                const fill = wrapper.querySelector(".bar-fill");
-                if (fill) fill.style.width = `${topic.weight}%`;
-            }, 100);
-        });
+        if (data.topics && Array.isArray(data.topics)) {
+            data.topics.forEach(topic => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "topic-bar-wrapper";
+                wrapper.innerHTML = `
+                    <div class="topic-label">
+                        <span>${topic.name || "General Subjects"}</span>
+                        <span class="topic-pct">${topic.weight || 25}%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: 0%"></div>
+                    </div>
+                `;
+                topicsList.appendChild(wrapper);
+                setTimeout(() => {
+                    const fill = wrapper.querySelector(".bar-fill");
+                    if (fill) fill.style.width = `${topic.weight || 25}%`;
+                }, 100);
+            });
+        } else {
+            topicsList.innerHTML = '<p class="text-muted">Topic weights unavailable.</p>';
+        }
 
         // 5. Category Tips
-        const tipText = data.tips[currentCategory] || "Prepare standard problems.";
+        let tipText = "Prepare standard placement questions.";
+        if (data.tips) {
+            tipText = data.tips[currentCategory] || data.tips.technical || "Prepare standard placement questions.";
+        }
         tipsBox.innerHTML = `
             <p><i class="fa-solid fa-circle-info text-neon-cyan"></i> ${tipText}</p>
         `;
 
         // 6. PYQ Questions List
         pyqsContainer.innerHTML = "";
-        if (data.pyqs && data.pyqs.length > 0) {
+        if (data.pyqs && Array.isArray(data.pyqs) && data.pyqs.length > 0) {
             data.pyqs.forEach((q, idx) => {
                 const item = document.createElement("div");
                 item.className = "pyq-card-item";
                 
                 let optHtml = "";
-                if (q.options && q.options.length > 0) {
+                if (q.options && Array.isArray(q.options) && q.options.length > 0) {
                     optHtml = '<div class="pyq-options">';
                     q.options.forEach(opt => {
-                        const isCorrect = opt.toLowerCase() === q.answer.toLowerCase() || opt.includes(q.answer);
+                        const isCorrect = opt.toLowerCase() === (q.answer || "").toLowerCase() || opt.includes(q.answer || "");
                         optHtml += `<div class="pyq-option ${isCorrect ? 'correct' : ''}">${opt}</div>`;
                     });
                     optHtml += '</div>';
@@ -209,18 +230,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 item.innerHTML = `
                     <div class="pyq-meta">
-                        <span>Source: <strong>${q.source}</strong></span>
-                        <span class="year">${q.year}</span>
+                        <span>Source: <strong>${q.source || "M4Maths"}</strong></span>
+                        <span class="year">${q.year || "2024"}</span>
                     </div>
-                    <div class="pyq-question">Q${idx + 1}: ${q.question}</div>
+                    <div class="pyq-question">Q${idx + 1}: ${q.question || "Placement Question"}</div>
                     ${optHtml}
                     <button class="sol-toggle-btn" onclick="toggleSolution(${idx})">
                         <i class="fa-solid fa-eye"></i> Show Solution & Explanation
                     </button>
                     <div class="pyq-solution hide" id="sol-${idx}">
-                        <strong>Correct Answer:</strong> ${q.answer}<br>
+                        <strong>Correct Answer:</strong> ${q.answer || "Refer Source"}<br>
                         <strong>Explanation:</strong><br>
-                        ${q.solution.replace(/\n/g, "<br>")}
+                        ${(q.solution || "Refer Source").replace(/\n/g, "<br>")}
                     </div>
                 `;
                 pyqsContainer.appendChild(item);
