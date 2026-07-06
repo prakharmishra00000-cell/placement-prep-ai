@@ -289,6 +289,66 @@ def generate_55_pyqs(company_name):
             "solution": "The map function applies the lambda function (x*2) to each item in the list [1, 2, 3], outputting [2, 4, 6].",
             "year": "2024",
             "source": "M4Maths"
+        },
+        # --- Core Mechanical Engineering ---
+        {
+            "question": "Which of the following cycles is the most efficient thermodynamic cycle operating between two given temperatures?",
+            "options": ["Rankine Cycle", "Carnot Cycle", "Otto Cycle", "Diesel Cycle"],
+            "answer": "Carnot Cycle",
+            "solution": "The Carnot cycle is a theoretical thermodynamic cycle proposed by Nicolas Léonard Sadi Carnot. It provides the maximum possible efficiency that a heat engine can achieve during the conversion of heat into work.",
+            "year": "2024",
+            "source": "IndiaBIX"
+        },
+        {
+            "question": "What is the unit of dynamic viscosity in the SI system?",
+            "options": ["Poise", "Pascal-second (Pa-s)", "Stokes", "m^2/s"],
+            "answer": "Pascal-second (Pa-s)",
+            "solution": "Dynamic viscosity is measured in Pascal-seconds (Pa-s) in the SI system. One Pa-s is equal to 10 Poise.",
+            "year": "2025",
+            "source": "Freshersworld"
+        },
+        # --- Core Electrical Engineering ---
+        {
+            "question": "According to Kirchhoff's Current Law (KCL), the algebraic sum of currents meeting at a junction or node is equal to:",
+            "options": ["Zero", "Infinity", "Total voltage drop", "Sum of resistances"],
+            "answer": "Zero",
+            "solution": "Kirchhoff's Current Law states that the total current entering a junction or node is exactly equal to the charge leaving the node. Thus, the algebraic sum of currents is zero.",
+            "year": "2024",
+            "source": "IndiaBIX"
+        },
+        {
+            "question": "In a 3-phase delta connection, the relation between the line voltage (V_L) and phase voltage (V_Ph) is:",
+            "options": ["V_L = V_Ph", "V_L = sqrt(3) * V_Ph", "V_L = V_Ph / sqrt(3)", "V_L = 3 * V_Ph"],
+            "answer": "V_L = V_Ph",
+            "solution": "In a delta connection, the line voltage is equal to the phase voltage. However, the line current is sqrt(3) times the phase current.",
+            "year": "2024",
+            "source": "Freshersworld"
+        },
+        # --- Core Civil Engineering ---
+        {
+            "question": "Which of the following is the primary constituent of Portland cement?",
+            "options": ["Silica", "Alumina", "Lime (Calcium Oxide)", "Iron Oxide"],
+            "answer": "Lime (Calcium Oxide)",
+            "solution": "Lime (CaO) is the primary constituent of Portland cement, making up about 60-67% of its composition, followed by Silica (SiO2) at 17-25%.",
+            "year": "2023",
+            "source": "IndiaBIX"
+        },
+        {
+            "question": "The process of determining the relative heights of points on the surface of the earth is known as:",
+            "options": ["Contouring", "Levelling", "Traversing", "Triangulation"],
+            "answer": "Levelling",
+            "solution": "Levelling is a branch of surveying used to determine the relative elevation/heights of points on the Earth's surface relative to a datum line.",
+            "year": "2024",
+            "source": "Freshersworld"
+        },
+        # --- Core Chemical Engineering ---
+        {
+            "question": "The Bernoulli equation represents the conservation of which of the following quantities?",
+            "options": ["Mass", "Momentum", "Energy", "Entropy"],
+            "answer": "Energy",
+            "solution": "Bernoulli's equation is derived from Euler's equation of motion and represents the conservation of energy for a flowing fluid (pressure energy + kinetic energy + potential energy = constant).",
+            "year": "2024",
+            "source": "IndiaBIX"
         }
     ]
     
