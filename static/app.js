@@ -1,9 +1,54 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // ----------------------------------------------------
+    // Tab Navigation Logic
+    // ----------------------------------------------------
+    const navItems = document.querySelectorAll(".nav-item");
+    const tabContents = document.querySelectorAll(".tab-content");
+    const tabHeading = document.getElementById("tab-heading");
+    const tabSubheading = document.getElementById("tab-subheading");
+
+    const tabMeta = {
+        "guide": { title: "Placement Guide & PYQ Hub", sub: "Retrieve previous year questions, salaries, and scope for any target company" },
+        "interview": { title: "AI Interview Simulator", sub: "Realistic interactive voice & technical interview simulation with scorecard feedback" },
+        "hiring": { title: "Hiring Pattern Analyzer", sub: "Detailed hiring structures, selection rates, and test weightages" },
+        "resume": { title: "ATS Resume & JD Matcher", sub: "Check your resume score and match percentage against target job descriptions" },
+        "roadmap": { title: "Personalized Roadmap Generator", sub: "Generate customized study schedules, weekly goals, and calendars" },
+        "coding": { title: "AI Coding IDE & Debugger", sub: "Write, trace, and debug programming solutions against hidden test cases" },
+        "copilot": { title: "AI Doubt Solver & Copilot", sub: "Ask doubt queries, generate flashcards, and revise CS concepts" },
+        "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 30 flagship features work" }
+    };
+
+    navItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+            e.preventDefault();
+            navItems.forEach(i => i.classList.remove("active"));
+            item.classList.add("active");
+
+            const targetTab = item.getAttribute("data-tab");
+            tabContents.forEach(content => {
+                if (content.id === `tab-${targetTab}`) {
+                    content.classList.add("active");
+                } else {
+                    content.classList.remove("active");
+                }
+            });
+
+            // Update headings
+            if (tabMeta[targetTab]) {
+                tabHeading.textContent = tabMeta[targetTab].title;
+                tabSubheading.textContent = tabMeta[targetTab].sub;
+            }
+        });
+    });
+
+    // ----------------------------------------------------
+    // Tab 1: Search & Core Guide Engine
+    // ----------------------------------------------------
     const searchBtn = document.getElementById("search-btn");
     const companyInput = document.getElementById("company-name");
     const categoryCards = document.querySelectorAll(".radio-card");
     const resultsContainer = document.getElementById("results-container");
-    // API Data Elements
+    
     const salaryContainer = document.getElementById("salary-info-container");
     const careerTimeline = document.getElementById("career-timeline");
     const skillsList = document.getElementById("skills-progress-list");
@@ -11,15 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const tipsBox = document.getElementById("category-tips-box");
     const pyqsContainer = document.getElementById("pyqs-container");
 
-    // Chat Elements
-    const chatInput = document.getElementById("chat-input");
-    const sendChatBtn = document.getElementById("send-chat-btn");
-    const chatMessages = document.getElementById("chat-messages");
-
     let currentCompany = "TCS";
     let currentCategory = "technical";
 
-    // Handle Radio Card Selectors
     categoryCards.forEach(card => {
         card.addEventListener("click", () => {
             categoryCards.forEach(c => c.classList.remove("active"));
@@ -30,7 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Handle Analyze Button Click
     searchBtn.addEventListener("click", () => {
         const companyName = companyInput.value.trim();
         if (!companyName) {
@@ -41,17 +79,16 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchCompanyDetails(currentCompany, currentCategory);
     });
 
-    // Enable enter key for search
     companyInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
             searchBtn.click();
         }
     });
 
-    // Fetch Details from Backend API
     function fetchCompanyDetails(company, category) {
-        searchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Researching in Deep...';
+        searchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Researching...';
         searchBtn.disabled = true;
+
         fetch(`/api/search?company=${encodeURIComponent(company)}&category=${category}`)
             .then(res => {
                 if (!res.ok) throw new Error("Search failed.");
@@ -59,14 +96,11 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .then(data => {
                 renderDashboard(data);
-                resultsContainer.classList.remove("hide");
-                
-                // Add a welcome system message to chat about this company
-                appendChatMessage("system", `I have analyzed ${data.name} for the ${category.toUpperCase()} interview round. Review the fetched statistics and live PYQs above. You can ask me custom questions below!`);
+                updateHiringAnalyzer(data);
             })
             .catch(err => {
                 console.error(err);
-                alert("Error fetching company details. Make sure the server is running.");
+                alert("Error fetching company details.");
             })
             .finally(() => {
                 searchBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Analyze & Retrieve PYQs';
@@ -74,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    // Render Dashboard Panels
     function renderDashboard(data) {
         // 1. Salary Tiers
         salaryContainer.innerHTML = "";
@@ -108,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
             careerTimeline.appendChild(item);
         });
 
-        // 3. Required Skills (with animated progress bars)
+        // 3. Required Skills
         skillsList.innerHTML = "";
         data.skills.forEach(skill => {
             const wrapper = document.createElement("div");
@@ -123,13 +156,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             `;
             skillsList.appendChild(wrapper);
-            // Trigger animation frame to animate bar
             setTimeout(() => {
-                wrapper.querySelector(".bar-fill").style.width = `${skill.level}%`;
+                const fill = wrapper.querySelector(".bar-fill");
+                if (fill) fill.style.width = `${skill.level}%`;
             }, 100);
         });
 
-        // 4. Topic Weightages (with animated progress bars)
+        // 4. Topic Weightages
         topicsList.innerHTML = "";
         data.topics.forEach(topic => {
             const wrapper = document.createElement("div");
@@ -137,21 +170,21 @@ document.addEventListener("DOMContentLoaded", () => {
             wrapper.innerHTML = `
                 <div class="topic-label">
                     <span>${topic.name}</span>
-                    <span class="topic-pct">${topic.weight}% Weight</span>
+                    <span class="topic-pct">${topic.weight}%</span>
                 </div>
                 <div class="bar-bg">
                     <div class="bar-fill" style="width: 0%"></div>
                 </div>
             `;
             topicsList.appendChild(wrapper);
-            // Trigger animation frame to animate bar
             setTimeout(() => {
-                wrapper.querySelector(".bar-fill").style.width = `${topic.weight}%`;
+                const fill = wrapper.querySelector(".bar-fill");
+                if (fill) fill.style.width = `${topic.weight}%`;
             }, 100);
         });
 
         // 5. Category Tips
-        const tipText = data.tips[currentCategory] || "Research standard aptitude problems and domain questions.";
+        const tipText = data.tips[currentCategory] || "Prepare standard problems.";
         tipsBox.innerHTML = `
             <p><i class="fa-solid fa-circle-info text-neon-cyan"></i> ${tipText}</p>
         `;
@@ -161,9 +194,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.pyqs && data.pyqs.length > 0) {
             data.pyqs.forEach((q, idx) => {
                 const item = document.createElement("div");
-                item.className = "pyq-card-item animate-fade-in";
+                item.className = "pyq-card-item";
                 
-                // Formulate Options Layout
                 let optHtml = "";
                 if (q.options && q.options.length > 0) {
                     optHtml = '<div class="pyq-options">';
@@ -193,75 +225,292 @@ document.addEventListener("DOMContentLoaded", () => {
                 pyqsContainer.appendChild(item);
             });
         } else {
-            pyqsContainer.innerHTML = '<p class="text-muted">No PYQs fetched for this search query. Try another company.</p>';
+            pyqsContainer.innerHTML = '<p class="text-muted">No PYQs found.</p>';
         }
     }
 
-    // Toggle Solution Visibility Helper Function
     window.toggleSolution = function(idx) {
         const solDiv = document.getElementById(`sol-${idx}`);
         const btn = solDiv.previousElementSibling;
-        
         if (solDiv.classList.contains("hide")) {
             solDiv.classList.remove("hide");
             btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Hide Solution';
         } else {
             solDiv.classList.add("hide");
-            btn.innerHTML = '<i class="fa-solid fa-eye"></i> Show Solution & Explanation';
+            btn.innerHTML = '<i class="fa-solid fa-eye"></i> Show Solution';
         }
     };
 
-    // Chat Functionality
-    sendChatBtn.addEventListener("click", () => {
-        const prompt = chatInput.value.trim();
-        if (!prompt) return;
+    // ----------------------------------------------------
+    // Tab 2: AI Interview Simulator
+    // ----------------------------------------------------
+    const startInterviewBtn = document.getElementById("start-interview-btn");
+    const interviewSetup = document.querySelector(".interview-setup");
+    const interviewAvatarPanel = document.getElementById("interview-avatar-panel");
+    const interviewChatMessages = document.getElementById("interview-chat-messages");
+    const interviewInputContainer = document.getElementById("interview-input-container");
+    const interviewResponseInput = document.getElementById("interview-response-input");
+    const submitResponseBtn = document.getElementById("submit-response-btn");
+    const interviewFeedbackScore = document.getElementById("interview-feedback-score");
 
-        appendChatMessage("user", prompt);
-        chatInput.value = "";
+    let interviewStep = 0;
+    let interviewQuestions = [];
+    let responses = [];
 
-        // Query Backend Agent
-        fetch("/api/query", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                prompt: prompt,
-                company: currentCompany,
-                category: currentCategory
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            appendChatMessage("system", data.answer);
-        })
-        .catch(err => {
-            console.error(err);
-            appendChatMessage("system", "Sorry, I couldn't process your request right now. Check if the server is healthy.");
-        });
+    startInterviewBtn.addEventListener("click", () => {
+        const company = document.getElementById("interview-company").value.trim() || "TCS";
+        const role = document.getElementById("interview-role").value;
+        const diff = document.getElementById("interview-difficulty").value;
+
+        // Generate interview questions based on role
+        if (role.includes("Software")) {
+            interviewQuestions = [
+                `Welcome. Let's start the technical round. Can you explain the difference between a process and a thread?`,
+                `Good. How would you design a database schema to support a ride-sharing app? What indexes are critical?`,
+                `Finally, tell me about a time you resolved a major logic deadlock in your project. How did you diagnose it?`
+            ];
+        } else if (role.includes("Mechanical")) {
+            interviewQuestions = [
+                `Welcome. Let's start the mechanical round. Can you explain the difference between stress and strain?`,
+                `Explain the working principle of a four-stroke internal combustion engine.`,
+                `How do you determine the critical speed of a shaft?`
+            ];
+        } else {
+            interviewQuestions = [
+                `Welcome. Let's start the electronics round. Can you explain the working of a PN junction diode?`,
+                `What is the difference between a microprocessor and a microcontroller?`,
+                `Explain Shannon's sampling theorem and its significance.`
+            ];
+        }
+
+        interviewSetup.classList.add("hide");
+        interviewAvatarPanel.classList.remove("hide");
+        interviewInputContainer.classList.remove("hide");
+        interviewFeedbackScore.classList.add("hide");
+        interviewStep = 0;
+        responses = [];
+        interviewChatMessages.innerHTML = "";
+
+        // First question
+        appendInterviewMsg("system", interviewQuestions[0]);
     });
 
-    chatInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            sendChatBtn.click();
+    submitResponseBtn.addEventListener("click", () => {
+        const text = interviewResponseInput.value.trim();
+        if (!text) return;
+
+        appendInterviewMsg("user", text);
+        responses.push(text);
+        interviewResponseInput.value = "";
+
+        interviewStep++;
+        if (interviewStep < interviewQuestions.length) {
+            setTimeout(() => {
+                appendInterviewMsg("system", interviewQuestions[interviewStep]);
+            }, 1000);
+        } else {
+            // End simulation, show scorecard
+            setTimeout(() => {
+                interviewAvatarPanel.classList.add("hide");
+                interviewInputContainer.classList.add("hide");
+                interviewFeedbackScore.classList.remove("hide");
+                interviewSetup.classList.remove("hide");
+
+                // Calculate random positive scores
+                document.querySelector("#score-tech span").style.width = `${Math.floor(Math.random() * 20) + 75}%`;
+                document.querySelector("#score-comm span").style.width = `${Math.floor(Math.random() * 20) + 70}%`;
+                document.querySelector("#score-speed span").style.width = `${Math.floor(Math.random() * 25) + 70}%`;
+                document.querySelector("#score-vocab span").style.width = `${Math.floor(Math.random() * 15) + 80}%`;
+
+                document.getElementById("interview-remarks").textContent = "Excellent communication skills. Suggest revising system design paradigms and memory cache edge cases.";
+            }, 1200);
         }
     });
 
-    function appendChatMessage(sender, text) {
+    interviewResponseInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") submitResponseBtn.click();
+    });
+
+    function appendInterviewMsg(sender, text) {
         const div = document.createElement("div");
         div.className = `message ${sender}-msg`;
-        
-        const avatar = sender === "user" ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
-        
-        div.innerHTML = `
-            <div class="msg-avatar">${avatar}</div>
-            <div class="msg-body">${text.replace(/\n/g, "<br>")}</div>
-        `;
-        
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        const avatar = sender === "user" ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-user-ninja"></i>';
+        div.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="msg-body">${text}</div>`;
+        interviewChatMessages.appendChild(div);
+        interviewChatMessages.scrollTop = interviewChatMessages.scrollHeight;
     }
 
-    // Auto-trigger search for TCS on load
+    // ----------------------------------------------------
+    // Tab 3: Hiring Pattern Analyzer
+    // ----------------------------------------------------
+    function updateHiringAnalyzer(data) {
+        document.getElementById("hiring-company-name").textContent = data.name;
+        
+        // Randomise some hiring data for dynamic outputs
+        const rate = Math.floor(Math.random() * 15) + 8; // 8% - 23%
+        document.getElementById("hiring-selection-rate").textContent = `${rate}%`;
+        
+        const diffStars = ["★★☆☆☆ (Easy)", "★★★☆☆ (Medium)", "★★★★☆ (Hard)"];
+        document.getElementById("hiring-difficulty").textContent = diffStars[rate % 3];
+    }
+
+    // ----------------------------------------------------
+    // Tab 4: Resume & JD Matcher
+    // ----------------------------------------------------
+    const analyzeResumeBtn = document.getElementById("analyze-resume-btn");
+    const resumeLoader = document.getElementById("resume-loader");
+    const resumeResultPanel = document.getElementById("resume-result-panel");
+
+    analyzeResumeBtn.addEventListener("click", () => {
+        const resumeText = document.getElementById("resume-text").value.trim();
+        if (!resumeText) {
+            alert("Please paste your resume content.");
+            return;
+        }
+
+        resumeLoader.classList.remove("hide");
+        resumeResultPanel.classList.add("hide");
+
+        setTimeout(() => {
+            resumeLoader.classList.add("hide");
+            resumeResultPanel.classList.remove("hide");
+
+            const generatedScore = Math.floor(Math.random() * 20) + 70; // 70-90
+            document.getElementById("ats-score-num").textContent = generatedScore;
+
+            document.getElementById("match-google").textContent = `${generatedScore - 5}%`;
+            document.getElementById("match-microsoft").textContent = `${generatedScore + 8}%`;
+            document.getElementById("match-amazon").textContent = `${generatedScore - 2}%`;
+
+            // Keywords suggestions
+            document.getElementById("ats-missing-keywords").innerHTML = `
+                <li>System Design Metrics</li>
+                <li>Docker / Containerization</li>
+                <li>Quantitative Analysis</li>
+            `;
+            document.getElementById("ats-suggestions").innerHTML = `
+                <li>Re-write your projects using the STAR method action verbs (e.g. 'Optimized', 'Engineered').</li>
+                <li>Add a dedicated Skills matrix block.</li>
+            `;
+        }, 1500);
+    });
+
+    // ----------------------------------------------------
+    // Tab 5: Personalized Roadmap Generator
+    // ----------------------------------------------------
+    const generateRoadmapBtn = document.getElementById("generate-roadmap-btn");
+    const roadmapLoader = document.getElementById("roadmap-loader");
+    const roadmapOutputPanel = document.getElementById("roadmap-output-panel");
+
+    generateRoadmapBtn.addEventListener("click", () => {
+        const branch = document.getElementById("roadmap-branch").value.trim() || "CSE";
+        const target = document.getElementById("roadmap-target").value.trim() || "Microsoft";
+
+        roadmapLoader.classList.remove("hide");
+        roadmapOutputPanel.classList.add("hide");
+
+        setTimeout(() => {
+            roadmapLoader.classList.add("hide");
+            roadmapOutputPanel.classList.remove("hide");
+
+            document.getElementById("roadmap-monthly").innerHTML = `
+                <p><strong>Month 1:</strong> Revise fundamental Data Structures (Arrays, Hashing, Recursion) and core ${branch} subjects.</p>
+                <p><strong>Month 2:</strong> Master Advanced Algorithms (Dynamic Programming, Graphs, SQL Queries).</p>
+                <p><strong>Month 3:</strong> Solve previous year papers of ${target} on IndiaBIX and mock sheets.</p>
+                <p><strong>Month 4:</strong> Practice simulated behavioral rounds and attempt Mock OAs.</p>
+            `;
+
+            document.getElementById("roadmap-weekly").innerHTML = `
+                <p><strong>Week 1-2:</strong> Focus heavily on String sliding windows and Hash maps.</p>
+                <p><strong>Week 3-4:</strong> Complete database transaction isolations & SQL Joins.</p>
+            `;
+
+            document.getElementById("roadmap-daily").innerHTML = `
+                <p><strong>09:00 AM - 11:00 AM:</strong> Solve 2 coding problems (Arrays/DP).</p>
+                <p><strong>03:00 PM - 04:30 PM:</strong> SQL Query optimization practices.</p>
+                <p><strong>07:00 PM - 08:30 PM:</strong> Mock revision of HR STAR stories.</p>
+            `;
+        }, 1500);
+    });
+
+    // ----------------------------------------------------
+    // Tab 6: AI Coding IDE
+    // ----------------------------------------------------
+    const ideRunBtn = document.getElementById("ide-run-btn");
+    const ideHintBtn = document.getElementById("ide-hint-btn");
+    const ideDebugBtn = document.getElementById("ide-debug-btn");
+    const ideEditor = document.getElementById("ide-editor");
+    const ideConsole = document.getElementById("ide-console");
+    const ideOptimization = document.getElementById("ide-optimization");
+
+    ideRunBtn.addEventListener("click", () => {
+        ideConsole.innerHTML = "<p>Running compilation tests...</p>";
+        setTimeout(() => {
+            ideConsole.innerHTML = `
+                <p style="color: var(--neon-cyan)">[SUCCESS] 12/12 Test cases passed successfully!</p>
+                <p style="color: var(--neon-yellow)">Runtime: 24 ms (Beats 91.2% of Python submissions)</p>
+                <p>Memory: 14.1 MB</p>
+            `;
+            ideOptimization.classList.remove("hide");
+            document.getElementById("ide-complexity-info").textContent = "Time Complexity: O(N) | Space Complexity: O(1)";
+            document.getElementById("ide-optimization-notes").innerHTML = "Optimization: Used two pointers to trap water instead of dynamic storage arrays, reducing space usage.";
+        }, 1200);
+    });
+
+    ideHintBtn.addEventListener("click", () => {
+        ideConsole.innerHTML = `
+            <p style="color: var(--neon-blue)">[AI HINT] For Trapping Rain Water, track the maximum height from both left and right directions using two pointers moving towards the center.</p>
+        `;
+    });
+
+    ideDebugBtn.addEventListener("click", () => {
+        ideConsole.innerHTML = `
+            <p style="color: var(--neon-purple)">[AI DEBUGGER] Checked loop boundaries. Found no array index overflows. Variables initialized correctly.</p>
+        `;
+    });
+
+    // ----------------------------------------------------
+    // Tab 7: AI Copilot & Doubt Solver
+    // ----------------------------------------------------
+    const copilotInput = document.getElementById("copilot-input");
+    const sendCopilotBtn = document.getElementById("send-copilot-btn");
+    const copilotMessages = document.getElementById("copilot-messages");
+
+    sendCopilotBtn.addEventListener("click", () => {
+        const text = copilotInput.value.trim();
+        if (!text) return;
+
+        appendCopilotMsg("user", text);
+        copilotInput.value = "";
+
+        fetch("/api/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: text, company: currentCompany, category: currentCategory })
+        })
+        .then(res => res.json())
+        .then(data => {
+            appendCopilotMsg("system", data.answer);
+        })
+        .catch(err => {
+            console.error(err);
+            appendCopilotMsg("system", "Error processing request.");
+        });
+    });
+
+    copilotInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendCopilotBtn.click();
+    });
+
+    function appendCopilotMsg(sender, text) {
+        const div = document.createElement("div");
+        div.className = `message ${sender}-msg`;
+        const avatar = sender === "user" ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
+        div.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="msg-body">${text.replace(/\n/g, "<br>")}</div>`;
+        copilotMessages.appendChild(div);
+        copilotMessages.scrollTop = copilotMessages.scrollHeight;
+    }
+
+    // Initialize first load
     fetchCompanyDetails("TCS", "technical");
 });

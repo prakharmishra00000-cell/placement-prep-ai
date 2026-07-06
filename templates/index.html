@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlacementPrep AI - Ultimate PYQ & Interview Bot</title>
+    <title>PlacementPrep AI - Enterprise Career Preparation OS</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/style.css">
@@ -17,124 +17,631 @@
         <div class="ball ball3"></div>
     </div>
 
-    <div class="container animate-fade-in">
-        <!-- Header -->
-        <header class="app-header">
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar">
             <div class="logo">
                 <i class="fa-solid fa-brain-circuit neon-icon"></i>
-                <h1>PlacementPrep <span>AI</span></h1>
+                <h2>PrepOS <span>AI</span></h2>
             </div>
-            <div class="status-badge">
-                <span class="pulse-dot"></span> Search Engaged
-            </div>
-        </header>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="guide">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Placement Guide & PYQs</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="interview">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>AI Interview Simulator</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="hiring">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Hiring Analyzer</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="resume">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Resume & JD Analyzer</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="roadmap">
+                    <i class="fa-solid fa-route"></i>
+                    <span>Roadmap Generator</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="coding">
+                    <i class="fa-solid fa-code"></i>
+                    <span>AI Coding IDE</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="copilot">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AI Doubt Solver</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="docs">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>User Guide (30 Features)</span>
+                </a>
+            </nav>
 
-        <!-- Main Search Section -->
-        <section class="search-section glass-card">
-            <div class="search-inputs">
-                <div class="input-group">
-                    <label for="company-name"><i class="fa-solid fa-building"></i> Target Company Name</label>
-                    <input type="text" id="company-name" placeholder="Enter company name (e.g., Google, TCS, Infosys...)" value="TCS">
+            <div class="sidebar-footer">
+                <span class="pulse-dot"></span> System Connected
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="app-main">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h1 id="tab-heading">Placement Guide & PYQ Hub</h1>
+                    <p id="tab-subheading">Retrieve previous year questions, salaries, and scope for any target company</p>
                 </div>
-                
-                <div class="category-selector">
-                    <label><i class="fa-solid fa-sliders"></i> Select Interview Category</label>
-                    <div class="radio-cards">
-                        <label class="radio-card active">
-                            <input type="radio" name="category" value="technical" checked>
-                            <i class="fa-solid fa-laptop-code"></i>
-                            <span>Technical Round</span>
-                        </label>
-                        <label class="radio-card">
-                            <input type="radio" name="category" value="assessment">
-                            <i class="fa-solid fa-file-invoice"></i>
-                            <span>Assessments / Aptitude</span>
-                        </label>
-                        <label class="radio-card">
-                            <input type="radio" name="category" value="hr">
-                            <i class="fa-solid fa-user-tie"></i>
-                            <span>HR Interview</span>
-                        </label>
+            </header>
+
+            <!-- Tab Content: Guide & PYQs -->
+            <div class="tab-content active" id="tab-guide">
+                <!-- Search Section -->
+                <section class="search-section glass-card">
+                    <div class="search-inputs">
+                        <div class="input-group">
+                            <label for="company-name"><i class="fa-solid fa-building"></i> Target Company Name</label>
+                            <input type="text" id="company-name" placeholder="Enter company (e.g., Google, TCS, Infosys, Reliance, Core Industries...)" value="TCS">
+                        </div>
+                        
+                        <div class="category-selector">
+                            <label><i class="fa-solid fa-sliders"></i> Select Interview Category</label>
+                            <div class="radio-cards">
+                                <label class="radio-card active">
+                                    <input type="radio" name="category" value="technical" checked>
+                                    <i class="fa-solid fa-laptop-code"></i>
+                                    <span>Technical Round</span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="category" value="assessment">
+                                    <i class="fa-solid fa-file-invoice"></i>
+                                    <span>Assessments / Aptitude</span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="category" value="hr">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <span>HR Interview</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="search-btn" class="glow-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i> Analyze & Retrieve PYQs
+                    </button>
+                </section>
+
+                <div id="results-container" class="dashboard-grid">
+                    <!-- Left Column: Salary & Careers -->
+                    <div class="grid-column">
+                        <div class="glass-card panel-card">
+                            <h3 class="panel-title"><i class="fa-solid fa-wallet text-neon-blue"></i> Exact Salary & In-Hand Breakdown</h3>
+                            <div id="salary-info-container"></div>
+                        </div>
+                        <div class="glass-card panel-card">
+                            <h3 class="panel-title"><i class="fa-solid fa-stairs text-neon-purple"></i> Career Progression Ladder</h3>
+                            <div class="timeline" id="career-timeline"></div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Column: Skills & Tips -->
+                    <div class="grid-column">
+                        <div class="glass-card panel-card">
+                            <h3 class="panel-title"><i class="fa-solid fa-wand-magic-sparkles text-neon-green"></i> Required Core Skills</h3>
+                            <div class="skills-list" id="skills-progress-list"></div>
+                        </div>
+                        <div class="glass-card panel-card">
+                            <h3 class="panel-title"><i class="fa-solid fa-chart-pie text-neon-yellow"></i> Important Topics & Weightage</h3>
+                            <div class="topics-list" id="topics-weight-list"></div>
+                        </div>
+                        <div class="glass-card panel-card">
+                            <h3 class="panel-title"><i class="fa-solid fa-lightbulb text-neon-cyan"></i> Placement Preparation Tips</h3>
+                            <div class="tips-box" id="category-tips-box"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: PYQ Cards -->
+                    <div class="grid-column wide-col">
+                        <div class="glass-card panel-card">
+                            <div class="pyq-header">
+                                <h3 class="panel-title"><i class="fa-solid fa-book-open-reader text-neon-pink"></i> Previous Year Questions (Min. 50 Solved)</h3>
+                                <span class="source-tag">M4Maths / IndiaBIX</span>
+                            </div>
+                            <div class="pyq-list" id="pyqs-container"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <button id="search-btn" class="glow-btn">
-                <i class="fa-solid fa-magnifying-glass"></i> Analyze & Retrieve PYQs
-            </button>
-        </section>
+            <!-- Tab Content: AI Interview Simulator -->
+            <div class="tab-content" id="tab-interview">
+                <div class="dashboard-grid binary-grid">
+                    <!-- Left: Control & Avatar Simulator -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-headset text-neon-blue"></i> Voice & Technical Interview Simulation</h3>
+                        
+                        <div class="interview-setup">
+                            <div class="input-group">
+                                <label for="interview-company">Target Company</label>
+                                <input type="text" id="interview-company" value="TCS" placeholder="Enter company name">
+                            </div>
+                            <div class="input-group">
+                                <label for="interview-role">Interview Role / Field</label>
+                                <select id="interview-role">
+                                    <option value="Software Engineer">Software Engineer (CSE/IT)</option>
+                                    <option value="Mechanical Engineer">Mechanical SDE (Core Mech)</option>
+                                    <option value="Electrical SDE">Electrical / Electronics Engineer (Core EEE/ECE)</option>
+                                    <option value="Civil Engineer">Civil SDE (Core Civil)</option>
+                                    <option value="Data Analyst">Data Analyst / Data Scientist</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="interview-difficulty">Simulation Difficulty</label>
+                                <select id="interview-difficulty">
+                                    <option value="Easy">Easy (Conceptual Basic)</option>
+                                    <option value="Medium" selected>Medium (Standard Interview)</option>
+                                    <option value="Hard">Hard (FAANG / Technical Depth)</option>
+                                </select>
+                            </div>
+                            <button id="start-interview-btn" class="glow-btn">Start AI Simulation Round</button>
+                        </div>
 
-        <!-- Results Grid Layout -->
-        <div id="results-container" class="dashboard-grid hide">
-            <!-- Left Panel: Job profile, Salary & Promotion Ladder -->
-            <div class="left-panel grid-column">
-                <!-- Salary Details -->
-                <div class="glass-card panel-card" id="salary-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-wallet text-neon-blue"></i> Salary & In-Hand Breakdown</h3>
-                    <div id="salary-info-container"></div>
-                </div>
-
-                <!-- Career Path Ladder -->
-                <div class="glass-card panel-card" id="career-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-stairs text-neon-purple"></i> Career Progression & Levels</h3>
-                    <p class="timeline-subtitle">Typical promotion path & min. time to reach top positions</p>
-                    <div class="timeline" id="career-timeline"></div>
-                </div>
-            </div>
-
-            <!-- Middle Panel: Placement Topics, Required Skills, and Tips -->
-            <div class="middle-panel grid-column">
-                <!-- Required Skills -->
-                <div class="glass-card panel-card" id="skills-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-wand-magic-sparkles text-neon-green"></i> Required Skills</h3>
-                    <div class="skills-list" id="skills-progress-list"></div>
-                </div>
-
-                <!-- Weightage Topics -->
-                <div class="glass-card panel-card" id="topics-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-chart-pie text-neon-yellow"></i> Topics & Test Weightage</h3>
-                    <div class="topics-list" id="topics-weight-list"></div>
-                </div>
-
-                <!-- Category Tips -->
-                <div class="glass-card panel-card" id="tips-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-lightbulb text-neon-cyan"></i> Critical Prep Tips</h3>
-                    <div class="tips-box" id="category-tips-box"></div>
-                </div>
-            </div>
-
-            <!-- Right Panel: Scraped PYQs Feed -->
-            <div class="right-panel grid-column">
-                <div class="glass-card panel-card" id="pyq-card">
-                    <div class="pyq-header">
-                        <h3 class="panel-title"><i class="fa-solid fa-book-open-reader text-neon-pink"></i> Real Previous Year Questions (PYQs)</h3>
-                        <span class="source-tag">Live Scraped</span>
+                        <div class="simulated-avatar hide" id="interview-avatar-panel">
+                            <div class="avatar-feed">
+                                <i class="fa-solid fa-user-tie avatar-icon animate-pulse"></i>
+                                <span class="avatar-status">AI Interviewer Listening...</span>
+                            </div>
+                            <div class="voice-wave">
+                                <span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pyq-list" id="pyqs-container"></div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Chat Query Console -->
-        <section class="chat-section glass-card">
-            <h3 class="panel-title"><i class="fa-solid fa-comments"></i> PlacementPrep AI Agent Console</h3>
-            <div class="chat-display" id="chat-messages">
-                <div class="message system-msg">
-                    <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
-                    <div class="msg-body">
-                        Hello! I am your real-time placement assistant. Ask me anything about any company's recruitment, selection rounds, puzzle patterns, or salary breakdown.
+                    <!-- Right: Console Dialogs & Feedback reports -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-comments text-neon-purple"></i> Interview Stream & Feedback</h3>
+                        
+                        <div class="interview-chat" id="interview-chat-messages">
+                            <div class="message system-msg">
+                                <div class="msg-avatar"><i class="fa-solid fa-user-ninja"></i></div>
+                                <div class="msg-body">
+                                    Click "Start AI Simulation" to begin the interview. The AI will ask role-specific questions and score your answers dynamically.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="interview-input-bar hide" id="interview-input-container">
+                            <input type="text" id="interview-response-input" placeholder="Type your answer here...">
+                            <button id="submit-response-btn" class="send-btn"><i class="fa-solid fa-check"></i> Submit Answer</button>
+                        </div>
+
+                        <!-- Feedback Scorecard -->
+                        <div class="feedback-card hide" id="interview-feedback-score">
+                            <h4><i class="fa-solid fa-square-poll-vertical"></i> AI Performance Scorecard</h4>
+                            <div class="score-grid">
+                                <div class="score-item">
+                                    <div class="score-label">Technical Depth</div>
+                                    <div class="score-gauge" id="score-tech"><span style="width: 82%"></span></div>
+                                </div>
+                                <div class="score-item">
+                                    <div class="score-label">Communication</div>
+                                    <div class="score-gauge" id="score-comm"><span style="width: 78%"></span></div>
+                                </div>
+                                <div class="score-item">
+                                    <div class="score-label">Thinking Speed</div>
+                                    <div class="score-gauge" id="score-speed"><span style="width: 85%"></span></div>
+                                </div>
+                                <div class="score-item">
+                                    <div class="score-label">Vocabulary & Grammar</div>
+                                    <div class="score-gauge" id="score-vocab"><span style="width: 90%"></span></div>
+                                </div>
+                            </div>
+                            <div class="feedback-remarks" id="interview-remarks"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="chat-input-bar">
-                <input type="text" id="chat-input" placeholder="Ask a custom query (e.g., 'What is the difficulty of TCS Ninja coding round?')">
-                <button id="send-chat-btn" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </section>
 
-        <footer class="app-footer">
-            <p>PlacementPrep AI &copy; 2026</p>
-        </footer>
+            <!-- Tab Content: Hiring Pattern Analyzer -->
+            <div class="tab-content" id="tab-hiring">
+                <div class="dashboard-grid binary-grid">
+                    <!-- Left: Analytics and Statistics -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-chart-line text-neon-blue"></i> Pattern Breakdown</h3>
+                        
+                        <div class="hiring-stats-header">
+                            <span class="company-badge" id="hiring-company-name">TCS</span>
+                            <span class="selection-rate-tag">Selection Rate: <strong id="hiring-selection-rate">18%</strong></span>
+                        </div>
+
+                        <div class="hiring-flow">
+                            <div class="flow-step">
+                                <div class="step-num">1</div>
+                                <div class="step-name">Online Assessment</div>
+                                <div class="step-details">Aptitude (35%), DSA (25%), SQL (15%), MCQs (15%)</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num">2</div>
+                                <div class="step-name">Technical Interview</div>
+                                <div class="step-details">Project Discussion, Coding Algorithms, SQL writing</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num">3</div>
+                                <div class="step-name">HR & Managerial Round</div>
+                                <div class="step-details">Behavioral Scenarios, Relocation checks, Teamwork questions</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Trend Graphs & Topic Comparison -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-compass text-neon-yellow"></i> Topics Distribution & Difficulty</h3>
+                        <div class="hiring-distribution">
+                            <div class="distribution-item">
+                                <span>Problem Solving / Coding</span>
+                                <div class="distribution-bar"><span style="width: 35%; background: var(--neon-pink)"></span></div>
+                                <span>35%</span>
+                            </div>
+                            <div class="distribution-item">
+                                <span>Quantitative Aptitude</span>
+                                <div class="distribution-bar"><span style="width: 25%; background: var(--neon-blue)"></span></div>
+                                <span>25%</span>
+                            </div>
+                            <div class="distribution-item">
+                                <span>DBMS & SQL</span>
+                                <div class="distribution-bar"><span style="width: 20%; background: var(--neon-cyan)"></span></div>
+                                <span>20%</span>
+                            </div>
+                            <div class="distribution-item">
+                                <span>OS & Computer Networks</span>
+                                <div class="distribution-bar"><span style="width: 20%; background: var(--neon-purple)"></span></div>
+                                <span>20%</span>
+                            </div>
+                        </div>
+
+                        <div class="hiring-card-details">
+                            <div class="detail-box">
+                                <h5>Average Interview Duration</h5>
+                                <p id="hiring-duration">45 mins</p>
+                            </div>
+                            <div class="detail-box">
+                                <h5>Exam Difficulty Level</h5>
+                                <p id="hiring-difficulty">★★★☆☆ (Medium)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Resume & JD Analyzer -->
+            <div class="tab-content" id="tab-resume">
+                <div class="dashboard-grid binary-grid">
+                    <!-- Left: Inputs -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-file-arrow-up text-neon-green"></i> ATS Parser & Job Matcher</h3>
+                        
+                        <div class="input-group">
+                            <label for="resume-text">Paste Resume Text</label>
+                            <textarea id="resume-text" rows="8" placeholder="Paste all textual content of your resume here..."></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="jd-text">Paste Job Description (Optional)</label>
+                            <textarea id="jd-text" rows="5" placeholder="Paste the target job description to calculate Match %..."></textarea>
+                        </div>
+
+                        <button id="analyze-resume-btn" class="glow-btn">Run ATS Analysis</button>
+                    </div>
+
+                    <!-- Right: Analysis Dashboard Reports -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-list-check text-neon-purple"></i> Match Report & Suggestions</h3>
+                        
+                        <div id="resume-loader" class="resume-loader hide">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Analyzing resume blocks against recruitment guidelines...
+                        </div>
+
+                        <div id="resume-result-panel" class="hide">
+                            <div class="ats-circle-score">
+                                <div class="score-circle">
+                                    <span id="ats-score-num">82</span>
+                                    <span class="label">ATS SCORE</span>
+                                </div>
+                                <div class="company-match-scores">
+                                    <div class="comp-match">Google <strong id="match-google">78%</strong></div>
+                                    <div class="comp-match">Microsoft <strong id="match-microsoft">91%</strong></div>
+                                    <div class="comp-match">Amazon <strong id="match-amazon">74%</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="ats-feedback-list">
+                                <h5>Missing Critical Keywords</h5>
+                                <ul id="ats-missing-keywords"></ul>
+
+                                <h5>ATS Optimization Suggestions</h5>
+                                <ul id="ats-suggestions"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Personalized Roadmap Generator -->
+            <div class="tab-content" id="tab-roadmap">
+                <div class="dashboard-grid binary-grid">
+                    <!-- Left: Parameters -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-route text-neon-blue"></i> Roadmap Settings</h3>
+                        
+                        <div class="input-group">
+                            <label for="roadmap-year">Current College Year</label>
+                            <select id="roadmap-year">
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year" selected>3rd Year</option>
+                                <option value="4th Year / Graduate">4th Year / Graduate</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="roadmap-branch">College Branch</label>
+                            <input type="text" id="roadmap-branch" value="CSE" placeholder="Enter branch (e.g. CSE, Mechanical, Electrical, Civil)">
+                        </div>
+                        <div class="input-group">
+                            <label for="roadmap-target">Target Company</label>
+                            <input type="text" id="roadmap-target" value="Microsoft" placeholder="Enter target company name">
+                        </div>
+                        <div class="input-group">
+                            <label for="roadmap-level">Current DSA / Programming Level</label>
+                            <select id="roadmap-level">
+                                <option value="Beginner">Beginner (Zero Coding)</option>
+                                <option value="Intermediate" selected>Intermediate (Basic loops & functions)</option>
+                                <option value="Advanced">Advanced (Data Structures active)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="roadmap-time">Preparation Time Available</label>
+                            <select id="roadmap-time">
+                                <option value="1 Month">1 Month</option>
+                                <option value="3 Months">3 Months</option>
+                                <option value="4 Months" selected>4 Months</option>
+                                <option value="6 Months">6 Months</option>
+                            </select>
+                        </div>
+                        <button id="generate-roadmap-btn" class="glow-btn">Create Custom Roadmap</button>
+                    </div>
+
+                    <!-- Right: Visualized Roadmap Outputs -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-calendar-days text-neon-purple"></i> Daily, Weekly & Monthly Goals</h3>
+                        
+                        <div id="roadmap-loader" class="resume-loader hide">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Calculating optimal study cycles...
+                        </div>
+
+                        <div id="roadmap-output-panel" class="roadmap-scroller hide">
+                            <div class="roadmap-block">
+                                <h5>Monthly Milestones</h5>
+                                <div id="roadmap-monthly"></div>
+                            </div>
+                            <div class="roadmap-block">
+                                <h5>Weekly Goals</h5>
+                                <div id="roadmap-weekly"></div>
+                            </div>
+                            <div class="roadmap-block">
+                                <h5>Daily Study Schedule</h5>
+                                <div id="roadmap-daily"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: AI Coding IDE -->
+            <div class="tab-content" id="tab-coding">
+                <div class="dashboard-grid coding-ide-grid">
+                    <!-- Coding IDE Console -->
+                    <div class="glass-card panel-card coding-box">
+                        <div class="ide-header">
+                            <div class="ide-lang-selector">
+                                <label for="ide-language">Language:</label>
+                                <select id="ide-language">
+                                    <option value="cpp">C++</option>
+                                    <option value="java">Java</option>
+                                    <option value="python" selected>Python</option>
+                                    <option value="javascript">JavaScript</option>
+                                </select>
+                            </div>
+                            <div class="ide-controls">
+                                <button id="ide-hint-btn" class="ide-ctrl-btn" title="Get AI Hint"><i class="fa-solid fa-lightbulb text-neon-yellow"></i> Get Hint</button>
+                                <button id="ide-debug-btn" class="ide-ctrl-btn" title="AI Debugger"><i class="fa-solid fa-bug text-neon-pink"></i> Debug</button>
+                            </div>
+                        </div>
+
+                        <div class="ide-editor-container">
+                            <textarea id="ide-editor" placeholder="Write your programming solution here..." rows="12">def trapping_rain_water(height):
+    # Complete code
+    pass</textarea>
+                        </div>
+
+                        <div class="ide-footer-buttons">
+                            <button id="ide-run-btn" class="glow-btn"><i class="fa-solid fa-play"></i> Run Code</button>
+                        </div>
+                    </div>
+
+                    <!-- Coding IDE Results Panel -->
+                    <div class="glass-card panel-card">
+                        <h3 class="panel-title"><i class="fa-solid fa-terminal text-neon-purple"></i> IDE Console & Optimization</h3>
+                        
+                        <div class="console-box" id="ide-console">
+                            <p class="console-placeholder">Compile and run your solution to see test cases and AI analysis...</p>
+                        </div>
+
+                        <div class="console-optimization-box hide" id="ide-optimization">
+                            <h5>AI Time & Memory Optimization</h5>
+                            <p id="ide-complexity-info">Time Complexity: O(N) | Space Complexity: O(1)</p>
+                            <div id="ide-optimization-notes"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: AI Doubt Solver & Copilot -->
+            <div class="tab-content" id="tab-copilot">
+                <!-- persistent chat console -->
+                <div class="glass-card panel-card chat-console-tab">
+                    <h3 class="panel-title"><i class="fa-solid fa-comments"></i> Persistent doubt solver & Copilot console</h3>
+                    <div class="chat-display large-chat" id="copilot-messages">
+                        <div class="message system-msg">
+                            <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+                            <div class="msg-body">
+                                Hello! I am your AI Placement Copilot. You can ask me any doubt, explain coding logic, generate revision flashcards, or construct study schedules.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-bar">
+                        <input type="text" id="copilot-input" placeholder="Type your query (e.g. 'Explain binary search space complexity', 'Give me 5 DBMS flashcards')">
+                        <button id="send-copilot-btn" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: User Guide of all 30 Features -->
+            <div class="tab-content" id="tab-docs">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-book-open text-neon-blue"></i> PrepOS AI - Operating System Reference Manual</h3>
+                    
+                    <div class="docs-container">
+                        <div class="docs-section">
+                            <h4>🚀 Core Architecture & 30 Flagship Features Reference</h4>
+                            <p>PrepOS AI organizes placement preparation into an automated, AI-driven operating system designed to guide students from any branch (CSE, EEE, ECE, Mech, Civil, Core) to job offers. Below is the guide explaining how all our integrated modules work:</p>
+                        </div>
+
+                        <div class="docs-grid">
+                            <div class="docs-card">
+                                <h5>1. AI Interview Simulator</h5>
+                                <p>Simulates voice and text interviews. Scoring adjusts dynamically based on technical depth, vocabulary, communication efficiency, thinking speed, and grammar.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>2. Hiring Pattern Analyzer</h5>
+                                <p>Parses placement requirements, selection rates, topic weightages (e.g., Arrays 30%, DP 20%), average round count, and difficulty trends.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>3. AI Resume Analyzer</h5>
+                                <p>Inspects resume texts for keyword deficiencies, matches achievements, and provides an ATS score out of 100 with optimization logs.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>4. Job Description Matcher</h5>
+                                <p>Calculates matching percentage between job descriptions and resumes, reporting missing skills and key technologies.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>5. Roadmap Generator</h5>
+                                <p>Constructs study roadmaps complete with daily schedules, weekly goals, monthly milestones, and revision calendars adjusted to your branch.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>6. Embedded Coding IDE</h5>
+                                <p>Provides a code playground with syntax inputs supporting C++, Java, Python, and JavaScript, tracking hidden test cases.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>7. AI Code Debugger</h5>
+                                <p>Inspects user-provided code, highlighting logic bugs, boundary edge cases, and proposing cleaner algorithmic solutions.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>8. Company Sheet Generator</h5>
+                                <p>Automatically schedules preparation sheets outlining target DSA questions, SQL queries, and core topics (OS, CN, DBMS).</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>9. Interview Experience Aggregator</h5>
+                                <p>Gathers student reviews and round-wise interview logs, summarizing tips and actual placement questions.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>10. AI Doubt Solver</h5>
+                                <p>Resolves concepts, traces algorithmic complexities, and presents step-by-step animations or logic breakdowns.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>11. Placement Analytics Dashboard</h5>
+                                <p>Monitors problems solved, accuracy graphs, daily streaks, weak areas, and score progress.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>12. Spaced-Repetition Flashcards</h5>
+                                <p>Dynamically creates revision cards covering OS, DBMS, computer networks, and aptitude logic.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>13. Mock Online Assessment (OA)</h5>
+                                <p>Simulates real-world coding exams with countdown timers, test assertions, and post-completion reviews.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>14. Company Comparison Matrix</h5>
+                                <p>Performs side-by-side comparison between companies (e.g. Google vs Amazon) covering packages, selection rates, and skill maps.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>15. AI Roadmap Visualizer</h5>
+                                <p>Generates node diagrams mapping preparation milestones (Arrays -> Trees -> System Design) unlocking progressively.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>16. Live Placement News</h5>
+                                <p>Monitors off-campus opportunities, open referral postings, internship openings, and competitive hackathons.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>17. AI HR Coach</h5>
+                                <p>Analyzes and evaluates responses to standard behavioral prompts like "Tell me about yourself", scoring professionalism and length.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>18. Behavioral Questions Trainer</h5>
+                                <p>Structures interview answers using the STAR method (Situation, Task, Action, Result) for leadership scenarios.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>19. Company Knowledge Hub</h5>
+                                <p>Displays company profiles, tech stacks, core engineering culture, and detailed salary structures.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>20. Referral Finder</h5>
+                                <p>Constructs and structures professional referral request messages for LinkedIn or email outreach.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>21. AI Weakness Detector</h5>
+                                <p>Aggregates test histories, recommending study percentage splits across weak domains.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>22. AI Daily Challenge</h5>
+                                <p>Tracks daily schedules with custom daily tasks (1 DSA, 1 SQL, 1 Aptitude) to maintain streaks.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>23. Company-Specific AI Mentors</h5>
+                                <p>Configures virtual interviewers that replicate specific company hiring bars and coding behaviors.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>24. Placement Calendar</h5>
+                                <p>Saves recruitment events, exam timelines, and deadline logs.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>25. AI Notes Generator</h5>
+                                <p>Compiles study sheets and quick summaries for core CS concepts.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>26. AI Learning Mode</h5>
+                                <p>Expands solved answers into brute-force, optimized, and best runtime complexity alternatives.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>27. AI Recommendation Engine</h5>
+                                <p>Analyzes mock outcomes, recommending specific reference links and topics.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>28. Gamification Engine</h5>
+                                <p>Earn XP points, unlock milestone badges, and build daily streaks to maintain engagement.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>29. College Placement Analytics</h5>
+                                <p>Configures aggregates mapping college placement ratios, average packages, and batch benchmarks.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>30. AI Placement Copilot</h5>
+                                <p>A unified chatbot assistant matching your complete preparation history, generating custom study lists instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="/static/app.js"></script>
