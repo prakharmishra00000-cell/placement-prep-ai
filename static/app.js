@@ -17,7 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
         "coding": { title: "AI Coding IDE & Debugger", sub: "Write, trace, and debug programming solutions against hidden test cases" },
         "copilot": { title: "AI Doubt Solver & Copilot", sub: "Ask doubt queries, generate flashcards, and revise CS concepts" },
         "career_suite": { title: "AI Career Operating System Suite", sub: "Launch real-time simulations, gap reports, onboarding mock cycles, and recruiter evaluations for any engineering branch and company" },
-        "architecture": { title: "System Architecture & API Setup", sub: "Interactive reference specifications to configure, deploy, and connect the complete 230-feature platform stack" },
+        "recruiter": { title: "AI Recruiter Copilot & Screening Engine", sub: "Generate candidate shortlists, resume gap reports, and target team fit audits" },
+        "oa": { title: "Mock Online Assessment (OA) Simulator", sub: "Take simulated tests under strict timings with focus lock proctor diagnostics" },
+        "project": { title: "AI Project Evaluation Lab", sub: "Audit code originality, scalability design, database schemas, and architectural flaws" },
+        "negotiation": { title: "Offer Negotiation & Compensation Coach", sub: "Structure counter-offers, analyze location indices, and evaluate total CTC components" },
+        "settings": { title: "API Keys & Setup Settings", sub: "Add your Gemini and Vector DB credentials to configure the active server engine" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
@@ -959,6 +963,192 @@ document.addEventListener("DOMContentLoaded", () => {
             .finally(() => {
                 runSuiteBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Run AI Suite Simulation';
                 runSuiteBtn.disabled = false;
+            });
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Recruiter Copilot
+    // ----------------------------------------------------
+    const runRecruiterBtn = document.getElementById("run-recruiter-btn");
+    const recruiterBranch = document.getElementById("recruiter-branch");
+    const recruiterPersona = document.getElementById("recruiter-persona");
+    const recruiterReportCard = document.getElementById("recruiter-report-card");
+    const recruiterReportBody = document.getElementById("recruiter-report-body");
+
+    if (runRecruiterBtn) {
+        runRecruiterBtn.addEventListener("click", () => {
+            runRecruiterBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Screen-scanning...';
+            runRecruiterBtn.disabled = true;
+            recruiterReportCard.style.display = "none";
+
+            fetch("/api/career_suite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ branch: recruiterBranch.value, module_id: "1", company: currentCompany || "TCS" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                recruiterReportBody.innerHTML = data.report || "No evaluation metrics returned.";
+                recruiterReportCard.style.display = "block";
+            })
+            .catch(err => { console.error(err); alert("Assessment failed."); })
+            .finally(() => {
+                runRecruiterBtn.innerHTML = '<i class="fa-solid fa-glasses"></i> Run Recruiter Screening Assessment';
+                runRecruiterBtn.disabled = false;
+            });
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: OA Simulator
+    // ----------------------------------------------------
+    const runOaBtn = document.getElementById("run-oa-btn");
+    const oaDuration = document.getElementById("oa-duration");
+    const oaProctor = document.getElementById("oa-proctor");
+    const oaReportCard = document.getElementById("oa-report-card");
+    const oaReportBody = document.getElementById("oa-report-body");
+
+    if (runOaBtn) {
+        runOaBtn.addEventListener("click", () => {
+            runOaBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing OA sandbox...';
+            runOaBtn.disabled = true;
+            oaReportCard.style.display = "none";
+
+            fetch("/api/career_suite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ branch: "cse", module_id: "14", company: currentCompany || "TCS" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                oaReportBody.innerHTML = data.report || "No OA stats returned.";
+                oaReportCard.style.display = "block";
+            })
+            .catch(err => { console.error(err); alert("OA simulator start failed."); })
+            .finally(() => {
+                runOaBtn.innerHTML = '<i class="fa-solid fa-play"></i> Initialize Mock Exam';
+                runOaBtn.disabled = false;
+            });
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Project Evaluator
+    // ----------------------------------------------------
+    const runProjectBtn = document.getElementById("run-project-btn");
+    const projectDesc = document.getElementById("project-desc");
+    const projectReportCard = document.getElementById("project-report-card");
+    const projectReportBody = document.getElementById("project-report-body");
+
+    if (runProjectBtn) {
+        runProjectBtn.addEventListener("click", () => {
+            const desc = projectDesc.value.trim();
+            if (!desc) { alert("Please write a project description first."); return; }
+
+            runProjectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Auditing source code...';
+            runProjectBtn.disabled = true;
+            projectReportCard.style.display = "none";
+
+            fetch("/api/career_suite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ branch: "cse", module_id: "10", company: currentCompany || "TCS" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                projectReportBody.innerHTML = `<h5>Project Context Analysed:</h5><p>${desc}</p><br>` + (data.report || "");
+                projectReportCard.style.display = "block";
+            })
+            .catch(err => { console.error(err); alert("Project review failed."); })
+            .finally(() => {
+                runProjectBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart"></i> Run Project Architecture Audit';
+                runProjectBtn.disabled = false;
+            });
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Offer Negotiation
+    // ----------------------------------------------------
+    const runNegBtn = document.getElementById("run-neg-btn");
+    const negCtc = document.getElementById("neg-ctc");
+    const negLocation = document.getElementById("neg-location");
+    const negReportCard = document.getElementById("neg-report-card");
+    const negReportBody = document.getElementById("neg-report-body");
+
+    if (runNegBtn) {
+        runNegBtn.addEventListener("click", () => {
+            runNegBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Formulating strategy...';
+            runNegBtn.disabled = true;
+            negReportCard.style.display = "none";
+
+            fetch("/api/career_suite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ branch: "cse", module_id: "12", company: currentCompany || "TCS" })
+            })
+            .then(res => res.json())
+            .then(data => {
+                negReportBody.innerHTML = `<h5>Proposed Base Offer:</h5><p>CTC: ${negCtc.value} LPA, Location: ${negLocation.value}</p><br>` + (data.report || "");
+                negReportCard.style.display = "block";
+            })
+            .catch(err => { console.error(err); alert("Negotiation strategy computation failed."); })
+            .finally(() => {
+                runNegBtn.innerHTML = '<i class="fa-solid fa-file-signature"></i> Evolve Negotiation Strategy';
+                runNegBtn.disabled = false;
+            });
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: API Keys & Settings
+    // ----------------------------------------------------
+    const saveSettingsBtn = document.getElementById("save-settings-btn");
+    const setupGemini = document.getElementById("setup-gemini-key");
+    const setupVectorUrl = document.getElementById("setup-vector-url");
+    const setupVectorKey = document.getElementById("setup-vector-key");
+    const setupSpeech = document.getElementById("setup-speech-key");
+    const setupSearch = document.getElementById("setup-search-key");
+    const settingsStatus = document.getElementById("settings-status-box");
+
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener("click", () => {
+            const keys = {
+                gemini_key: setupGemini.value.trim(),
+                vector_url: setupVectorUrl.value.trim(),
+                vector_key: setupVectorKey.value.trim(),
+                speech_key: setupSpeech.value.trim(),
+                search_key: setupSearch.value.trim()
+            };
+
+            saveSettingsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            saveSettingsBtn.disabled = true;
+
+            fetch("/api/save_credentials", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(keys)
+            })
+            .then(res => res.json())
+            .then(data => {
+                settingsStatus.style.display = "block";
+                settingsStatus.style.background = data.success ? "rgba(0, 255, 102, 0.15)" : "rgba(255, 0, 85, 0.15)";
+                settingsStatus.style.border = data.success ? "1px solid var(--neon-cyan)" : "1px solid var(--neon-pink)";
+                settingsStatus.style.color = data.success ? "var(--neon-cyan)" : "var(--neon-pink)";
+                settingsStatus.textContent = data.message || "Credential status processed.";
+            })
+            .catch(err => {
+                console.error(err);
+                settingsStatus.style.display = "block";
+                settingsStatus.style.background = "rgba(255, 0, 85, 0.15)";
+                settingsStatus.style.border = "1px solid var(--neon-pink)";
+                settingsStatus.style.color = "var(--neon-pink)";
+                settingsStatus.textContent = "Error saving backend credentials.";
+            })
+            .finally(() => {
+                saveSettingsBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save & Load Backend Credentials';
+                saveSettingsBtn.disabled = false;
             });
         });
     }

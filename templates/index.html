@@ -86,9 +86,25 @@
                     <i class="fa-solid fa-briefcase"></i>
                     <span>AI Career OS Suite</span>
                 </a>
-                <a href="#" class="nav-item" data-tab="architecture">
-                    <i class="fa-solid fa-network-wired"></i>
-                    <span>System Architecture & Setup</span>
+                <a href="#" class="nav-item" data-tab="recruiter">
+                    <i class="fa-solid fa-user-ninja"></i>
+                    <span>AI Recruiter Copilot</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="oa">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Mock OA Simulator</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="project">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Project Evaluator</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="negotiation">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Offer Negotiation Coach</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="settings">
+                    <i class="fa-solid fa-gears"></i>
+                    <span>API Keys & Setup Settings</span>
                 </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
@@ -741,118 +757,161 @@
                 </div>
             </div>
 
-            <!-- Tab Content: System Architecture & Setup -->
-            <div class="tab-content" id="tab-architecture">
+            <!-- Tab Content: AI Recruiter Copilot -->
+            <div class="tab-content" id="tab-recruiter">
                 <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-network-wired text-neon-blue"></i> PrepOS AI - Enterprise System Architecture & Setup</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">To deploy the complete 230-feature campus hiring ecosystem, configure the full AI application stack and credentials using this reference blueprint.</p>
+                    <h3 class="panel-title"><i class="fa-solid fa-user-ninja text-neon-blue"></i> AI Recruiter Copilot & Screening Engine</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Evaluate candidate profiles from a recruiter's perspective. Simulate resume ranking scores, gap reports, and hiring manager personalities fit.</p>
                     
-                    <!-- Section: Component Breakdown -->
-                    <div style="margin-bottom: 2rem;">
-                        <h4 style="color: var(--neon-cyan); margin-bottom: 1rem;"><i class="fa-solid fa-layer-group"></i> 1. The Core AI Application Stack</h4>
-                        <div class="docs-table-wrapper" style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
-                                <thead>
-                                    <tr style="border-bottom: 2px solid var(--border-color); color: var(--neon-cyan);">
-                                        <th style="padding: 0.75rem 1rem;">Component</th>
-                                        <th style="padding: 0.75rem 1rem;">Required?</th>
-                                        <th style="padding: 0.75rem 1rem;">Infrastructure Role & Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="border-bottom: 1px solid var(--border-color);">
-                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Gemini API Key</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Drives technical reviews, mock interviews, AI resume suggestion prompts, and roadmap schedules.</td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid var(--border-color);">
-                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Relational Database (PostgreSQL)</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Saves user accounts, solved problem histories, digital twin profile vectors, and company data.</td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid var(--border-color);">
-                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Vector Database (Qdrant/Pinecone)</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Stores crawled interview blogs and experiences to ground Gemini using semantic similarity retrieval (RAG).</td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid var(--border-color);">
-                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Code Execution Sandbox (Docker)</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Safely compiles and runs coding solutions against hidden tests in isolated server sandboxes.</td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid var(--border-color);">
-                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Speech & Voice APIs (STT / TTS)</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--neon-cyan);">🎙️ For Voice</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Converts spoken responses to text (STT) and reads simulated questions aloud (TTS) for mock interviews.</td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid var(--border-color);">
-                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Web Search / Crawlers</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
-                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Monitors and scrapes latest off-campus job posts, referral openings, and updated patterns.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label for="recruiter-branch"><i class="fa-solid fa-code-branch"></i> Candidate Branch</label>
+                            <select id="recruiter-branch">
+                                <option value="cse">Computer Science (CSE/IT)</option>
+                                <option value="ece">Electronics (ECE/IoT)</option>
+                                <option value="mechanical">Mechanical Engineering</option>
+                                <option value="electrical">Electrical Engineering</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="recruiter-persona"><i class="fa-solid fa-user-tie"></i> Hiring Manager Profile</label>
+                            <select id="recruiter-persona">
+                                <option value="strict">Strict Technical Director</option>
+                                <option value="balanced">Product-focused Manager</option>
+                                <option value="behavioral">HR Cultural Lead</option>
+                            </select>
                         </div>
                     </div>
+                    
+                    <button id="run-recruiter-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
+                        <i class="fa-solid fa-glasses"></i> Run Recruiter Screening Assessment
+                    </button>
+                    
+                    <div id="recruiter-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-id-card-clip"></i> Recruiter Screening Output</h4>
+                        <div id="recruiter-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Section: Phase-by-Phase Process -->
-                    <div style="margin-bottom: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
-                        <h4 style="color: var(--neon-cyan); margin-bottom: 1rem;"><i class="fa-solid fa-list-check"></i> 2. Step-by-Step Setup Guide</h4>
-                        <div class="hiring-flow">
-                            <div class="flow-step">
-                                <div class="step-num">P1</div>
-                                <div class="step-name">Build the Orchestrator Backend</div>
-                                <div class="step-details">Create FastAPI/Flask routes to handle user logs, resume uploads, coding tests, and database storage.</div>
-                            </div>
-                            <div class="flow-step">
-                                <div class="step-num">P2</div>
-                                <div class="step-name">Secure Gemini API integration</div>
-                                <div class="step-details">Connect Gemini for reasoning (HR interviews, system design checks, custom roadmaps) utilizing local fallbacks.</div>
-                            </div>
-                            <div class="flow-step">
-                                <div class="step-num">P3</div>
-                                <div class="step-name">Provision Vector Database & RAG</div>
-                                <div class="step-details">Initialize Qdrant/Pinecone, vectorize company technical blogs, and query context before sending requests to Gemini.</div>
-                            </div>
-                            <div class="flow-step">
-                                <div class="step-num">P4</div>
-                                <div class="step-name">Dockerize Code Sandbox & Voice</div>
-                                <div class="step-details">Construct secure isolated Docker sandboxes for untrusted code runs, and hook STT/TTS voice interfaces.</div>
-                            </div>
-                            <div class="flow-step">
-                                <div class="step-num">P5</div>
-                                <div class="step-name">Configure Multi-Agent Scheduler</div>
-                                <div class="step-details">Deploy micro-agents (Resume Agent, Coding Agent) coordinated by a Master agent, with cron jobs for layout updates.</div>
-                            </div>
+            <!-- Tab Content: Mock OA Simulator -->
+            <div class="tab-content" id="tab-oa">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-stopwatch text-neon-yellow"></i> Timed Online Assessment (OA) Simulator</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Practice under timed, strict exam conditions with virtual proctor simulation alert logs.</p>
+                    
+                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label for="oa-duration"><i class="fa-solid fa-clock"></i> Test Duration</label>
+                            <select id="oa-duration">
+                                <option value="30">30 Minutes (Sprint OA)</option>
+                                <option value="60">60 Minutes (Standard OA)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="oa-proctor"><i class="fa-solid fa-shield-halved"></i> Proctor Strictness</label>
+                            <select id="oa-proctor">
+                                <option value="high">High (Strict Focus & Tab Lock)</option>
+                                <option value="low">Standard Warnings Only</option>
+                            </select>
                         </div>
                     </div>
+                    
+                    <button id="run-oa-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
+                        <i class="fa-solid fa-play"></i> Initialize Mock Exam
+                    </button>
+                    
+                    <div id="oa-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-graduation-cap"></i> OA Simulation Diagnostics</h4>
+                        <div id="oa-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Section: External API Keys Setup -->
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
-                        <h4 style="color: var(--neon-cyan); margin-bottom: 1rem;"><i class="fa-solid fa-key"></i> 3. Required External API Credentials</h4>
-                        <div class="docs-future-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
-                            <div class="docs-card" style="padding: 1.25rem;">
-                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-brain"></i> Gemini API Key</h5>
-                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">Handles interview evaluations, question generations, and CS concept solver operations.</p>
-                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://aistudio.google.com/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">Google AI Studio</a></span>
-                            </div>
-                            <div class="docs-card" style="padding: 1.25rem;">
-                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-database"></i> Managed Vector DB Key</h5>
-                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">Indexes crawled placement experiences for context search retrieval (RAG).</p>
-                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://www.pinecone.io/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">Pinecone Console</a> / Qdrant</span>
-                            </div>
-                            <div class="docs-card" style="padding: 1.25rem;">
-                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-microphone"></i> Speech & Text Services</h5>
-                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">Google Cloud / Azure Cognitive Speech keys to run voice-to-text mock interviews.</p>
-                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://console.cloud.google.com/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">Google Cloud Console</a></span>
-                            </div>
-                            <div class="docs-card" style="padding: 1.25rem;">
-                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-network-wired"></i> Search Scraper APIs</h5>
-                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">SerpAPI / Jina Reader credentials to crawl active off-campus job posts and hiring bulletins.</p>
-                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://serpapi.com/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">SerpAPI dashboard</a></span>
-                            </div>
+            <!-- Tab Content: Project Evaluator -->
+            <div class="tab-content" id="tab-project">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-folder-open text-neon-green-glow"></i> AI Project Evaluation Lab</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Submit project descriptions to review code originality, scalability, databases structures, and design weaknesses.</p>
+                    
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label for="project-desc"><i class="fa-solid fa-align-left"></i> Project Outline & Tech Stack</label>
+                        <textarea id="project-desc" rows="4" placeholder="Describe your project, databases used, and hosting details (e.g., 'A Python-Flask web app storing logs in SQLite with an HTML template')..." style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); padding: 0.75rem; font-family: inherit; font-size: 0.85rem;"></textarea>
+                    </div>
+                    
+                    <button id="run-project-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> Run Project Architecture Audit
+                    </button>
+                    
+                    <div id="project-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-diagram-project"></i> Project Review Card</h4>
+                        <div id="project-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Offer Negotiation Coach -->
+            <div class="tab-content" id="tab-negotiation">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-scale-balanced text-neon-pink"></i> Offer Negotiation & Package Coach</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Generate professional salary counter-offers and break down CTC components like in-hand, ESOPs, and relocations.</p>
+                    
+                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label for="neg-ctc"><i class="fa-solid fa-money-bill-wave"></i> Offered CTC (LPA)</label>
+                            <input type="number" id="neg-ctc" value="6" min="1" max="100">
+                        </div>
+                        <div class="input-group">
+                            <label for="neg-location"><i class="fa-solid fa-map-pin"></i> Target Location</label>
+                            <input type="text" id="neg-location" value="Bangalore" placeholder="e.g. Bangalore, Mumbai">
                         </div>
                     </div>
+                    
+                    <button id="run-neg-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
+                        <i class="fa-solid fa-file-signature"></i> Evolve Negotiation Strategy
+                    </button>
+                    
+                    <div id="neg-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-envelope-open-text"></i> Counter-Offer Letter Draft & CTC Analysis</h4>
+                        <div id="neg-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: API Keys & Setup Settings -->
+            <div class="tab-content" id="tab-settings">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-gears text-neon-cyan"></i> API Keys & Backend Setup Credentials</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Input and save your credentials directly. These keys are configured on the backend server instantly to activate full-scale features.</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+                        <div class="input-group">
+                            <label for="setup-gemini-key"><i class="fa-solid fa-brain"></i> Gemini API Key</label>
+                            <input type="password" id="setup-gemini-key" placeholder="Enter Google Gemini API Key (e.g. AIzaSy...)">
+                        </div>
+                        <div class="input-group">
+                            <label for="setup-vector-url"><i class="fa-solid fa-database"></i> Vector DB Endpoint (Pinecone / Qdrant URL)</label>
+                            <input type="text" id="setup-vector-url" placeholder="Enter Vector Database URL (e.g. https://...)">
+                        </div>
+                        <div class="input-group">
+                            <label for="setup-vector-key"><i class="fa-solid fa-key"></i> Vector DB API Key</label>
+                            <input type="password" id="setup-vector-key" placeholder="Enter Vector DB Credentials Key">
+                        </div>
+                        <div class="input-group">
+                            <label for="setup-speech-key"><i class="fa-solid fa-microphone"></i> Cognitive Speech/Voice API Key</label>
+                            <input type="password" id="setup-speech-key" placeholder="Enter Google Speech/Voice Key (optional)">
+                        </div>
+                        <div class="input-group">
+                            <label for="setup-search-key"><i class="fa-solid fa-magnifying-glass"></i> Web Search Scraper API Key (SerpAPI/Jina)</label>
+                            <input type="password" id="setup-search-key" placeholder="Enter Search Scraper API Key">
+                        </div>
+                    </div>
+                    
+                    <button id="save-settings-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save & Load Backend Credentials
+                    </button>
+                    
+                    <div id="settings-status-box" style="margin-top: 1.5rem; display: none; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; text-align: center;"></div>
                 </div>
             </div>
 

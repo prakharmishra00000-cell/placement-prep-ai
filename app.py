@@ -1225,5 +1225,40 @@ def run_career_suite_simulation():
     """
     return jsonify({"report": fallback_report})
 
+@app.route("/api/save_credentials", methods=["POST"])
+def save_backend_credentials():
+    data = request.get_json() or {}
+    gemini_key = data.get("gemini_key", "").strip()
+    vector_url = data.get("vector_url", "").strip()
+    vector_key = data.get("vector_key", "").strip()
+    speech_key = data.get("speech_key", "").strip()
+    search_key = data.get("search_key", "").strip()
+    
+    cfg = {}
+    if os.path.exists("config.json"):
+        try:
+            with open("config.json", "r") as f:
+                cfg = json.load(f)
+        except:
+            pass
+            
+    if gemini_key:
+        cfg["GEMINI_API_KEY"] = gemini_key
+    if vector_url:
+        cfg["VECTOR_DB_URL"] = vector_url
+    if vector_key:
+        cfg["VECTOR_DB_KEY"] = vector_key
+    if speech_key:
+        cfg["SPEECH_API_KEY"] = speech_key
+    if search_key:
+        cfg["SEARCH_API_KEY"] = search_key
+        
+    try:
+        with open("config.json", "w") as f:
+            json.dump(cfg, f, indent=4)
+        return jsonify({"success": True, "message": "API Credentials saved & loaded successfully on backend server!"})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Failed to save credentials: {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
