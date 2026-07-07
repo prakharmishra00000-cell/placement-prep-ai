@@ -86,6 +86,45 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    function syncDigitalTwinBranchAndCompany(branch, company) {
+        const companyNameEl = document.querySelector(".hiring-stages-prob h5");
+        if (companyNameEl && company) {
+            companyNameEl.textContent = `${company.toUpperCase()} Hiring Pipeline Probability`;
+        }
+
+        const skill1 = document.getElementById("twin-skill-1");
+        const skill2 = document.getElementById("twin-skill-2");
+        const skill3 = document.getElementById("twin-skill-3");
+        const skill4 = document.getElementById("twin-skill-4");
+        const skill5 = document.getElementById("twin-skill-5");
+
+        if (!skill1) return;
+
+        const bClean = branch.toLowerCase().trim();
+        if (["cse", "it"].includes(bClean)) {
+            skill1.textContent = "DSA Skill Level";
+            skill3.textContent = "System Design";
+        } else if (["ece", "ece_iot"].includes(bClean)) {
+            skill1.textContent = "VLSI & RTOS Design";
+            skill3.textContent = "Circuit Interfacing";
+        } else if (bClean === "mechanical") {
+            skill1.textContent = "CAD/CAM Drafting";
+            skill3.textContent = "Thermodynamics Core";
+        } else if (bClean === "electrical") {
+            skill1.textContent = "Machines & Power Grid";
+            skill3.textContent = "Circuit Schematics";
+        } else if (bClean === "civil") {
+            skill1.textContent = "RCC Design & Survey";
+            skill3.textContent = "Soil Mechanics";
+        } else if (bClean === "chemical") {
+            skill1.textContent = "Process Thermodynamics";
+            skill3.textContent = "Mass & Heat Transfer";
+        } else {
+            skill1.textContent = "Core Engineering Skill";
+            skill3.textContent = "Domain Theory";
+        }
+    }
+
     function fetchCompanyDetails(company, category) {
         searchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Researching...';
         searchBtn.disabled = true;
@@ -101,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 renderDashboard(data);
                 updateHiringAnalyzer(data);
+                syncDigitalTwinBranchAndCompany(branchVal, company);
             })
             .catch(err => {
                 console.error(err);
