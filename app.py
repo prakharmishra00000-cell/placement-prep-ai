@@ -685,8 +685,21 @@ def is_valid_key(k):
         return False
     return True
 
+def get_credential(key_name):
+    val = os.environ.get(key_name, "").strip()
+    if val:
+        return val
+    if os.path.exists("config.json"):
+        try:
+            with open("config.json", "r") as f:
+                cfg = json.load(f)
+                return cfg.get(key_name, "").strip()
+        except:
+            pass
+    return ""
+
 def get_backend_gemini_key():
-    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    key = get_credential("GEMINI_API_KEY")
     if is_valid_key(key):
         return key
     if os.path.exists("config.json"):
