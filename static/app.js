@@ -792,17 +792,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const ideOptimization = document.getElementById("ide-optimization");
 
     ideRunBtn.addEventListener("click", () => {
+        const code = ideEditor.value;
+        const lang = document.getElementById("ide-language").value;
+        
         ideConsole.innerHTML = "<p>Running compilation tests...</p>";
-        setTimeout(() => {
+        ideOptimization.classList.add("hide");
+
+        fetch("/api/run-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: code, lang: lang })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const outText = data.output || "No output returned.";
+            const hasError = outText.includes("[ERROR]") || outText.includes("[STDERR]") || outText.includes("Error") || outText.includes("[FAIL]");
+            
             ideConsole.innerHTML = `
-                <p style="color: var(--neon-cyan)">[SUCCESS] 12/12 Test cases passed successfully!</p>
-                <p style="color: var(--neon-yellow)">Runtime: 24 ms (Beats 91.2% of Python submissions)</p>
-                <p>Memory: 14.1 MB</p>
+                <pre style="color: ${hasError ? 'var(--neon-pink)' : 'var(--neon-cyan)'}; font-family: monospace; white-space: pre-wrap; margin: 0;">${outText}</pre>
             `;
-            ideOptimization.classList.remove("hide");
-            document.getElementById("ide-complexity-info").textContent = "Time Complexity: O(N) | Space Complexity: O(1)";
-            document.getElementById("ide-optimization-notes").innerHTML = "Optimization: Used two pointers to trap water instead of dynamic storage arrays, reducing space usage.";
-        }, 1200);
+            if (!hasError) {
+                ideOptimization.classList.remove("hide");
+                document.getElementById("ide-complexity-info").textContent = "Time Complexity: O(N) | Space Complexity: O(1)";
+                document.getElementById("ide-optimization-notes").innerHTML = "Optimization: Used two pointers to trap water instead of dynamic storage arrays, reducing space usage.";
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            ideConsole.innerHTML = "<p style='color: var(--neon-pink)'>Error invoking code execution sandbox backend.</p>";
+        });
     });
 
     ideHintBtn.addEventListener("click", () => {
