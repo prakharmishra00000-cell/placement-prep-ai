@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "roadmap": { title: "Personalized Roadmap Generator", sub: "Generate customized study schedules, weekly goals, and calendars" },
         "coding": { title: "AI Coding IDE & Debugger", sub: "Write, trace, and debug programming solutions against hidden test cases" },
         "copilot": { title: "AI Doubt Solver & Copilot", sub: "Ask doubt queries, generate flashcards, and revise CS concepts" },
+        "career_suite": { title: "AI Career Operating System Suite", sub: "Launch real-time simulations, gap reports, onboarding mock cycles, and recruiter evaluations for any engineering branch and company" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 60 flagship features work" }
     };
 
@@ -915,6 +916,50 @@ document.addEventListener("DOMContentLoaded", () => {
         div.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="msg-body">${text.replace(/\n/g, "<br>")}</div>`;
         copilotMessages.appendChild(div);
         copilotMessages.scrollTop = copilotMessages.scrollHeight;
+    }
+
+    // ----------------------------------------------------
+    // Tab: AI Career OS Suite Logic
+    // ----------------------------------------------------
+    const runSuiteBtn = document.getElementById("run-suite-btn");
+    const suiteBranch = document.getElementById("suite-branch-select");
+    const suiteModule = document.getElementById("suite-module-select");
+    const suiteCompany = document.getElementById("suite-company-name");
+    const suiteResultCard = document.getElementById("suite-result-card");
+    const suiteResultBody = document.getElementById("suite-result-body");
+    const suiteResultTitle = document.getElementById("suite-result-title");
+
+    if (runSuiteBtn) {
+        runSuiteBtn.addEventListener("click", () => {
+            const branch = suiteBranch.value;
+            const moduleId = suiteModule.value;
+            const company = suiteCompany.value.trim() || "TCS";
+            const moduleText = suiteModule.options[suiteModule.selectedIndex].text;
+
+            runSuiteBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Simulation...';
+            runSuiteBtn.disabled = true;
+            suiteResultCard.style.display = "none";
+
+            fetch("/api/career_suite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ branch, module_id: moduleId, company })
+            })
+            .then(res => res.json())
+            .then(data => {
+                suiteResultTitle.innerHTML = `<i class="fa-solid fa-square-poll-vertical"></i> Simulation Report: ${moduleText} for ${company.toUpperCase()}`;
+                suiteResultBody.innerHTML = data.report || "No simulation details returned.";
+                suiteResultCard.style.display = "block";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error running career suite simulation.");
+            })
+            .finally(() => {
+                runSuiteBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Run AI Suite Simulation';
+                runSuiteBtn.disabled = false;
+            });
+        });
     }
 
     // Initialize first load

@@ -82,6 +82,10 @@
                     <i class="fa-solid fa-robot"></i>
                     <span>AI Doubt Solver</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="career_suite">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <span>AI Career OS Suite</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
                     <span>User Guide (60 Features)</span>
@@ -662,6 +666,73 @@
                     <div class="chat-input-bar">
                         <input type="text" id="copilot-input" placeholder="Type your query (e.g. 'Explain binary search space complexity', 'Give me 5 DBMS flashcards')">
                         <button id="send-copilot-btn" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: AI Career OS Suite -->
+            <div class="tab-content" id="tab-career_suite">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-briefcase text-neon-blue"></i> AI Career Operating System Suite</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Launch real-time simulations, gap reports, onboarding mock cycles, and recruiter evaluations for any engineering branch and company.</p>
+                    
+                    <div class="search-inputs" style="margin-bottom: 2rem;">
+                        <div class="input-group">
+                            <label for="suite-branch-select"><i class="fa-solid fa-code-branch"></i> Select Engineering Branch</label>
+                            <select id="suite-branch-select">
+                                <option value="cse" selected>Computer Science (CSE / IT)</option>
+                                <option value="ece">Electronics & Communication (ECE / IoT)</option>
+                                <option value="mechanical">Mechanical Engineering</option>
+                                <option value="electrical">Electrical Engineering</option>
+                                <option value="civil">Civil Engineering</option>
+                                <option value="chemical">Chemical Engineering</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="suite-module-select"><i class="fa-solid fa-gears"></i> Select AI Career OS Module</label>
+                            <select id="suite-module-select">
+                                <option value="1">1. AI Recruiter Copilot (Enterprise Check)</option>
+                                <option value="2">2. AI Placement Cell Dashboard Summary</option>
+                                <option value="3">3. AI Career Intelligence & Forecast</option>
+                                <option value="4">4. Live Coding / System Design Lab</option>
+                                <option value="5">5. AI Placement Intelligence Network Logs</option>
+                                <option value="6">6. Autonomous Multi-Agent Grid Launch</option>
+                                <option value="7">7. Personal AI Mentor (Motivation/Habit Audit)</option>
+                                <option value="8">8. Real-Time Market Intelligence Scanner</option>
+                                <option value="9">9. Adaptive AI Learning Engine Quiz</option>
+                                <option value="10">10. AI Project Builder & Architecture Spec</option>
+                                <option value="11">11. AI Networking & Referral Assistant</option>
+                                <option value="12">12. AI Negotiation & Tax Analyzer</option>
+                                <option value="13">13. AI Company Research & Layoff Risk Index</option>
+                                <option value="14">14. AI Assessment & OA Pattern Generator</option>
+                                <option value="15">15. AI Digital Portfolio & Resume Website Build</option>
+                                <option value="16">16. AI Company Simulation (First 6 Months standup)</option>
+                                <option value="17">17. AI System Design & Pipeline Lab</option>
+                                <option value="18">18. AI Coding & Performance Analytics Profile</option>
+                                <option value="19">19. AI Hackathon Planner & PPT Pitch</option>
+                                <option value="20">20. AI Enterprise Knowledge Graph Lookup</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="suite-company-name"><i class="fa-solid fa-building"></i> Target Company</label>
+                            <input type="text" id="suite-company-name" value="TCS" placeholder="Enter company name...">
+                        </div>
+                    </div>
+
+                    <button id="run-suite-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 2rem;">
+                        <i class="fa-solid fa-bolt"></i> Run AI Suite Simulation
+                    </button>
+
+                    <!-- Simulation Result Container -->
+                    <div id="suite-result-card" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                        <h4 style="margin-bottom: 1rem; color: var(--neon-cyan); display: flex; align-items: center; gap: 0.5rem;" id="suite-result-title">
+                            <i class="fa-solid fa-square-poll-vertical"></i> Simulation Report
+                        </h4>
+                        <div id="suite-result-body" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary);">
+                            <!-- Dynamic Content -->
+                        </div>
                     </div>
                 </div>
             </div>

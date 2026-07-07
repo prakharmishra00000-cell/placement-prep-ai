@@ -1150,5 +1150,80 @@ except Exception as e:
             
     return jsonify({"output": output})
 
+@app.route("/api/career_suite", methods=["POST"])
+def run_career_suite_simulation():
+    data = request.get_json() or {}
+    branch = data.get("branch", "cse")
+    module_id = str(data.get("module_id", "1"))
+    company = data.get("company", "TCS").strip()
+    
+    api_key = get_api_key()
+    module_names = {
+        "1": "AI Recruiter Copilot (Enterprise Check)",
+        "2": "AI Placement Cell Dashboard Summary",
+        "3": "AI Career Intelligence & Forecast",
+        "4": "Live Coding / System Design Lab",
+        "5": "AI Placement Intelligence Network Logs",
+        "6": "Autonomous Multi-Agent Grid Launch",
+        "7": "Personal AI Mentor (Motivation/Habit Audit)",
+        "8": "Real-Time Market Intelligence Scanner",
+        "9": "Adaptive AI Learning Engine Quiz",
+        "10": "AI Project Builder & Architecture Spec",
+        "11": "AI Networking & Referral Assistant",
+        "12": "AI Negotiation & Tax Analyzer",
+        "13": "AI Company Research & Layoff Risk Index",
+        "14": "AI Assessment & OA Pattern Generator",
+        "15": "AI Digital Portfolio & Resume Website Build",
+        "16": "AI Company Simulation (First 6 Months standup)",
+        "17": "AI System Design & Pipeline Lab",
+        "18": "AI Coding & Performance Analytics Profile",
+        "19": "AI Hackathon Planner & PPT Pitch",
+        "20": "AI Enterprise Knowledge Graph Lookup"
+    }
+    
+    module_name = module_names.get(module_id, "AI Career OS Tool")
+    
+    if api_key:
+        try:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            prompt = f"""
+            You are PrepOS AI Career Operating System.
+            Analyze and run a dynamic simulation report for:
+            - Engineering Branch: {branch}
+            - Target Company: {company}
+            - Career OS Feature Module: {module_name} (Module ID: {module_id})
+            
+            Provide a detailed report in HTML format. Do NOT wrap it in ```html markdown fences. Just give the raw HTML tags (using headers, bullets, or paragraphs, and highlighting key parameters in neon green/cyan spans).
+            Make the report highly custom to the combination of the {branch} branch and {company} core/tech requirements.
+            Ensure it covers:
+            1. Overview of how this feature applies to {branch} candidates matching with {company}.
+            2. Simulated Data and Metrics (e.g. gap scores, custom salary comparisons, standing roles, or Jira stand-up tickets).
+            3. Recommended actionable steps to optimize this module's readiness score.
+            """
+            response = model.generate_content(prompt)
+            return jsonify({"report": response.text})
+        except Exception as e:
+            print("Gemini Career Suite Error:", e)
+            
+    # Fallback response
+    fallback_report = f"""
+    <h4>⚡ [SIMULATED] {module_name} Report</h4>
+    <p style='margin-top: 0.5rem;'><strong>Branch Context:</strong> Tailored for <strong>{branch.upper()}</strong> branch requirements at <strong>{company.toUpperCase()}</strong>.</p>
+    
+    <div style='margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-color); background: rgba(0,255,102,0.05); border-radius: 8px;'>
+        <h5 style='color: var(--neon-cyan); margin-bottom: 0.5rem;'>📋 Active Simulation Output:</h5>
+        <ul style='margin-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;'>
+            <li><strong>Recruiter Recommendation Match:</strong> <span style='color: var(--neon-blue); font-weight: bold;'>84%</span></li>
+            <li><strong>Core Domain Gap:</strong> Recommends reviewing {branch.upper()} standards specifically tested by {company.toUpperCase()} interviewers.</li>
+            <li><strong>Mock Jira standup task:</strong> Integrate and test subsystem controllers matching {branch.upper()} protocols.</li>
+            <li><strong>Simulated 5-Year Compensation Package:</strong> Average compound growth rate of <span style='color: var(--neon-green-glow);'>+12.4% annually</span>.</li>
+        </ul>
+    </div>
+    
+    <p style='margin-top: 1rem;'><strong>Action Plan:</strong> Launch the specific core roadmaps under the <em>Roadmap Generator</em> tab or verify matching resumes in the <em>Resume Analyzer</em> to optimize this profile twin.</p>
+    """
+    return jsonify({"report": fallback_report})
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
