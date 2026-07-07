@@ -1104,6 +1104,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----------------------------------------------------
     // Tab: API Keys & Settings
     // ----------------------------------------------------
+    const sadminAuthBtn = document.getElementById("sadmin-auth-btn");
+    const sadminPin = document.getElementById("sadmin-pin");
+    const sadminLockScreen = document.getElementById("sadmin-lock-screen");
+    const sadminConfigFields = document.getElementById("sadmin-config-fields");
+
+    if (sadminAuthBtn) {
+        sadminAuthBtn.addEventListener("click", () => {
+            const pin = sadminPin.value;
+            if (pin === "9876") {
+                sadminLockScreen.style.display = "none";
+                sadminConfigFields.style.display = "block";
+            } else {
+                alert("Access Denied: Invalid Super Admin PIN.");
+            }
+        });
+    }
+
     const saveSettingsBtn = document.getElementById("save-settings-btn");
     const setupGemini = document.getElementById("setup-gemini-key");
     const setupVectorUrl = document.getElementById("setup-vector-url");

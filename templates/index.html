@@ -881,35 +881,54 @@
             <!-- Tab Content: API Keys & Setup Settings -->
             <div class="tab-content" id="tab-settings">
                 <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-gears text-neon-cyan"></i> API Keys & Backend Setup Credentials</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Input and save your credentials directly. These keys are configured on the backend server instantly to activate full-scale features.</p>
+                    <h3 class="panel-title"><i class="fa-solid fa-gears text-neon-cyan"></i> Super Admin (SAdmin) API Control Panel</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Secure console for system administrators. Students do not need to configure any keys; all features run automatically utilizing server credentials.</p>
                     
-                    <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
-                        <div class="input-group">
-                            <label for="setup-gemini-key"><i class="fa-solid fa-brain"></i> Gemini API Key</label>
-                            <input type="password" id="setup-gemini-key" placeholder="Enter Google Gemini API Key (e.g. AIzaSy...)">
+                    <!-- Authorization Lock Screen -->
+                    <div id="sadmin-lock-screen" style="padding: 2rem; text-align: center; border: 1px dashed var(--border-color); border-radius: 8px; background: rgba(255,255,255,0.02); margin-bottom: 2rem;">
+                        <i class="fa-solid fa-lock text-neon-pink" style="font-size: 2.5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(255, 0, 85, 0.3));"></i>
+                        <h4 style="margin-bottom: 0.5rem; color: var(--text-primary);">System Configuration Locked</h4>
+                        <p class="text-muted" style="font-size: 0.8rem; margin-bottom: 1.5rem;">Please verify your SAdmin Authentication PIN to access credentials setup.</p>
+                        
+                        <div class="input-group" style="max-width: 300px; margin: 0 auto 1rem auto; text-align: left;">
+                            <label for="sadmin-pin"><i class="fa-solid fa-key"></i> SAdmin PIN</label>
+                            <input type="password" id="sadmin-pin" placeholder="Enter Admin Authorization PIN (default: 9876)">
                         </div>
-                        <div class="input-group">
-                            <label for="setup-vector-url"><i class="fa-solid fa-database"></i> Vector DB Endpoint (Pinecone / Qdrant URL)</label>
-                            <input type="text" id="setup-vector-url" placeholder="Enter Vector Database URL (e.g. https://...)">
-                        </div>
-                        <div class="input-group">
-                            <label for="setup-vector-key"><i class="fa-solid fa-key"></i> Vector DB API Key</label>
-                            <input type="password" id="setup-vector-key" placeholder="Enter Vector DB Credentials Key">
-                        </div>
-                        <div class="input-group">
-                            <label for="setup-speech-key"><i class="fa-solid fa-microphone"></i> Cognitive Speech/Voice API Key</label>
-                            <input type="password" id="setup-speech-key" placeholder="Enter Google Speech/Voice Key (optional)">
-                        </div>
-                        <div class="input-group">
-                            <label for="setup-search-key"><i class="fa-solid fa-magnifying-glass"></i> Web Search Scraper API Key (SerpAPI/Jina)</label>
-                            <input type="password" id="setup-search-key" placeholder="Enter Search Scraper API Key">
-                        </div>
+                        
+                        <button id="sadmin-auth-btn" class="btn btn-primary" style="margin: 0 auto; display: flex; justify-content: center; font-size: 0.85rem;">
+                            <i class="fa-solid fa-unlock-keyhole"></i> Verify & Unlock Settings
+                        </button>
                     </div>
-                    
-                    <button id="save-settings-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                        <i class="fa-solid fa-floppy-disk"></i> Save & Load Backend Credentials
-                    </button>
+
+                    <!-- Config Fields Container (Initially Hidden) -->
+                    <div id="sadmin-config-fields" style="display: none;">
+                        <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+                            <div class="input-group">
+                                <label for="setup-gemini-key"><i class="fa-solid fa-brain"></i> Gemini API Key</label>
+                                <input type="password" id="setup-gemini-key" placeholder="Enter Google Gemini API Key (e.g. AIzaSy...)">
+                            </div>
+                            <div class="input-group">
+                                <label for="setup-vector-url"><i class="fa-solid fa-database"></i> Vector DB Endpoint (Pinecone / Qdrant URL)</label>
+                                <input type="text" id="setup-vector-url" placeholder="Enter Vector Database URL (e.g. https://...)">
+                            </div>
+                            <div class="input-group">
+                                <label for="setup-vector-key"><i class="fa-solid fa-key"></i> Vector DB API Key</label>
+                                <input type="password" id="setup-vector-key" placeholder="Enter Vector DB Credentials Key">
+                            </div>
+                            <div class="input-group">
+                                <label for="setup-speech-key"><i class="fa-solid fa-microphone"></i> Cognitive Speech/Voice API Key</label>
+                                <input type="password" id="setup-speech-key" placeholder="Enter Google Speech/Voice Key (optional)">
+                            </div>
+                            <div class="input-group">
+                                <label for="setup-search-key"><i class="fa-solid fa-magnifying-glass"></i> Web Search Scraper API Key (SerpAPI/Jina)</label>
+                                <input type="password" id="setup-search-key" placeholder="Enter Search Scraper API Key">
+                            </div>
+                        </div>
+                        
+                        <button id="save-settings-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save & Load Backend Credentials
+                        </button>
+                    </div>
                     
                     <div id="settings-status-box" style="margin-top: 1.5rem; display: none; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; text-align: center;"></div>
                 </div>
