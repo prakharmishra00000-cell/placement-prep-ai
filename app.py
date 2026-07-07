@@ -188,6 +188,38 @@ def classify_company_domain(company_name):
         
     return "software"
 
+def scrape_company_meta(company_name, domain):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36'
+    }
+    scraped_salary = None
+    scraped_tips = []
+    
+    query = f"{company_name} placement preparation salary package selection process freshers"
+    url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query)}"
+    
+    try:
+        r = requests.get(url, headers=headers, timeout=8)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, 'html.parser')
+            snippets = []
+            for a in soup.find_all('a', class_='result__snippet'):
+                snippets.append(a.get_text().strip())
+            
+            # Find salary patterns
+            all_text = " ".join(snippets)
+            sal_matches = re.findall(r'(\d+(?:\.\d+)?\s*(?:-|to)?\s*\d*(?:\.\d+)?\s*(?:LPA|Lakhs|Lakh|Cr|Crore))', all_text, re.IGNORECASE)
+            if sal_matches:
+                scraped_salary = ", ".join(list(dict.fromkeys(sal_matches))[:3])
+            
+            for snip in snippets[:5]:
+                if any(x in snip.lower() for x in ["round", "test", "interview", "written", "selection", "prepare", "aptitude", "syllabus", "eligibility"]):
+                    scraped_tips.append(snip)
+    except Exception as e:
+        print("Meta scrape failed:", e)
+        
+    return scraped_salary, scraped_tips
+
 def synthesize_company_data(company_name, category, branch="cse"):
     c_key = company_name.lower().strip()
     
@@ -204,6 +236,9 @@ def synthesize_company_data(company_name, category, branch="cse"):
     
     # Classify the domain of the target company
     domain = classify_company_domain(company_name)
+    
+    # Scrape internet for company-specific metrics
+    scraped_sal_str, scraped_tips_list = scrape_company_meta(company_name, domain)
     
     # Override domain if branch parameter is provided
     if branch:
@@ -439,6 +474,20 @@ def synthesize_company_data(company_name, category, branch="cse"):
             }
 
     all_pyqs = (scraped_questions or []) + generate_55_pyqs(company_name, domain)
+    
+    # Dynamic Override with real scraped internet data
+    if scraped_sal_str:
+        if "tiers" in salary and len(salary["tiers"]) > 0:
+            salary["tiers"][0]["package"] = scraped_sal_str
+            salary["tiers"][0]["details"] = f"Scraped from freshers salary feedback: {scraped_sal_str}"
+        if len(career_path) > 0:
+            career_path[0]["salary"] = scraped_sal_str
+
+    if scraped_tips_list:
+        tips["technical"] = f"Internet Research Insight: {scraped_tips_list[0]}\n\n{tips['technical']}"
+        if len(scraped_tips_list) > 1:
+            tips["assessment"] = f"Selection Stage Details: {scraped_tips_list[1]}\n\n{tips['assessment']}"
+
     return {
         "name": company_name.title(),
         "skills": skills,
