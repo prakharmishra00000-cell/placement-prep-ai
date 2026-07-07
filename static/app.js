@@ -579,6 +579,10 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(data => {
             resumeLoader.classList.add("hide");
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
             resumeResultPanel.classList.remove("hide");
 
             const score = data.score || 75;
