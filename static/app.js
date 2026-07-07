@@ -643,8 +643,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const roadmapOutputPanel = document.getElementById("roadmap-output-panel");
 
     generateRoadmapBtn.addEventListener("click", () => {
+        const year = document.getElementById("roadmap-year").value;
         const branch = document.getElementById("roadmap-branch").value.trim() || "CSE";
         const target = document.getElementById("roadmap-target").value.trim() || "Microsoft";
+        const level = document.getElementById("roadmap-level").value;
+        const time = document.getElementById("roadmap-time").value;
 
         roadmapLoader.classList.remove("hide");
         roadmapOutputPanel.classList.add("hide");
@@ -653,24 +656,112 @@ document.addEventListener("DOMContentLoaded", () => {
             roadmapLoader.classList.add("hide");
             roadmapOutputPanel.classList.remove("hide");
 
-            document.getElementById("roadmap-monthly").innerHTML = `
-                <p><strong>Month 1:</strong> Revise fundamental Data Structures (Arrays, Hashing, Recursion) and core ${branch} subjects.</p>
-                <p><strong>Month 2:</strong> Master Advanced Algorithms (Dynamic Programming, Graphs, SQL Queries).</p>
-                <p><strong>Month 3:</strong> Solve previous year papers of ${target} on IndiaBIX and mock sheets.</p>
-                <p><strong>Month 4:</strong> Practice simulated behavioral rounds and attempt Mock OAs.</p>
-            `;
+            const isCore = ["mechanical", "electrical", "civil", "chemical", "ece_iot"].includes(branch.toLowerCase().replace(/\s/g, ""));
+            let monthlyHtml = "";
+            let weeklyHtml = "";
+            let dailyHtml = "";
 
-            document.getElementById("roadmap-weekly").innerHTML = `
-                <p><strong>Week 1-2:</strong> Focus heavily on String sliding windows and Hash maps.</p>
-                <p><strong>Week 3-4:</strong> Complete database transaction isolations & SQL Joins.</p>
-            `;
+            const monthsCount = parseInt(time) || 4;
 
-            document.getElementById("roadmap-daily").innerHTML = `
-                <p><strong>09:00 AM - 11:00 AM:</strong> Solve 2 coding problems (Arrays/DP).</p>
-                <p><strong>03:00 PM - 04:30 PM:</strong> SQL Query optimization practices.</p>
-                <p><strong>07:00 PM - 08:30 PM:</strong> Mock revision of HR STAR stories.</p>
-            `;
-        }, 1500);
+            // 1. Monthly Milestones
+            if (time === "1 Month") {
+                if (isCore) {
+                    monthlyHtml = `
+                        <p><strong>Week 1:</strong> Revise core ${branch} laws (e.g. Thermodynamics, Circuits, or Concrete mix ratios) and basic design tools.</p>
+                        <p><strong>Week 2:</strong> Solve GATE-level MCQs and basic quantitative aptitude logic.</p>
+                        <p><strong>Week 3:</strong> Review previous year interview sheets of ${target} for core engineering rounds.</p>
+                        <p><strong>Week 4:</strong> Conduct mock interviews and prepare STAR story summaries for HR manager evaluation.</p>
+                    `;
+                } else {
+                    monthlyHtml = `
+                        <p><strong>Week 1:</strong> Master arrays, strings, hash maps, and sliding window paradigms (${level} level).</p>
+                        <p><strong>Week 2:</strong> Complete recursion, basic trees, and SQL Join queries.</p>
+                        <p><strong>Week 3:</strong> Solve top previous year coding questions asked at ${target}.</p>
+                        <p><strong>Week 4:</strong> Take Mock Online Assessments (OAs) and revise behavioral questions.</p>
+                    `;
+                }
+            } else {
+                for (let i = 1; i <= monthsCount; i++) {
+                    if (i === 1) {
+                        if (isCore) {
+                            monthlyHtml += `<p><strong>Month 1 (Foundations):</strong> Master fundamental ${branch} equations, drawing layouts, and basic numerical aptitude.</p>`;
+                        } else {
+                            if (level === "Beginner") {
+                                monthlyHtml += `<p><strong>Month 1 (Syntax):</strong> Learn programming fundamentals (Loops, Functions, Arrays) in C++/Python.</p>`;
+                            } else {
+                                monthlyHtml += `<p><strong>Month 1 (Data Structures):</strong> Deep dive into Stacks, Queues, Linked Lists, and hash maps.</p>`;
+                            }
+                        }
+                    } else if (i === 2) {
+                        if (isCore) {
+                            monthlyHtml += `<p><strong>Month 2 (Core Depth):</strong> Practice design tools (AutoCAD, MATLAB, Proteus) and core subject papers.</p>`;
+                        } else {
+                            if (level === "Advanced") {
+                                monthlyHtml += `<p><strong>Month 2 (Advanced DSA):</strong> Master Dynamic Programming state transitions and Graph algorithms.</p>`;
+                            } else {
+                                monthlyHtml += `<p><strong>Month 2 (Algorithms):</strong> Practice Binary Search, Recursion, and basic DBMS SQL queries.</p>`;
+                            }
+                        }
+                    } else if (i === 3) {
+                        monthlyHtml += `<p><strong>Month 3 (Company Prep):</strong> Focus heavily on solved PYQs and aptitude patterns specific to ${target}.</p>`;
+                    } else if (i === 4) {
+                        monthlyHtml += `<p><strong>Month 4 (Mock Drills):</strong> Conduct mock interviews, resume ATS updates, and solve behavioral cases.</p>`;
+                    } else {
+                        monthlyHtml += `<p><strong>Month ${i} (Refining & Scaling):</strong> Participate in competitive mock sheets, system design drills, and apply for referrals.</p>`;
+                    }
+                }
+            }
+            document.getElementById("roadmap-monthly").innerHTML = monthlyHtml;
+
+            // 2. Weekly Goals (Adapting to College Year and Branch)
+            if (year.includes("1st") || year.includes("2nd")) {
+                weeklyHtml = `
+                    <p><strong>Focus (GPA & Projects):</strong> Keep college GPA above 8.0. Work on a minor project combining ${branch} with basic programming.</p>
+                    <p><strong>Resource Study:</strong> Read fundamental textbooks and watch targeted subject tutorials (2 hours/week).</p>
+                `;
+            } else {
+                weeklyHtml = `
+                    <p><strong>Focus (Job Readiness):</strong> Dedicate 80% of preparation to previous year test sheets of ${target}.</p>
+                    <p><strong>ATS Optimization:</strong> Match your resume metrics against the targeted job requirements.</p>
+                `;
+            }
+            document.getElementById("roadmap-weekly").innerHTML = weeklyHtml;
+
+            // 3. Daily Goals (Adapting to DSA Coding Level)
+            if (isCore) {
+                dailyHtml = `
+                    <p><strong>09:00 AM - 11:30 AM:</strong> Solve 3 core subject concept chapters (Thermodynamics, VLSI, or Concrete).</p>
+                    <p><strong>02:00 PM - 03:30 PM:</strong> Solve 15 numerical aptitude / logical reasoning MCQs.</p>
+                    <p><strong>07:00 PM - 08:30 PM:</strong> Project design drafting / AutoCAD layout review.</p>
+                `;
+            } else {
+                if (level === "Beginner") {
+                    dailyHtml = `
+                        <p><strong>09:00 AM - 11:30 AM:</strong> Complete 2 basic coding syntax exercises (Variables, Loops, Conditions).</p>
+                        <p><strong>02:00 PM - 03:30 PM:</strong> Read and dry-run simple array traversal algorithms.</p>
+                        <p><strong>07:00 PM - 08:30 PM:</strong> Solve basic logical aptitude questions.</p>
+                    `;
+                } else {
+                    dailyHtml = `
+                        <p><strong>09:00 AM - 11:30 AM:</strong> Solve 2 medium-to-hard LeetCode problems (Graphs / Trees / DP).</p>
+                        <p><strong>02:00 PM - 03:30 PM:</strong> Practice advanced SQL queries (Window functions, joins).</p>
+                        <p><strong>07:00 PM - 08:30 PM:</strong> Revise Object-Oriented Design patterns or System Design cases.</p>
+                    `;
+                }
+            }
+            document.getElementById("roadmap-daily").innerHTML = dailyHtml;
+
+            // Sync with Digital Twin
+            const twinSkills = document.querySelectorAll(".twin-skill");
+            twinSkills.forEach(skill => {
+                if (skill.textContent.includes("Aptitude Speed") && time === "1 Month") {
+                    const meter = skill.querySelector(".skill-meter span");
+                    const val = skill.querySelector(".val");
+                    if (meter) meter.style.width = `88%`;
+                    if (val) val.textContent = `88%`;
+                }
+            });
+        }, 1200);
     });
 
     // ----------------------------------------------------
