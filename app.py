@@ -818,10 +818,172 @@ def custom_query():
     return jsonify({"answer": response_text})
 
 def generate_smart_answer(prompt, company, category):
-    p_lower = prompt.lower()
+    p_lower = prompt.lower().strip()
     comp_title = company.title() if company else "the company"
     domain = classify_company_domain(company)
     
+    # 1. Coding & Algorithm Queries
+    if "reverse" in p_lower and "string" in p_lower:
+        return (
+            "### Solve: Reverse a String\n"
+            "Here is the optimal algorithm to reverse a string in-place using two pointers (Time: O(N), Space: O(1)):\n\n"
+            "```python\n"
+            "def reverse_string(s):\n"
+            "    left, right = 0, len(s) - 1\n"
+            "    while left < right:\n"
+            "        s[left], s[right] = s[right], s[left]\n"
+            "        left += 1\n"
+            "        right -= 1\n"
+            "    return s\n"
+            "```\n"
+            "**Dry Run**: For `s = ['h','e','l','l','o']`, swapping index `0` and `4` gives `['o','e','l','l','h']`. Swapping `1` and `3` gives `['o','l','l','e','h']`."
+        )
+    if "fibonacci" in p_lower:
+        return (
+            "### Solve: Fibonacci Sequence\n"
+            "Optimal space-optimized dynamic programming approach (Time: O(N), Space: O(1)):\n\n"
+            "```python\n"
+            "def fibonacci(n):\n"
+            "    if n <= 1: return n\n"
+            "    a, b = 0, 1\n"
+            "    for _ in range(2, n + 1):\n"
+            "        a, b = b, a + b\n"
+            "        return b\n"
+            "```"
+        )
+    if "prime" in p_lower and ("number" in p_lower or "check" in p_lower):
+        return (
+            "### Solve: Prime Number Check\n"
+            "Checks primality up to the square root of N (Time: O(√N), Space: O(1)):\n\n"
+            "```python\n"
+            "def is_prime(n):\n"
+            "    if n <= 1: return False\n"
+            "    if n <= 3: return True\n"
+            "    if n % 2 == 0 or n % 3 == 0: return False\n"
+            "    i = 5\n"
+            "    while i * i <= n:\n"
+            "        if n % i == 0 or n % (i + 2) == 0:\n"
+            "            return False\n"
+            "        i += 6\n"
+            "    return True\n"
+            "```"
+        )
+    if "bubble" in p_lower and "sort" in p_lower:
+        return (
+            "### Solve: Bubble Sort Algorithm\n"
+            "Repeatedly swaps adjacent elements if they are in the wrong order (Time: O(N²), Space: O(1)):\n\n"
+            "```python\n"
+            "def bubble_sort(arr):\n"
+            "    n = len(arr)\n"
+            "    for i in range(n):\n"
+            "        swapped = False\n"
+            "        for j in range(0, n - i - 1):\n"
+            "            if arr[j] > arr[j + 1]:\n"
+            "                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n"
+            "                swapped = True\n"
+            "        if not swapped: break\n"
+            "    return arr\n"
+            "```"
+        )
+    if "binary" in p_lower and "search" in p_lower:
+        return (
+            "### Solve: Binary Search (Iterative)\n"
+            "Divides search space in half repeatedly. Requires sorted array (Time: O(log N), Space: O(1)):\n\n"
+            "```python\n"
+            "def binary_search(arr, target):\n"
+            "    low, high = 0, len(arr) - 1\n"
+            "    while low <= high:\n"
+            "        mid = (low + high) // 2\n"
+            "        if arr[mid] == target: return mid\n"
+            "        elif arr[mid] < target: low = mid + 1\n"
+            "        else: high = mid - 1\n"
+            "    return -1\n"
+            "```"
+        )
+    if "trapping" in p_lower and "water" in p_lower:
+        return (
+            "### Solve: Trapping Rain Water (Two Pointer Approach)\n"
+            "Calculates trapped water bounded by pillar heights (Time: O(N), Space: O(1)):\n\n"
+            "```python\n"
+            "def trap(height):\n"
+            "    left, right = 0, len(height) - 1\n"
+            "    left_max, right_max = 0, 0\n"
+            "    ans = 0\n"
+            "    while left < right:\n"
+            "        if height[left] < height[right]:\n"
+            "            if height[left] >= left_max: left_max = height[left]\n"
+            "            else: ans += (left_max - height[left])\n"
+            "            left += 1\n"
+            "        else:\n"
+            "            if height[right] >= right_max: right_max = height[right]\n"
+            "            else: ans += (right_max - height[right])\n"
+            "            right -= 1\n"
+            "    return ans\n"
+            "```"
+        )
+
+    # 2. Database & SQL Queries
+    if "join" in p_lower:
+        return (
+            "### Database: SQL JOINS\n"
+            "- **INNER JOIN**: Returns records with matching values in both tables.\n"
+            "- **LEFT JOIN**: Returns all records from the left table, and matching records from the right.\n"
+            "- **RIGHT JOIN**: Returns all records from the right table, and matching records from the left.\n"
+            "- **FULL OUTER JOIN**: Returns all records when there is a match in either left or right tables.\n\n"
+            "**Example Query**:\n"
+            "```sql\n"
+            "SELECT Employees.Name, Departments.DeptName\n"
+            "FROM Employees\n"
+            "INNER JOIN Departments ON Employees.DeptID = Departments.DeptID;\n"
+            "```"
+        )
+    if "group by" in p_lower or "groupby" in p_lower:
+        return (
+            "### Database: SQL GROUP BY Clause\n"
+            "Groups rows with the same values into summary rows (e.g. finding employee count per department).\n\n"
+            "**Example Query**:\n"
+            "```sql\n"
+            "SELECT DeptID, COUNT(EmpID) AS TotalEmployees, AVG(Salary) AS AverageSalary\n"
+            "FROM Employees\n"
+            "GROUP BY DeptID\n"
+            "HAVING AVG(Salary) > 50000;\n"
+            "```"
+        )
+    if "acid" in p_lower:
+        return (
+            "### Database: ACID Properties\n"
+            "Guarantees that database transactions are processed reliably:\n"
+            "1. **Atomicity**: The entire transaction succeeds or fails together (all-or-nothing).\n"
+            "2. **Consistency**: Database transitions from one valid state to another, maintaining constraints.\n"
+            "3. **Isolation**: Concurrent execution of transactions yields the same state as sequential execution.\n"
+            "4. **Durability**: Once committed, transaction results survive power failures or crashes."
+        )
+
+    # 3. Behavioral & HR Queries
+    if "tell me about yourself" in p_lower or "introduce yourself" in p_lower:
+        return (
+            "### HR Prep: Tell Me About Yourself\n"
+            "Use the **Present-Past-Future Formula**:\n"
+            "1. **Present**: Talk about your current college year, branch, and active technical skills/projects.\n"
+            "2. **Past**: Mention a relevant internship, project challenge, or leadership role you succeeded in.\n"
+            "3. **Future**: Connect your career goals to the target company (" + comp_title + ")'s role and domain."
+        )
+    if "why this company" in p_lower or "why " + comp_title.lower() in p_lower:
+        return (
+            "### HR Prep: Why " + comp_title + "?\n"
+            "Structure your answer by matching company growth to your aspirations:\n"
+            "1. **Praise Innovation**: Mention " + comp_title + "'s core technical growth, product portfolios, or market expansion.\n"
+            "2. **Learning Culture**: Express excitement about learning standard enterprise development practices and collaboration.\n"
+            "3. **Value Alignment**: Emphasize how your skills in " + (domain.title() if domain else "SDE") + " directly match the job requirements."
+        )
+    if "strength" in p_lower or "weakness" in p_lower:
+        return (
+            "### HR Prep: Strengths & Weaknesses\n"
+            "- **Strengths**: Choose active traits (e.g. quick adaptability, proactive problem-solving, structured teamwork). Back it up with a 1-sentence project example.\n"
+            "- **Weaknesses**: Choose a genuine but non-critical skill (e.g. public speaking, over-committing) and immediately explain how you are actively improving it."
+        )
+
+    # 4. Domain & Category General Fallbacks
     if domain == "mechanical":
         if "salary" in p_lower or "lpa" in p_lower or "hand" in p_lower:
             return f"For {comp_title} (Core Mechanical/Automotive), the salary packages are structured as:\n- **Graduate Engineer Trainee (GET)**: 4.5 - 6.5 LPA (In-hand: ~₹32,000 - ₹42,000 / month)\n- **Assistant Plant Manager**: 7.5 - 10.5 LPA (In-hand: ~₹55,000 - ₹72,000 / month)\n- **Senior Operations Manager / Lead**: 14 - 20 LPA (In-hand: ~₹95,000 - ₹1,30,000 / month).\nPromotions occur every 2 years based on plant production metrics and project milestones."
@@ -867,14 +1029,14 @@ def generate_smart_answer(prompt, company, category):
         
     if "rounds" in p_lower or "interview" in p_lower or "selection" in p_lower:
         return f"The recruitment process at {comp_title} typically has 3-4 phases:\n1. Online Assessment (Aptitude, Coding, and English MCQs)\n2. Technical Interview Round 1 (Data Structures, project description, and SQL queries)\n3. Technical Interview Round 2 or System Design (for higher packages)\n4. HR Interview (cultural fit, relocation check, document review)."
-
+ 
     if "topic" in p_lower or "prepare" in p_lower or "syllabus" in p_lower:
         return f"To crack the {category} segment for {comp_title}, focus specifically on:\n- **Quantitative Aptitude**: Time and Work, Probability, Percentage, Puzzles (Indiabix and M4Maths).\n- **Programming**: String reversal, array sliding-window algorithms, OOPs concepts (Polymorphism, Inheritance), SQL group-by queries.\n- **CS Core**: Operating systems deadlock conditions and DBMS indexing structures."
         
     if "easy" in p_lower or "tough" in p_lower or "difficulty" in p_lower:
         return f"The difficulty rating for {comp_title} is moderate. Service-oriented roles are relatively straightforward to crack if your basic aptitude and SQL commands are clear. However, higher-tier roles (like SDE 2/Digital/Prime) demand solid coding skills on arrays, logic recursion, and structural system design."
         
-    return f"Regarding your query about {comp_title}: \"{prompt}\"\n\nIn our deep database analysis of recent placement patterns, candidates facing this question are advised to:\n1. Revise historical PYQs from IndiaBIX and M4Maths relative to your selected {category} category.\n2. Ensure you have clear explanations for your projects and can optimize time/space complexity.\n3. Mention specific tech stacks aligned with {comp_title}'s digital initiatives."
+    return f"Deep Analysis Query relative to **{comp_title} ({category} round)**:\n\nBased on historical placement data and mock sheet patterns, candidates querying about \"{prompt}\" are advised to:\n1. Align project discussions with standard complexity parameters (Time: O(N), Space: O(1)).\n2. Prepare key answers demonstrating technical logic (like transactional ACID properties or mechanical thermal efficiency).\n3. Keep documentation clean and practice direct logic implementations."
 
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
