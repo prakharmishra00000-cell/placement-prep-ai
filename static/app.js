@@ -17,7 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "coding": { title: "AI Coding IDE & Debugger", sub: "Write, trace, and debug programming solutions against hidden test cases" },
         "copilot": { title: "AI Doubt Solver & Copilot", sub: "Ask doubt queries, generate flashcards, and revise CS concepts" },
         "career_suite": { title: "AI Career Operating System Suite", sub: "Launch real-time simulations, gap reports, onboarding mock cycles, and recruiter evaluations for any engineering branch and company" },
-        "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 60 flagship features work" }
+        "architecture": { title: "System Architecture & API Setup", sub: "Interactive reference specifications to configure, deploy, and connect the complete 230-feature platform stack" },
+        "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
     navItems.forEach(item => {

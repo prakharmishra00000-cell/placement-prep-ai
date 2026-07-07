@@ -86,9 +86,13 @@
                     <i class="fa-solid fa-briefcase"></i>
                     <span>AI Career OS Suite</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="architecture">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>System Architecture & Setup</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
-                    <span>User Guide (60 Features)</span>
+                    <span>User Guide (230 Features)</span>
                 </a>
             </nav>
 
@@ -737,7 +741,122 @@
                 </div>
             </div>
 
-            <!-- Tab Content: User Guide of all 60 Features -->
+            <!-- Tab Content: System Architecture & Setup -->
+            <div class="tab-content" id="tab-architecture">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-network-wired text-neon-blue"></i> PrepOS AI - Enterprise System Architecture & Setup</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">To deploy the complete 230-feature campus hiring ecosystem, configure the full AI application stack and credentials using this reference blueprint.</p>
+                    
+                    <!-- Section: Component Breakdown -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--neon-cyan); margin-bottom: 1rem;"><i class="fa-solid fa-layer-group"></i> 1. The Core AI Application Stack</h4>
+                        <div class="docs-table-wrapper" style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-color); color: var(--neon-cyan);">
+                                        <th style="padding: 0.75rem 1rem;">Component</th>
+                                        <th style="padding: 0.75rem 1rem;">Required?</th>
+                                        <th style="padding: 0.75rem 1rem;">Infrastructure Role & Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid var(--border-color);">
+                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Gemini API Key</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Drives technical reviews, mock interviews, AI resume suggestion prompts, and roadmap schedules.</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid var(--border-color);">
+                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Relational Database (PostgreSQL)</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Saves user accounts, solved problem histories, digital twin profile vectors, and company data.</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid var(--border-color);">
+                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Vector Database (Qdrant/Pinecone)</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Stores crawled interview blogs and experiences to ground Gemini using semantic similarity retrieval (RAG).</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid var(--border-color);">
+                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Code Execution Sandbox (Docker)</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Safely compiles and runs coding solutions against hidden tests in isolated server sandboxes.</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid var(--border-color);">
+                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Speech & Voice APIs (STT / TTS)</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--neon-cyan);">🎙️ For Voice</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Converts spoken responses to text (STT) and reads simulated questions aloud (TTS) for mock interviews.</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid var(--border-color);">
+                                        <td style="padding: 0.75rem 1rem; font-weight: bold; color: var(--text-primary);">Web Search / Crawlers</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--neon-green-glow);">✅ Yes</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">Monitors and scrapes latest off-campus job posts, referral openings, and updated patterns.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Section: Phase-by-Phase Process -->
+                    <div style="margin-bottom: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h4 style="color: var(--neon-cyan); margin-bottom: 1rem;"><i class="fa-solid fa-list-check"></i> 2. Step-by-Step Setup Guide</h4>
+                        <div class="hiring-flow">
+                            <div class="flow-step">
+                                <div class="step-num">P1</div>
+                                <div class="step-name">Build the Orchestrator Backend</div>
+                                <div class="step-details">Create FastAPI/Flask routes to handle user logs, resume uploads, coding tests, and database storage.</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num">P2</div>
+                                <div class="step-name">Secure Gemini API integration</div>
+                                <div class="step-details">Connect Gemini for reasoning (HR interviews, system design checks, custom roadmaps) utilizing local fallbacks.</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num">P3</div>
+                                <div class="step-name">Provision Vector Database & RAG</div>
+                                <div class="step-details">Initialize Qdrant/Pinecone, vectorize company technical blogs, and query context before sending requests to Gemini.</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num">P4</div>
+                                <div class="step-name">Dockerize Code Sandbox & Voice</div>
+                                <div class="step-details">Construct secure isolated Docker sandboxes for untrusted code runs, and hook STT/TTS voice interfaces.</div>
+                            </div>
+                            <div class="flow-step">
+                                <div class="step-num">P5</div>
+                                <div class="step-name">Configure Multi-Agent Scheduler</div>
+                                <div class="step-details">Deploy micro-agents (Resume Agent, Coding Agent) coordinated by a Master agent, with cron jobs for layout updates.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: External API Keys Setup -->
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h4 style="color: var(--neon-cyan); margin-bottom: 1rem;"><i class="fa-solid fa-key"></i> 3. Required External API Credentials</h4>
+                        <div class="docs-future-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+                            <div class="docs-card" style="padding: 1.25rem;">
+                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-brain"></i> Gemini API Key</h5>
+                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">Handles interview evaluations, question generations, and CS concept solver operations.</p>
+                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://aistudio.google.com/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">Google AI Studio</a></span>
+                            </div>
+                            <div class="docs-card" style="padding: 1.25rem;">
+                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-database"></i> Managed Vector DB Key</h5>
+                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">Indexes crawled placement experiences for context search retrieval (RAG).</p>
+                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://www.pinecone.io/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">Pinecone Console</a> / Qdrant</span>
+                            </div>
+                            <div class="docs-card" style="padding: 1.25rem;">
+                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-microphone"></i> Speech & Text Services</h5>
+                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">Google Cloud / Azure Cognitive Speech keys to run voice-to-text mock interviews.</p>
+                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://console.cloud.google.com/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">Google Cloud Console</a></span>
+                            </div>
+                            <div class="docs-card" style="padding: 1.25rem;">
+                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-network-wired"></i> Search Scraper APIs</h5>
+                                <p style="font-size: 0.8rem; margin-bottom: 0.75rem;">SerpAPI / Jina Reader credentials to crawl active off-campus job posts and hiring bulletins.</p>
+                                <span style="font-size: 0.75rem; color: var(--neon-blue);">Get at: <a href="https://serpapi.com/" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">SerpAPI dashboard</a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: User Guide of all 230 Features -->
             <div class="tab-content" id="tab-docs">
                 <div class="glass-card panel-card">
                     <h3 class="panel-title"><i class="fa-solid fa-book-open text-neon-blue"></i> PrepOS AI - Operating System Reference Manual</h3>
@@ -1078,6 +1197,75 @@
                                 <div class="docs-card">
                                     <h5>20. AI Enterprise Knowledge Graph</h5>
                                     <p>A graph database linking recruiters, candidates, skills, colleges, and target roles for graph-driven matching.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Advanced Placement Modules (Features 81-230) -->
+                        <div class="docs-section" style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                            <h4>🧠 Advanced Placement-Focused Modules (Features 81–230)</h4>
+                            <p>To take PrepOS AI to the highest global standard, we are expanding deeper into the placement ecosystem. Below is the breakdown of Modules 21 to 35, adding 150 advanced capabilities:</p>
+                            
+                            <div class="docs-grid" style="margin-top: 1.5rem;">
+                                <div class="docs-card">
+                                    <h5>Module 21: AI Recruiter Intelligence (81-90)</h5>
+                                    <p>Predicts recruiter behavior, analyzes hiring manager personalities, maps interviewer question styles, and simulates eye-tracking attention on resumes.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 22: AI Company DNA Analyzer (91-100)</h5>
+                                    <p>Decodes engineering cultures, tracks target product stack evolutions, maps internal promotion structures, and evaluates team alignment factors.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 23: AI Coding Pattern Intelligence (101-110)</h5>
+                                    <p>Company-wise DSA pattern mining, problem similarity matching, hidden patterns recognition, expected next question predictor, and coding style analytics.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 24: AI Online Assessment Intelligence (111-120)</h5>
+                                    <p>Forecasts OA difficulty thresholds, generates mistake heatmaps, provides section time optimizers, and runs proctor simulation checks.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 25: AI Interview Intelligence (121-130)</h5>
+                                    <p>Monitors speech energy levels, eye contact durations, gesture postures, filler word counts, and response latency parameters.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 26: AI Placement Digital Twin 2.0 (131-140)</h5>
+                                    <p>Fuses weekly skill growth statistics, tracks burnout risks, schedules self-improvement tasks, and runs overall placement simulators.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 27: AI Company Research Lab (141-150)</h5>
+                                    <p>Summarizes target company engineering blogs, profiles patent archives, highlights financial timelines, and maps competitor tech structures.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 28: AI Resume Intelligence 2.0 (151-160)</h5>
+                                    <p>Features A/B testing variations, scores resume authenticity, manages multiple customized CV versions, and tracks keyword optimizations.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 29: AI Project Evaluation Lab (161-170)</h5>
+                                    <p>Reviews project originality, security holes, scalability limits, database schemas, and recruiter aesthetic appeal indexes.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 30: AI Placement War Room (171-180)</h5>
+                                    <p>An interactive campus tracker showing offer logs, priority plans, calendars, and dynamic daily preparation challenges.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 31: AI Interview Memory Engine (181-190)</h5>
+                                    <p>Scopes repetition rates, tracks answer evolution timelines, archives weak responses, and monitors retention scores.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 32: AI Placement Analytics Lab (191-200)</h5>
+                                    <p>Plots coding velocity trends, topic accuracy matrices, learning curves, and mock interview score breakdowns.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 33: AI Offer Intelligence (201-210)</h5>
+                                    <p>Calculates CTC vs In-hand packages, evaluates ESOP structures, parses bond risk criteria, and suggests relocations.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 34: AI Placement Community (211-220)</h5>
+                                    <p>Host anonymous interview shares, peer coding contests, mentor mappings, and alumni referral networks.</p>
+                                </div>
+                                <div class="docs-card">
+                                    <h5>Module 35: AI Autonomous Placement Agent (221-230)</h5>
+                                    <p>Automatically discovers open vacancies, verifies eligibility checklist items, customizes CVs, and monitors opportunities continuously.</p>
                                 </div>
                             </div>
                         </div>
