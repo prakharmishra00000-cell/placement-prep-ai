@@ -638,131 +638,148 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----------------------------------------------------
     // Tab 5: Personalized Roadmap Generator
     // ----------------------------------------------------
+    const validateEligibilityBtn = document.getElementById("validate-eligibility-btn");
+    const roadmapEligibilityError = document.getElementById("roadmap-eligibility-error");
+    const roadmapSelectionContainer = document.getElementById("roadmap-selection-container");
     const generateRoadmapBtn = document.getElementById("generate-roadmap-btn");
     const roadmapLoader = document.getElementById("roadmap-loader");
     const roadmapOutputPanel = document.getElementById("roadmap-output-panel");
+    const roadmapSubject = document.getElementById("roadmap-subject");
 
-    generateRoadmapBtn.addEventListener("click", () => {
-        const year = document.getElementById("roadmap-year").value;
-        const branch = document.getElementById("roadmap-branch").value.trim() || "CSE";
-        const target = document.getElementById("roadmap-target").value.trim() || "Microsoft";
-        const level = document.getElementById("roadmap-level").value;
-        const time = document.getElementById("roadmap-time").value;
+    const branchSubjects = {
+        cse: ["Data Structures & Algorithms", "Object-Oriented Programming (OOPs)", "Database Management Systems (DBMS)", "Operating Systems (OS)", "System Design"],
+        it: ["Data Structures & Algorithms", "Database Management Systems (DBMS)", "Web Development Technologies", "Cloud Computing Basics", "Computer Networks"],
+        ece: ["Analog & Digital Electronics", "Microcontrollers & VLSI Design", "Signal Processing & Communications", "Computer Organization & Architecture"],
+        ece_iot: ["IoT Architectures & Sensors", "Embedded Systems & RTOS", "Microcontrollers (ESP32/ARM)", "Wireless Communications"],
+        mechanical: ["Thermodynamics & Heat Transfer", "Fluid Mechanics & Turbo-machinery", "CAD/CAM & Machine Design", "Strength of Materials"],
+        electrical: ["Electrical Machines & Transformers", "Power Systems & Transmission", "Control Systems Engineering", "Analog & Digital Circuit Analysis"],
+        civil: ["Concrete Technology & Materials", "Structural Analysis & Mechanics", "RCC Design & Structures", "Soil Mechanics & Foundations"],
+        chemical: ["Mass & Heat Transfer Operations", "Chemical Reaction Kinetics & Reactors", "Process Dynamics & Control", "Chemical Engineering Thermodynamics"]
+    };
 
-        roadmapLoader.classList.remove("hide");
-        roadmapOutputPanel.classList.add("hide");
+    if (validateEligibilityBtn) {
+        validateEligibilityBtn.addEventListener("click", () => {
+            const company = document.getElementById("roadmap-target").value.trim().toLowerCase();
+            const branch = document.getElementById("roadmap-branch").value;
 
-        setTimeout(() => {
-            roadmapLoader.classList.add("hide");
-            roadmapOutputPanel.classList.remove("hide");
+            if (!company) {
+                alert("Please enter a target company name.");
+                return;
+            }
 
-            const isCore = ["mechanical", "electrical", "civil", "chemical", "ece_iot"].includes(branch.toLowerCase().replace(/\s/g, ""));
-            let monthlyHtml = "";
-            let weeklyHtml = "";
-            let dailyHtml = "";
+            // Determine company class
+            let companyClass = "service"; // default is service (TCS, Infosys, Wipro, Cognizant, Accenture - all eligible)
+            
+            const techCompanies = ["google", "microsoft", "amazon", "meta", "netflix", "apple", "uber", "ola", "flipkart", "adobe", "salesforce"];
+            const mechanicalCompanies = ["mahindra", "tata motors", "maruti suzuki", "reliance", "honda", "ford", "hyundai", "ashok leyland"];
+            const civilCompanies = ["l&t", "larsen", "dlf", "godrej properties", "tata projects", "shapoorji"];
+            const chemicalCompanies = ["ongc", "iocl", "bpcl", "hpcl", "shell", "dupont", "dow", "basf"];
 
-            const monthsCount = parseInt(time) || 4;
+            if (techCompanies.some(tc => company.includes(tc))) {
+                companyClass = "tech";
+            } else if (mechanicalCompanies.some(mc => company.includes(mc))) {
+                companyClass = "mechanical";
+            } else if (civilCompanies.some(cc => company.includes(cc))) {
+                companyClass = "civil";
+            } else if (chemicalCompanies.some(cc => company.includes(cc))) {
+                companyClass = "chemical";
+            }
 
-            // 1. Monthly Milestones
-            if (time === "1 Month") {
-                if (isCore) {
+            // Verify eligibility
+            let eligible = false;
+            if (companyClass === "service") {
+                eligible = true;
+            } else if (companyClass === "tech") {
+                eligible = ["cse", "it", "ece", "ece_iot"].includes(branch);
+            } else if (companyClass === "mechanical") {
+                eligible = ["mechanical", "electrical", "ece_iot"].includes(branch);
+            } else if (companyClass === "civil") {
+                eligible = ["civil"].includes(branch);
+            } else if (companyClass === "chemical") {
+                eligible = ["chemical", "mechanical"].includes(branch);
+            }
+
+            if (!eligible) {
+                roadmapEligibilityError.classList.remove("hide");
+                roadmapSelectionContainer.classList.add("hide");
+                roadmapOutputPanel.classList.add("hide");
+            } else {
+                roadmapEligibilityError.classList.add("hide");
+                roadmapSelectionContainer.classList.remove("hide");
+                
+                // Populate subjects dynamically
+                roadmapSubject.innerHTML = "";
+                const subjects = branchSubjects[branch] || branchSubjects.cse;
+                subjects.forEach(sub => {
+                    const opt = document.createElement("option");
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    roadmapSubject.appendChild(opt);
+                });
+            }
+        });
+    }
+
+    if (generateRoadmapBtn) {
+        generateRoadmapBtn.addEventListener("click", () => {
+            const subject = roadmapSubject.value;
+            const time = document.getElementById("roadmap-time").value;
+            const targetCompany = document.getElementById("roadmap-target").value.trim();
+
+            roadmapLoader.classList.remove("hide");
+            roadmapOutputPanel.classList.add("hide");
+
+            setTimeout(() => {
+                roadmapLoader.classList.add("hide");
+                roadmapOutputPanel.classList.remove("hide");
+
+                let monthlyHtml = "";
+                let weeklyHtml = "";
+                let dailyHtml = "";
+
+                const monthsCount = parseInt(time) || 3;
+
+                // 1. Compile Month-by-month Milestones based on Selected Subject
+                if (time === "1 Month") {
                     monthlyHtml = `
-                        <p><strong>Week 1:</strong> Revise core ${branch} laws (e.g. Thermodynamics, Circuits, or Concrete mix ratios) and basic design tools.</p>
-                        <p><strong>Week 2:</strong> Solve GATE-level MCQs and basic quantitative aptitude logic.</p>
-                        <p><strong>Week 3:</strong> Review previous year interview sheets of ${target} for core engineering rounds.</p>
-                        <p><strong>Week 4:</strong> Conduct mock interviews and prepare STAR story summaries for HR manager evaluation.</p>
+                        <p><strong>Week 1 (Fundamentals):</strong> Read basic terminologies, syntax, and properties of <strong>${subject}</strong>.</p>
+                        <p><strong>Week 2 (Core Application):</strong> Solve standard problem sheets and gate level questions on <strong>${subject}</strong>.</p>
+                        <p><strong>Week 3 (Advanced Work):</strong> Review previous year questions asked at ${targetCompany} related to <strong>${subject}</strong>.</p>
+                        <p><strong>Week 4 (Mock Evaluation):</strong> Take mock online tests and participate in technical simulation sessions.</p>
                     `;
                 } else {
-                    monthlyHtml = `
-                        <p><strong>Week 1:</strong> Master arrays, strings, hash maps, and sliding window paradigms (${level} level).</p>
-                        <p><strong>Week 2:</strong> Complete recursion, basic trees, and SQL Join queries.</p>
-                        <p><strong>Week 3:</strong> Solve top previous year coding questions asked at ${target}.</p>
-                        <p><strong>Week 4:</strong> Take Mock Online Assessments (OAs) and revise behavioral questions.</p>
-                    `;
-                }
-            } else {
-                for (let i = 1; i <= monthsCount; i++) {
-                    if (i === 1) {
-                        if (isCore) {
-                            monthlyHtml += `<p><strong>Month 1 (Foundations):</strong> Master fundamental ${branch} equations, drawing layouts, and basic numerical aptitude.</p>`;
+                    for (let i = 1; i <= monthsCount; i++) {
+                        if (i === 1) {
+                            monthlyHtml += `<p><strong>Month 1 (Core Concepts):</strong> Complete foundational chapters, definitions, and theory of <strong>${subject}</strong>.</p>`;
+                        } else if (i === 2) {
+                            monthlyHtml += `<p><strong>Month 2 (Problem Solving):</strong> Solve medium difficulty numericals, designs, or coding queries of <strong>${subject}</strong>.</p>`;
+                        } else if (i === 3) {
+                            monthlyHtml += `<p><strong>Month 3 (Company Target):</strong> Apply <strong>${subject}</strong> to case studies, puzzles, and test configurations asked at ${targetCompany}.</p>`;
                         } else {
-                            if (level === "Beginner") {
-                                monthlyHtml += `<p><strong>Month 1 (Syntax):</strong> Learn programming fundamentals (Loops, Functions, Arrays) in C++/Python.</p>`;
-                            } else {
-                                monthlyHtml += `<p><strong>Month 1 (Data Structures):</strong> Deep dive into Stacks, Queues, Linked Lists, and hash maps.</p>`;
-                            }
+                            monthlyHtml += `<p><strong>Month ${i} (Intensive Drills):</strong> Solve comprehensive practice exams, revise weak modules, and attempt timed tests.</p>`;
                         }
-                    } else if (i === 2) {
-                        if (isCore) {
-                            monthlyHtml += `<p><strong>Month 2 (Core Depth):</strong> Practice design tools (AutoCAD, MATLAB, Proteus) and core subject papers.</p>`;
-                        } else {
-                            if (level === "Advanced") {
-                                monthlyHtml += `<p><strong>Month 2 (Advanced DSA):</strong> Master Dynamic Programming state transitions and Graph algorithms.</p>`;
-                            } else {
-                                monthlyHtml += `<p><strong>Month 2 (Algorithms):</strong> Practice Binary Search, Recursion, and basic DBMS SQL queries.</p>`;
-                            }
-                        }
-                    } else if (i === 3) {
-                        monthlyHtml += `<p><strong>Month 3 (Company Prep):</strong> Focus heavily on solved PYQs and aptitude patterns specific to ${target}.</p>`;
-                    } else if (i === 4) {
-                        monthlyHtml += `<p><strong>Month 4 (Mock Drills):</strong> Conduct mock interviews, resume ATS updates, and solve behavioral cases.</p>`;
-                    } else {
-                        monthlyHtml += `<p><strong>Month ${i} (Refining & Scaling):</strong> Participate in competitive mock sheets, system design drills, and apply for referrals.</p>`;
                     }
                 }
-            }
-            document.getElementById("roadmap-monthly").innerHTML = monthlyHtml;
+                document.getElementById("roadmap-monthly").innerHTML = monthlyHtml;
 
-            // 2. Weekly Goals (Adapting to College Year and Branch)
-            if (year.includes("1st") || year.includes("2nd")) {
+                // 2. Weekly Goals
                 weeklyHtml = `
-                    <p><strong>Focus (GPA & Projects):</strong> Keep college GPA above 8.0. Work on a minor project combining ${branch} with basic programming.</p>
-                    <p><strong>Resource Study:</strong> Read fundamental textbooks and watch targeted subject tutorials (2 hours/week).</p>
+                    <p><strong>Module Target:</strong> Review 2 sub-topics of <strong>${subject}</strong> per week.</p>
+                    <p><strong>Aptitude Integration:</strong> Combine technical study with 3 hours of quantitative reasoning sheets.</p>
+                    <p><strong>Self Assessment:</strong> Dry run previous codes/formula sheets every Saturday.</p>
                 `;
-            } else {
-                weeklyHtml = `
-                    <p><strong>Focus (Job Readiness):</strong> Dedicate 80% of preparation to previous year test sheets of ${target}.</p>
-                    <p><strong>ATS Optimization:</strong> Match your resume metrics against the targeted job requirements.</p>
-                `;
-            }
-            document.getElementById("roadmap-weekly").innerHTML = weeklyHtml;
+                document.getElementById("roadmap-weekly").innerHTML = weeklyHtml;
 
-            // 3. Daily Goals (Adapting to DSA Coding Level)
-            if (isCore) {
+                // 3. Daily Study Routine
                 dailyHtml = `
-                    <p><strong>09:00 AM - 11:30 AM:</strong> Solve 3 core subject concept chapters (Thermodynamics, VLSI, or Concrete).</p>
-                    <p><strong>02:00 PM - 03:30 PM:</strong> Solve 15 numerical aptitude / logical reasoning MCQs.</p>
-                    <p><strong>07:00 PM - 08:30 PM:</strong> Project design drafting / AutoCAD layout review.</p>
+                    <p><strong>09:00 AM - 11:30 AM (Concept Deep-dive):</strong> Study advanced theoretical proofs and documentations of <strong>${subject}</strong>.</p>
+                    <p><strong>02:00 PM - 04:00 PM (Numerical/Coding):</strong> Active practice of 5 standard numerical algorithms / layout designs related to <strong>${subject}</strong>.</p>
+                    <p><strong>07:30 PM - 09:00 PM (Revision & QA):</strong> Revision of yesterday's weak topics and solving MCQs on IndiaBIX / M4Maths.</p>
                 `;
-            } else {
-                if (level === "Beginner") {
-                    dailyHtml = `
-                        <p><strong>09:00 AM - 11:30 AM:</strong> Complete 2 basic coding syntax exercises (Variables, Loops, Conditions).</p>
-                        <p><strong>02:00 PM - 03:30 PM:</strong> Read and dry-run simple array traversal algorithms.</p>
-                        <p><strong>07:00 PM - 08:30 PM:</strong> Solve basic logical aptitude questions.</p>
-                    `;
-                } else {
-                    dailyHtml = `
-                        <p><strong>09:00 AM - 11:30 AM:</strong> Solve 2 medium-to-hard LeetCode problems (Graphs / Trees / DP).</p>
-                        <p><strong>02:00 PM - 03:30 PM:</strong> Practice advanced SQL queries (Window functions, joins).</p>
-                        <p><strong>07:00 PM - 08:30 PM:</strong> Revise Object-Oriented Design patterns or System Design cases.</p>
-                    `;
-                }
-            }
-            document.getElementById("roadmap-daily").innerHTML = dailyHtml;
-
-            // Sync with Digital Twin
-            const twinSkills = document.querySelectorAll(".twin-skill");
-            twinSkills.forEach(skill => {
-                if (skill.textContent.includes("Aptitude Speed") && time === "1 Month") {
-                    const meter = skill.querySelector(".skill-meter span");
-                    const val = skill.querySelector(".val");
-                    if (meter) meter.style.width = `88%`;
-                    if (val) val.textContent = `88%`;
-                }
-            });
-        }, 1200);
-    });
+                document.getElementById("roadmap-daily").innerHTML = dailyHtml;
+            }, 1200);
+        });
+    }
 
     // ----------------------------------------------------
     // Tab 6: AI Coding IDE

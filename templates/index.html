@@ -494,40 +494,54 @@
                         <h3 class="panel-title"><i class="fa-solid fa-route text-neon-blue"></i> Roadmap Settings</h3>
                         
                         <div class="input-group">
-                            <label for="roadmap-year">Current College Year</label>
-                            <select id="roadmap-year">
-                                <option value="1st Year">1st Year</option>
-                                <option value="2nd Year">2nd Year</option>
-                                <option value="3rd Year" selected>3rd Year</option>
-                                <option value="4th Year / Graduate">4th Year / Graduate</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="roadmap-branch">College Branch</label>
-                            <input type="text" id="roadmap-branch" value="CSE" placeholder="Enter branch (e.g. CSE, Mechanical, Electrical, Civil)">
-                        </div>
-                        <div class="input-group">
-                            <label for="roadmap-target">Target Company</label>
+                            <label for="roadmap-target"><i class="fa-solid fa-building"></i> Target Company</label>
                             <input type="text" id="roadmap-target" value="Microsoft" placeholder="Enter target company name">
                         </div>
+
                         <div class="input-group">
-                            <label for="roadmap-level">Current DSA / Programming Level</label>
-                            <select id="roadmap-level">
-                                <option value="Beginner">Beginner (Zero Coding)</option>
-                                <option value="Intermediate" selected>Intermediate (Basic loops & functions)</option>
-                                <option value="Advanced">Advanced (Data Structures active)</option>
+                            <label for="roadmap-branch"><i class="fa-solid fa-code-branch"></i> Target Branch</label>
+                            <select id="roadmap-branch">
+                                <option value="cse" selected>Computer Science Engineering (CSE)</option>
+                                <option value="it">Information Technology (IT)</option>
+                                <option value="ece">Electronics & Communication (ECE)</option>
+                                <option value="mechanical">Mechanical Engineering (Mechanical)</option>
+                                <option value="electrical">Electrical Engineering (Electrical)</option>
+                                <option value="civil">Civil Engineering (Civil)</option>
+                                <option value="chemical">Chemical Engineering (Chemical)</option>
+                                <option value="ece_iot">ECE IoT (Internet of Things)</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label for="roadmap-time">Preparation Time Available</label>
-                            <select id="roadmap-time">
-                                <option value="1 Month">1 Month</option>
-                                <option value="3 Months">3 Months</option>
-                                <option value="4 Months" selected>4 Months</option>
-                                <option value="6 Months">6 Months</option>
-                            </select>
+
+                        <button id="validate-eligibility-btn" class="glow-btn" style="margin-bottom: 1rem; width: 100%;">
+                            <i class="fa-solid fa-shield-halved"></i> Verify Eligibility & Load Subjects
+                        </button>
+
+                        <!-- Error Badge -->
+                        <div id="roadmap-eligibility-error" class="hide" style="color: var(--neon-pink); background: rgba(255, 0, 95, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 0, 95, 0.3); font-weight: 700; text-align: center;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Branch Not Eligible for this Company
                         </div>
-                        <button id="generate-roadmap-btn" class="glow-btn">Create Custom Roadmap</button>
+
+                        <!-- Dynamic Selectors Block -->
+                        <div id="roadmap-selection-container" class="hide" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                            <div class="input-group">
+                                <label for="roadmap-subject"><i class="fa-solid fa-book"></i> Select Subject</label>
+                                <select id="roadmap-subject">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="roadmap-time"><i class="fa-solid fa-clock"></i> Preparation Time Available</label>
+                                <select id="roadmap-time">
+                                    <option value="1 Month">1 Month</option>
+                                    <option value="3 Months" selected>3 Months</option>
+                                    <option value="4 Months">4 Months</option>
+                                    <option value="6 Months">6 Months</option>
+                                </select>
+                            </div>
+                            <button id="generate-roadmap-btn" class="glow-btn" style="margin-top: 1rem; width: 100%;">
+                                <i class="fa-solid fa-calendar-check"></i> Generate Detailed Study Routine
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Right: Visualized Roadmap Outputs -->
