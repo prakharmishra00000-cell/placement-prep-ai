@@ -1,17 +1,17 @@
 :root {
-    --bg-dark: #0a0b10;
-    --card-bg: rgba(20, 22, 37, 0.45);
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-glow: rgba(147, 51, 234, 0.15);
-    --text-primary: #f3f4f6;
-    --text-muted: #9ca3af;
+    --bg-dark: #020203;
+    --card-bg: rgba(10, 15, 10, 0.45);
+    --border-color: rgba(0, 230, 118, 0.08);
+    --border-glow: rgba(0, 230, 118, 0.15);
+    --text-primary: #f0fdf4;
+    --text-muted: #8ca394;
     --sidebar-width: 260px;
-    --neon-blue: #00d2ff;
-    --neon-purple: #9d4edd;
-    --neon-green-glow: #00f5d4;
-    --neon-yellow: #ffb703;
-    --neon-pink: #ff0055;
-    --neon-cyan: #06d6a0;
+    --neon-blue: #00ff66;
+    --neon-purple: #00c853;
+    --neon-green-glow: #39ff14;
+    --neon-yellow: #a3e635;
+    --neon-pink: #00e676;
+    --neon-cyan: #10b981;
     --font-heading: 'Outfit', sans-serif;
     --font-body: 'Plus Jakarta Sans', sans-serif;
 }
@@ -47,14 +47,14 @@ body {
     position: absolute;
     border-radius: 50%;
     filter: blur(140px);
-    opacity: 0.18;
+    opacity: 0.15;
     animation: float 25s infinite alternate ease-in-out;
 }
 
 .ball1 {
     width: 45vw;
     height: 45vw;
-    background: radial-gradient(circle, #9d4edd 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, #00c853 0%, rgba(0,0,0,0) 70%);
     top: -10%;
     left: -10%;
 }
@@ -62,7 +62,7 @@ body {
 .ball2 {
     width: 35vw;
     height: 35vw;
-    background: radial-gradient(circle, #00d2ff 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, #00ff66 0%, rgba(0,0,0,0) 70%);
     bottom: -5%;
     right: -5%;
     animation-delay: -5s;
@@ -71,7 +71,7 @@ body {
 .ball3 {
     width: 30vw;
     height: 30vw;
-    background: radial-gradient(circle, #ff0055 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, #10b981 0%, rgba(0,0,0,0) 70%);
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -92,7 +92,7 @@ body {
 /* Sidebar Navigation */
 .app-sidebar {
     width: var(--sidebar-width);
-    background: rgba(13, 14, 24, 0.7);
+    background: rgba(6, 8, 6, 0.85);
     border-right: 1px solid var(--border-color);
     backdrop-filter: blur(15px);
     display: flex;
