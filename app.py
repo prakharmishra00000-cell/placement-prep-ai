@@ -1157,7 +1157,7 @@ def run_career_suite_simulation():
     module_id = str(data.get("module_id", "1"))
     company = data.get("company", "TCS").strip()
     
-    api_key = get_api_key()
+    api_key = get_backend_gemini_key()
     module_names = {
         "1": "AI Recruiter Copilot (Enterprise Check)",
         "2": "AI Placement Cell Dashboard Summary",
@@ -1209,13 +1209,13 @@ def run_career_suite_simulation():
     # Fallback response
     fallback_report = f"""
     <h4>⚡ [SIMULATED] {module_name} Report</h4>
-    <p style='margin-top: 0.5rem;'><strong>Branch Context:</strong> Tailored for <strong>{branch.upper()}</strong> branch requirements at <strong>{company.toUpperCase()}</strong>.</p>
+    <p style='margin-top: 0.5rem;'><strong>Branch Context:</strong> Tailored for <strong>{branch.upper()}</strong> branch requirements at <strong>{company.upper()}</strong>.</p>
     
     <div style='margin-top: 1rem; padding: 1rem; border: 1px solid var(--border-color); background: rgba(0,255,102,0.05); border-radius: 8px;'>
         <h5 style='color: var(--neon-cyan); margin-bottom: 0.5rem;'>📋 Active Simulation Output:</h5>
         <ul style='margin-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem;'>
             <li><strong>Recruiter Recommendation Match:</strong> <span style='color: var(--neon-blue); font-weight: bold;'>84%</span></li>
-            <li><strong>Core Domain Gap:</strong> Recommends reviewing {branch.upper()} standards specifically tested by {company.toUpperCase()} interviewers.</li>
+            <li><strong>Core Domain Gap:</strong> Recommends reviewing {branch.upper()} standards specifically tested by {company.upper()} interviewers.</li>
             <li><strong>Mock Jira standup task:</strong> Integrate and test subsystem controllers matching {branch.upper()} protocols.</li>
             <li><strong>Simulated 5-Year Compensation Package:</strong> Average compound growth rate of <span style='color: var(--neon-green-glow);'>+12.4% annually</span>.</li>
         </ul>
