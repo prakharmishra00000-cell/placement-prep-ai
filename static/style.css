@@ -1,17 +1,17 @@
 :root {
-    --bg-dark: #020203;
-    --card-bg: rgba(10, 15, 10, 0.45);
-    --border-color: rgba(0, 230, 118, 0.08);
-    --border-glow: rgba(0, 230, 118, 0.15);
-    --text-primary: #f0fdf4;
-    --text-muted: #8ca394;
+    --bg-dark: #030008;
+    --card-bg: rgba(18, 5, 30, 0.45);
+    --border-color: rgba(157, 78, 221, 0.18);
+    --border-glow: rgba(157, 78, 221, 0.35);
+    --text-primary: #f3f0f7;
+    --text-muted: #b3a7c4;
     --sidebar-width: 260px;
-    --neon-blue: #00ff66;
-    --neon-purple: #00c853;
-    --neon-green-glow: #39ff14;
-    --neon-yellow: #a3e635;
-    --neon-pink: #00e676;
-    --neon-cyan: #10b981;
+    --neon-blue: #c77dff;
+    --neon-purple: #9d4ede;
+    --neon-green-glow: #e0aaff;
+    --neon-yellow: #ff007f;
+    --neon-pink: #ff758f;
+    --neon-cyan: #7b2cbf;
     --font-heading: 'Outfit', sans-serif;
     --font-body: 'Plus Jakarta Sans', sans-serif;
 }
@@ -54,7 +54,7 @@ body {
 .ball1 {
     width: 45vw;
     height: 45vw;
-    background: radial-gradient(circle, #00c853 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, #7b2cbf 0%, rgba(0,0,0,0) 70%);
     top: -10%;
     left: -10%;
 }
@@ -62,7 +62,7 @@ body {
 .ball2 {
     width: 35vw;
     height: 35vw;
-    background: radial-gradient(circle, #00ff66 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, #9d4ede 0%, rgba(0,0,0,0) 70%);
     bottom: -5%;
     right: -5%;
     animation-delay: -5s;
@@ -71,7 +71,7 @@ body {
 .ball3 {
     width: 30vw;
     height: 30vw;
-    background: radial-gradient(circle, #10b981 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, #3c096c 0%, rgba(0,0,0,0) 70%);
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -92,7 +92,7 @@ body {
 /* Sidebar Navigation */
 .app-sidebar {
     width: var(--sidebar-width);
-    background: rgba(6, 8, 6, 0.85);
+    background: rgba(3, 0, 8, 0.85);
     border-right: 1px solid var(--border-color);
     backdrop-filter: blur(15px);
     display: flex;
