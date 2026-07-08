@@ -614,8 +614,11 @@ import google.generativeai as genai
 
 def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     try:
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
-        headers = {"Content-Type": "application/json"}
+        url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent"
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": api_key
+        }
         prompt = f"""
         Provide a placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
         All skills, topics weightages, salaries, and solved previous year questions (PYQs) must be tailored specifically to what a "{branch}" candidate is asked at "{company}".
@@ -1804,12 +1807,14 @@ def generate_study_notes():
     topic = data.get("topic", "").strip()
     if not topic:
         return jsonify({"error": "Topic name is required!"})
-
     api_key = get_backend_gemini_key()
     if not api_key:
         return jsonify({"error": "Google Gemini API Key is missing or invalid! Please configure GEMINI_API_KEY as an environment variable in Render."})
 
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key
+    }
     prompt = f"""
     Generate detailed, comprehensive engineering notes on the topic: "{topic}".
     Structure the notes beautifully using HTML tags:
@@ -1846,7 +1851,7 @@ def generate_study_notes():
     last_response = "All fallback endpoints failed to connect."
 
     for version, model_name in fallback_matrix:
-        url = f"https://generativelanguage.googleapis.com/{version}/models/{model_name}:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/{version}/models/{model_name}:generateContent"
         try:
             r = requests.post(url, json=payload, headers=headers, timeout=15)
             if r.status_code == 200:
