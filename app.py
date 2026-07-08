@@ -1792,9 +1792,9 @@ def generate_study_notes():
     if not topic:
         return jsonify({"error": "Topic name is required!"})
 
-    api_key = get_credential("GEMINI_API_KEY")
+    api_key = get_backend_gemini_key()
     if not api_key:
-        return jsonify({"error": "Google Gemini API Key is missing! Set it as an environment variable."})
+        return jsonify({"error": "Google Gemini API Key is missing or invalid! Please configure GEMINI_API_KEY as an environment variable in Render."})
 
     try:
         genai.configure(api_key=api_key)
