@@ -1797,43 +1797,60 @@ def generate_study_notes():
     if not api_key:
         return jsonify({"error": "Google Gemini API Key is missing or invalid! Please configure GEMINI_API_KEY as an environment variable in Render."})
 
-    try:
-        os.environ["GOOGLE_API_VERSION"] = "v1"
-        genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
-        prompt = f"""
-        Generate detailed, comprehensive engineering notes on the topic: "{topic}".
-        Structure the notes beautifully using HTML tags:
-        1. Start with an <h4> header title of the topic.
-        2. Provide a detailed introductory paragraph (<p>) explaining the core concept.
-        3. Provide multiple paragraphs (<p>) explaining the mechanics, algorithms, logic, architecture, or equations in detail. Use <strong> for emphasis.
-        4. Provide a structured bulleted list (<ul>, <li>) summarizing key takeaways, parameters, advantages/disadvantages, or checklists.
-        5. If applicable, wrap code snippets or pseudocode inside <pre><code> blocks.
-        
-        Do not return markdown, backticks, or raw markdown headers (e.g. # or ## or **). Return clean, raw HTML ready to be injected inside a div.
-        """
-        
-        try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            response = model.generate_content(prompt)
-        except Exception as model_err:
-            print("gemini-1.5-flash failed on v1 API, trying gemini-1.5-pro fallback...", model_err)
-            try:
-                model = genai.GenerativeModel("gemini-1.5-pro")
-                response = model.generate_content(prompt)
-            except Exception as final_err:
-                raise Exception(f"Gemini API model execution failed: {str(final_err)}")
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+    headers = {"Content-Type": "application/json"}
+    prompt = f"""
+    Generate detailed, comprehensive engineering notes on the topic: "{topic}".
+    Structure the notes beautifully using HTML tags:
+    1. Start with an <h4> header title of the topic.
+    2. Provide a detailed introductory paragraph (<p>) explaining the core concept.
+    3. Provide multiple paragraphs (<p>) explaining the mechanics, algorithms, logic, architecture, or equations in detail. Use <strong> for emphasis.
+    4. Provide a structured bulleted list (<ul>, <li>) summarizing key takeaways, parameters, advantages/disadvantages, or checklists.
+    5. If applicable, wrap code snippets or pseudocode inside <pre><code> blocks.
+    
+    Do not return markdown, backticks, or raw markdown headers (e.g. # or ## or **). Return clean, raw HTML ready to be injected inside a div.
+    """
+    
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ]
+    }
 
-        notes_html = response.text.strip()
-        
-        if notes_html.startswith("```html"):
-            notes_html = notes_html[7:]
-        if notes_html.endswith("```"):
-            notes_html = notes_html[:-3]
-        notes_html = notes_html.strip()
-        
-        return jsonify({"notes": notes_html})
+    try:
+        r = requests.post(url, json=payload, headers=headers, timeout=30)
+        if r.status_code == 200:
+            res_data = r.json()
+            try:
+                notes_html = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if notes_html.startswith("```html"):
+                    notes_html = notes_html[7:]
+                if notes_html.endswith("```"):
+                    notes_html = notes_html[:-3]
+                notes_html = notes_html.strip()
+                return jsonify({"notes": notes_html})
+            except Exception as parse_err:
+                return jsonify({"error": f"Failed to parse notes response: {str(parse_err)}"}), 500
+        else:
+            fallback_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={api_key}"
+            fr = requests.post(fallback_url, json=payload, headers=headers, timeout=30)
+            if fr.status_code == 200:
+                res_data = fr.json()
+                notes_html = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if notes_html.startswith("```html"):
+                    notes_html = notes_html[7:]
+                if notes_html.endswith("```"):
+                    notes_html = notes_html[:-3]
+                notes_html = notes_html.strip()
+                return jsonify({"notes": notes_html})
+            else:
+                return jsonify({"error": f"Gemini API returned error code {fr.status_code}: {fr.text}"}), 500
     except Exception as e:
-        return jsonify({"error": f"AI notes generation failed: {str(e)}"})
+        return jsonify({"error": f"AI notes generation failed: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
