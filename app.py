@@ -612,67 +612,88 @@ def get_generic_pyqs(company_name):
 
 import google.generativeai as genai
 
-def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
-    try:
-        url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent"
-        headers = {
-            "Content-Type": "application/json",
-            "x-goog-api-key": api_key
-        }
-        prompt = f"""
-        Provide a placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
-        All skills, topics weightages, salaries, and solved previous year questions (PYQs) must be tailored specifically to what a "{branch}" candidate is asked at "{company}".
-        If a core branch is selected (e.g. mechanical, electrical, civil, chemical), make sure the technical details, skills, and questions are core engineering questions (e.g. for Mechanical, ask about thermodynamics/fluids/CAD; for ECE IoT, ask about sensors/microcontrollers/embedded devices; for Civil, ask about RCC/concrete).
-        You must return a raw JSON object and nothing else (do NOT include ```json wrappers, backticks, or any explanation).
-        The structure must be exactly:
-        {{
-          "name": "Full Company Name",
-          "skills": [
-             {{"name": "Skill Name", "level": 85}}
-          ],
-          "topics": [
-             {{"name": "Topic Name", "weight": 35}}
-          ],
-          "salary": {{
-             "tiers": [
-                {{"name": "Role Name (e.g. SDE 1)", "package": "Salary in LPA", "inhand": "Approx. take home per month", "details": "Breakdown description"}}
-             ]
-          }},
-          "career_path": [
-             {{"level": "Level 1", "role": "Role Title", "duration": "Duration to upgrade", "salary": "Salary range"}}
-          ],
-          "tips": {{
-             "technical": "Prep tips",
-             "hr": "Prep tips",
-             "assessment": "Prep tips"
-          }},
-          "pyqs": [
-             {{
-                "question": "Real previous year question or coding puzzle asked at {company}",
-                "options": ["Option A", "Option B", "Option C", "Option D"],
-                "answer": "Correct Option text",
-                "solution": "Detailed step-by-step mathematical or logic explanation",
-                "year": "2024",
-                "source": "M4Maths / IndiaBIX"
-             }}
-          ]
-        }}
-        Provide real or highly realistic placement questions, correct answers, and exact details. Return raw JSON.
-        """
-        payload = {
-            "contents": [
-                {
-                    "parts": [
-                        {"text": prompt}
-                    ]
-                }
+def call_gemini_api(prompt, api_key, system_instruction=None):
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ]
+    }
+    if system_instruction:
+        payload["systemInstruction"] = {
+            "parts": [
+                {"text": system_instruction}
             ]
         }
         
-        r = requests.post(url, json=payload, headers=headers, timeout=8)
-        if r.status_code == 200:
-            res_data = r.json()
-            text = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key
+    }
+    
+    # Try 3.5 flash first, then 1.5 flash, then 1.5 pro
+    models = ["gemini-3.5-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+    versions = ["v1", "v1beta"]
+    
+    for version in versions:
+        for model in models:
+            url = f"https://generativelanguage.googleapis.com/{version}/models/{model}:generateContent"
+            try:
+                r = requests.post(url, json=payload, headers=headers, timeout=20)
+                if r.status_code == 200:
+                    res_data = r.json()
+                    return res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            except Exception as e:
+                print(f"REST query failed for {version}/{model}: {e}")
+    return None
+
+def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
+    prompt = f"""
+    Provide a placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
+    All skills, topics weightages, salaries, and solved previous year questions (PYQs) must be tailored specifically to what a "{branch}" candidate is asked at "{company}".
+    If a core branch is selected (e.g. mechanical, electrical, civil, chemical), make sure the technical details, skills, and questions are core engineering questions (e.g. for Mechanical, ask about thermodynamics/fluids/CAD; for ECE IoT, ask about sensors/microcontrollers/embedded devices; for Civil, ask about RCC/concrete).
+    You must return a raw JSON object and nothing else (do NOT include ```json wrappers, backticks, or any explanation).
+    The structure must be exactly:
+    {{
+      "name": "Full Company Name",
+      "skills": [
+         {{"name": "Skill Name", "level": 85}}
+      ],
+      "topics": [
+         {{"name": "Topic Name", "weight": 35}}
+      ],
+      "salary": {{
+         "tiers": [
+            {{"name": "Role Name (e.g. SDE 1)", "package": "Salary in LPA", "inhand": "Approx. take home per month", "details": "Breakdown description"}}
+         ]
+      }},
+      "career_path": [
+         {{"level": "Level 1", "role": "Role Title", "duration": "Duration to upgrade", "salary": "Salary range"}}
+      ],
+      "tips": {{
+         "technical": "Prep tips",
+         "hr": "Prep tips",
+         "assessment": "Prep tips"
+      }},
+      "pyqs": [
+         {{
+            "question": "Real previous year question or coding puzzle asked at {company}",
+            "options": ["Option A", "Option B", "Option C", "Option D"],
+            "answer": "Correct Option text",
+            "solution": "Detailed step-by-step mathematical or logic explanation",
+            "year": "2024",
+            "source": "M4Maths / IndiaBIX"
+         }}
+      ]
+    }}
+    Provide real or highly realistic placement questions, correct answers, and exact details. Return raw JSON.
+    """
+    try:
+        text = call_gemini_api(prompt, api_key)
+        if text:
             if text.startswith("```json"):
                 text = text[7:]
             if text.endswith("```"):
@@ -684,12 +705,9 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     return None
 
 def query_gemini_chat(prompt, company, category, api_key):
+    sys_instr = f"You are a placement guide helper for {company} under the category {category} round. Answer the candidate's query accurately with facts and details."
     try:
-        genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        sys_instr = f"You are a placement guide helper for {company} under the category {category} round. Answer the candidate's query accurately with facts and details."
-        response = model.generate_content(f"{sys_instr}\n\nCandidate Query: {prompt}")
-        return response.text.strip()
+        return call_gemini_api(prompt, api_key, system_instruction=sys_instr)
     except Exception as e:
         print("Gemini Chat integration error:", e)
         return None
@@ -1214,8 +1232,6 @@ def run_career_suite_simulation():
     
     if api_key:
         try:
-            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
-            model = genai.GenerativeModel("gemini-1.5-flash")
             prompt = f"""
             You are PrepOS AI Career Operating System.
             Analyze and run a dynamic simulation report for:
@@ -1230,8 +1246,11 @@ def run_career_suite_simulation():
             2. Simulated Data and Metrics (e.g. gap scores, custom salary comparisons, standing roles, or Jira stand-up tickets).
             3. Recommended actionable steps to optimize this module's readiness score.
             """
-            response = model.generate_content(prompt)
-            return jsonify({"report": response.text})
+            report_text = call_gemini_api(prompt, api_key)
+            if report_text:
+                return jsonify({"report": report_text})
+            else:
+                return jsonify({"error": "Failed to generate report"}), 500
         except Exception as e:
             print("Gemini Career Suite Error:", e)
             
@@ -1880,10 +1899,6 @@ def generate_study_notes():
     if not api_key:
         return jsonify({"error": "Google Gemini API Key is missing or invalid! Please configure GEMINI_API_KEY as an environment variable in Render."})
 
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": api_key
-    }
     prompt = f"""
     Generate detailed, comprehensive engineering notes on the topic: "{topic}".
     Structure the notes beautifully using HTML tags:
@@ -1895,51 +1910,19 @@ def generate_study_notes():
     
     Do not return markdown, backticks, or raw markdown headers (e.g. # or ## or **). Return clean, raw HTML ready to be injected inside a div.
     """
-    
-    payload = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ]
-    }
-
-    # Configuration Fallback Matrix (API Endpoint Version, Model Name)
-    fallback_matrix = [
-        ("v1", "gemini-1.5-flash"),
-        ("v1beta", "gemini-1.5-flash"),
-        ("v1", "gemini-1.5-pro"),
-        ("v1beta", "gemini-1.5-pro"),
-        ("v1", "gemini-pro"),
-        ("v1beta", "gemini-pro")
-    ]
-
-    last_status = 500
-    last_response = "All fallback endpoints failed to connect."
-
-    for version, model_name in fallback_matrix:
-        url = f"https://generativelanguage.googleapis.com/{version}/models/{model_name}:generateContent"
-        try:
-            r = requests.post(url, json=payload, headers=headers, timeout=15)
-            if r.status_code == 200:
-                res_data = r.json()
-                notes_html = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                if notes_html.startswith("```html"):
-                    notes_html = notes_html[7:]
-                if notes_html.endswith("```"):
-                    notes_html = notes_html[:-3]
-                notes_html = notes_html.strip()
-                return jsonify({"notes": notes_html})
-            else:
-                last_status = r.status_code
-                last_response = r.text
-        except Exception as e:
-            last_status = 500
-            last_response = str(e)
-
-    return jsonify({"error": f"Gemini API execution failed (last status {last_status}): {last_response}"}), 500
+    try:
+        notes_html = call_gemini_api(prompt, api_key)
+        if notes_html:
+            if notes_html.startswith("```html"):
+                notes_html = notes_html[7:]
+            if notes_html.endswith("```"):
+                notes_html = notes_html[:-3]
+            notes_html = notes_html.strip()
+            return jsonify({"notes": notes_html})
+        else:
+            return jsonify({"error": "Gemini API failed to generate notes. Please check that the Generative Language API is enabled for your key."}), 500
+    except Exception as e:
+        return jsonify({"error": f"AI notes generation failed: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
