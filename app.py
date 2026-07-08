@@ -1848,19 +1848,19 @@ def generate_study_notes():
             except Exception as parse_err:
                 return jsonify({"error": f"Failed to parse notes response: {str(parse_err)}"}), 500
         else:
-            fallback_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={api_key}"
-            fr = requests.post(fallback_url, json=payload, headers=headers, timeout=30)
-            if fr.status_code == 200:
-                res_data = fr.json()
-                notes_html = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                if notes_html.startswith("```html"):
-                    notes_html = notes_html[7:]
-                if notes_html.endswith("```"):
-                    notes_html = notes_html[:-3]
-                notes_html = notes_html.strip()
-                return jsonify({"notes": notes_html})
-            else:
-                return jsonify({"error": f"Gemini API returned error code {fr.status_code}: {fr.text}"}), 500
+            if r.status_code == 404:
+                fallback_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={api_key}"
+                fr = requests.post(fallback_url, json=payload, headers=headers, timeout=30)
+                if fr.status_code == 200:
+                    res_data = fr.json()
+                    notes_html = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    if notes_html.startswith("```html"):
+                        notes_html = notes_html[7:]
+                    if notes_html.endswith("```"):
+                        notes_html = notes_html[:-3]
+                    notes_html = notes_html.strip()
+                    return jsonify({"notes": notes_html})
+            return jsonify({"error": f"Gemini API returned error code {r.status_code}: {r.text}"}), 500
     except Exception as e:
         return jsonify({"error": f"AI notes generation failed: {str(e)}"}), 500
 
