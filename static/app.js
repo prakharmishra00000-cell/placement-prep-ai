@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "project": { title: "AI Project Evaluation Lab", sub: "Audit code originality, scalability design, database schemas, and architectural flaws" },
         "negotiation": { title: "Offer Negotiation & Compensation Coach", sub: "Structure counter-offers, analyze location indices, and evaluate total CTC components" },
         "jobs": { title: "Active Job Opportunities Feed", sub: "Browse automatically updated global openings and application links for all branches" },
+        "abroad": { title: "Active Abroad Opportunities Feed", sub: "Explore visa sponsored positions and international job boards for all branches" },
         "exams": { title: "Active Competitive & Government Exams Feed", sub: "Track live national/international exam bulletins, syllabus, and registration forms" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
