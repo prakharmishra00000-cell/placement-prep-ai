@@ -148,7 +148,9 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error(err);
-                alert("Error fetching company details.");
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = `<p class="text-muted" style="color: var(--neon-pink); text-align: center;">Error fetching details. Please check your connection and try again.</p>`;
+                }
             })
             .finally(() => {
                 searchBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Analyze & Retrieve PYQs';
