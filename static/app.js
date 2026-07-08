@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "oa": { title: "Mock Online Assessment (OA) Simulator", sub: "Take simulated tests under strict timings with focus lock proctor diagnostics" },
         "project": { title: "AI Project Evaluation Lab", sub: "Audit code originality, scalability design, database schemas, and architectural flaws" },
         "negotiation": { title: "Offer Negotiation & Compensation Coach", sub: "Structure counter-offers, analyze location indices, and evaluate total CTC components" },
-        "settings": { title: "API Keys & Setup Settings", sub: "Add your Gemini and Vector DB credentials to configure the active server engine" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
@@ -1101,74 +1100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ----------------------------------------------------
-    // Tab: API Keys & Settings
-    // ----------------------------------------------------
-    const sadminAuthBtn = document.getElementById("sadmin-auth-btn");
-    const sadminPin = document.getElementById("sadmin-pin");
-    const sadminLockScreen = document.getElementById("sadmin-lock-screen");
-    const sadminConfigFields = document.getElementById("sadmin-config-fields");
 
-    if (sadminAuthBtn) {
-        sadminAuthBtn.addEventListener("click", () => {
-            const pin = sadminPin.value;
-            if (pin === "9876") {
-                sadminLockScreen.style.display = "none";
-                sadminConfigFields.style.display = "block";
-            } else {
-                alert("Access Denied: Invalid Super Admin PIN.");
-            }
-        });
-    }
-
-    const saveSettingsBtn = document.getElementById("save-settings-btn");
-    const setupGemini = document.getElementById("setup-gemini-key");
-    const setupVectorUrl = document.getElementById("setup-vector-url");
-    const setupVectorKey = document.getElementById("setup-vector-key");
-    const setupSpeech = document.getElementById("setup-speech-key");
-    const setupSearch = document.getElementById("setup-search-key");
-    const settingsStatus = document.getElementById("settings-status-box");
-
-    if (saveSettingsBtn) {
-        saveSettingsBtn.addEventListener("click", () => {
-            const keys = {
-                gemini_key: setupGemini.value.trim(),
-                vector_url: setupVectorUrl.value.trim(),
-                vector_key: setupVectorKey.value.trim(),
-                speech_key: setupSpeech.value.trim(),
-                search_key: setupSearch.value.trim()
-            };
-
-            saveSettingsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
-            saveSettingsBtn.disabled = true;
-
-            fetch("/api/save_credentials", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(keys)
-            })
-            .then(res => res.json())
-            .then(data => {
-                settingsStatus.style.display = "block";
-                settingsStatus.style.background = data.success ? "rgba(0, 255, 102, 0.15)" : "rgba(255, 0, 85, 0.15)";
-                settingsStatus.style.border = data.success ? "1px solid var(--neon-cyan)" : "1px solid var(--neon-pink)";
-                settingsStatus.style.color = data.success ? "var(--neon-cyan)" : "var(--neon-pink)";
-                settingsStatus.textContent = data.message || "Credential status processed.";
-            })
-            .catch(err => {
-                console.error(err);
-                settingsStatus.style.display = "block";
-                settingsStatus.style.background = "rgba(255, 0, 85, 0.15)";
-                settingsStatus.style.border = "1px solid var(--neon-pink)";
-                settingsStatus.style.color = "var(--neon-pink)";
-                settingsStatus.textContent = "Error saving backend credentials.";
-            })
-            .finally(() => {
-                saveSettingsBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save & Load Backend Credentials';
-                saveSettingsBtn.disabled = false;
-            });
-        });
-    }
 
     // Initialize first load
     fetchCompanyDetails("TCS", "technical");
