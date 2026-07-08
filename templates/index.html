@@ -82,27 +82,6 @@
                     <i class="fa-solid fa-robot"></i>
                     <span>AI Doubt Solver</span>
                 </a>
-                <a href="#" class="nav-item" data-tab="career_suite">
-                    <i class="fa-solid fa-briefcase"></i>
-                    <span>AI Career OS Suite</span>
-                </a>
-                <a href="#" class="nav-item" data-tab="recruiter">
-                    <i class="fa-solid fa-user-ninja"></i>
-                    <span>AI Recruiter Copilot</span>
-                </a>
-                <a href="#" class="nav-item" data-tab="oa">
-                    <i class="fa-solid fa-stopwatch"></i>
-                    <span>Mock OA Simulator</span>
-                </a>
-                <a href="#" class="nav-item" data-tab="project">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>Project Evaluator</span>
-                </a>
-                <a href="#" class="nav-item" data-tab="negotiation">
-                    <i class="fa-solid fa-scale-balanced"></i>
-                    <span>Offer Negotiation Coach</span>
-                </a>
-
                 <a href="#" class="nav-item" data-tab="jobs">
                     <i class="fa-solid fa-bullhorn"></i>
                     <span>Job Opportunities</span>
@@ -110,10 +89,6 @@
                 <a href="#" class="nav-item" data-tab="abroad">
                     <i class="fa-solid fa-globe"></i>
                     <span>Abroad Opportunities</span>
-                </a>
-                <a href="#" class="nav-item" data-tab="exams">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                    <span>Competitive Exams</span>
                 </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
@@ -699,193 +674,7 @@
                 </div>
             </div>
 
-            <!-- Tab Content: AI Career OS Suite -->
-            <div class="tab-content" id="tab-career_suite">
-                <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-briefcase text-neon-blue"></i> AI Career Operating System Suite</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Launch real-time simulations, gap reports, onboarding mock cycles, and recruiter evaluations for any engineering branch and company.</p>
-                    
-                    <div class="search-inputs" style="margin-bottom: 2rem;">
-                        <div class="input-group">
-                            <label for="suite-branch-select"><i class="fa-solid fa-code-branch"></i> Select Engineering Branch</label>
-                            <select id="suite-branch-select">
-                                <option value="cse" selected>Computer Science (CSE / IT)</option>
-                                <option value="ece">Electronics & Communication (ECE / IoT)</option>
-                                <option value="mechanical">Mechanical Engineering</option>
-                                <option value="electrical">Electrical Engineering</option>
-                                <option value="civil">Civil Engineering</option>
-                                <option value="chemical">Chemical Engineering</option>
-                            </select>
-                        </div>
 
-                        <div class="input-group">
-                            <label for="suite-module-select"><i class="fa-solid fa-gears"></i> Select AI Career OS Module</label>
-                            <select id="suite-module-select">
-                                <option value="1">1. AI Recruiter Copilot (Enterprise Check)</option>
-                                <option value="2">2. AI Placement Cell Dashboard Summary</option>
-                                <option value="3">3. AI Career Intelligence & Forecast</option>
-                                <option value="4">4. Live Coding / System Design Lab</option>
-                                <option value="5">5. AI Placement Intelligence Network Logs</option>
-                                <option value="6">6. Autonomous Multi-Agent Grid Launch</option>
-                                <option value="7">7. Personal AI Mentor (Motivation/Habit Audit)</option>
-                                <option value="8">8. Real-Time Market Intelligence Scanner</option>
-                                <option value="9">9. Adaptive AI Learning Engine Quiz</option>
-                                <option value="10">10. AI Project Builder & Architecture Spec</option>
-                                <option value="11">11. AI Networking & Referral Assistant</option>
-                                <option value="12">12. AI Negotiation & Tax Analyzer</option>
-                                <option value="13">13. AI Company Research & Layoff Risk Index</option>
-                                <option value="14">14. AI Assessment & OA Pattern Generator</option>
-                                <option value="15">15. AI Digital Portfolio & Resume Website Build</option>
-                                <option value="16">16. AI Company Simulation (First 6 Months standup)</option>
-                                <option value="17">17. AI System Design & Pipeline Lab</option>
-                                <option value="18">18. AI Coding & Performance Analytics Profile</option>
-                                <option value="19">19. AI Hackathon Planner & PPT Pitch</option>
-                                <option value="20">20. AI Enterprise Knowledge Graph Lookup</option>
-                            </select>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="suite-company-name"><i class="fa-solid fa-building"></i> Target Company</label>
-                            <input type="text" id="suite-company-name" value="TCS" placeholder="Enter company name...">
-                        </div>
-                    </div>
-
-                    <button id="run-suite-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 2rem;">
-                        <i class="fa-solid fa-bolt"></i> Run AI Suite Simulation
-                    </button>
-
-                    <!-- Simulation Result Container -->
-                    <div id="suite-result-card" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
-                        <h4 style="margin-bottom: 1rem; color: var(--neon-cyan); display: flex; align-items: center; gap: 0.5rem;" id="suite-result-title">
-                            <i class="fa-solid fa-square-poll-vertical"></i> Simulation Report
-                        </h4>
-                        <div id="suite-result-body" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary);">
-                            <!-- Dynamic Content -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab Content: AI Recruiter Copilot -->
-            <div class="tab-content" id="tab-recruiter">
-                <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-user-ninja text-neon-blue"></i> AI Recruiter Copilot & Screening Engine</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Evaluate candidate profiles from a recruiter's perspective. Simulate resume ranking scores, gap reports, and hiring manager personalities fit.</p>
-                    
-                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
-                        <div class="input-group">
-                            <label for="recruiter-branch"><i class="fa-solid fa-code-branch"></i> Candidate Branch</label>
-                            <select id="recruiter-branch">
-                                <option value="cse">Computer Science (CSE/IT)</option>
-                                <option value="ece">Electronics (ECE/IoT)</option>
-                                <option value="mechanical">Mechanical Engineering</option>
-                                <option value="electrical">Electrical Engineering</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="recruiter-persona"><i class="fa-solid fa-user-tie"></i> Hiring Manager Profile</label>
-                            <select id="recruiter-persona">
-                                <option value="strict">Strict Technical Director</option>
-                                <option value="balanced">Product-focused Manager</option>
-                                <option value="behavioral">HR Cultural Lead</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <button id="run-recruiter-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
-                        <i class="fa-solid fa-glasses"></i> Run Recruiter Screening Assessment
-                    </button>
-                    
-                    <div id="recruiter-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
-                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-id-card-clip"></i> Recruiter Screening Output</h4>
-                        <div id="recruiter-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab Content: Mock OA Simulator -->
-            <div class="tab-content" id="tab-oa">
-                <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-stopwatch text-neon-yellow"></i> Timed Online Assessment (OA) Simulator</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Practice under timed, strict exam conditions with virtual proctor simulation alert logs.</p>
-                    
-                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
-                        <div class="input-group">
-                            <label for="oa-duration"><i class="fa-solid fa-clock"></i> Test Duration</label>
-                            <select id="oa-duration">
-                                <option value="30">30 Minutes (Sprint OA)</option>
-                                <option value="60">60 Minutes (Standard OA)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="oa-proctor"><i class="fa-solid fa-shield-halved"></i> Proctor Strictness</label>
-                            <select id="oa-proctor">
-                                <option value="high">High (Strict Focus & Tab Lock)</option>
-                                <option value="low">Standard Warnings Only</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <button id="run-oa-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
-                        <i class="fa-solid fa-play"></i> Initialize Mock Exam
-                    </button>
-                    
-                    <div id="oa-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
-                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-graduation-cap"></i> OA Simulation Diagnostics</h4>
-                        <div id="oa-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab Content: Project Evaluator -->
-            <div class="tab-content" id="tab-project">
-                <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-folder-open text-neon-green-glow"></i> AI Project Evaluation Lab</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Submit project descriptions to review code originality, scalability, databases structures, and design weaknesses.</p>
-                    
-                    <div class="input-group" style="margin-bottom: 1.5rem;">
-                        <label for="project-desc"><i class="fa-solid fa-align-left"></i> Project Outline & Tech Stack</label>
-                        <textarea id="project-desc" rows="4" placeholder="Describe your project, databases used, and hosting details (e.g., 'A Python-Flask web app storing logs in SQLite with an HTML template')..." style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); padding: 0.75rem; font-family: inherit; font-size: 0.85rem;"></textarea>
-                    </div>
-                    
-                    <button id="run-project-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
-                        <i class="fa-solid fa-magnifying-glass-chart"></i> Run Project Architecture Audit
-                    </button>
-                    
-                    <div id="project-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
-                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-diagram-project"></i> Project Review Card</h4>
-                        <div id="project-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab Content: Offer Negotiation Coach -->
-            <div class="tab-content" id="tab-negotiation">
-                <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-scale-balanced text-neon-pink"></i> Offer Negotiation & Package Coach</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Generate professional salary counter-offers and break down CTC components like in-hand, ESOPs, and relocations.</p>
-                    
-                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
-                        <div class="input-group">
-                            <label for="neg-ctc"><i class="fa-solid fa-money-bill-wave"></i> Offered CTC (LPA)</label>
-                            <input type="number" id="neg-ctc" value="6" min="1" max="100">
-                        </div>
-                        <div class="input-group">
-                            <label for="neg-location"><i class="fa-solid fa-map-pin"></i> Target Location</label>
-                            <input type="text" id="neg-location" value="Bangalore" placeholder="e.g. Bangalore, Mumbai">
-                        </div>
-                    </div>
-                    
-                    <button id="run-neg-btn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1.5rem;">
-                        <i class="fa-solid fa-file-signature"></i> Evolve Negotiation Strategy
-                    </button>
-                    
-                    <div id="neg-report-card" class="glass-card" style="display: none; padding: 1.25rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
-                        <h4 style="margin-bottom: 0.75rem; color: var(--neon-cyan);"><i class="fa-solid fa-envelope-open-text"></i> Counter-Offer Letter Draft & CTC Analysis</h4>
-                        <div id="neg-report-body" style="font-size: 0.85rem; line-height: 1.6;"></div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Tab Content: Job Opportunities -->
             <div class="tab-content" id="tab-jobs">
@@ -1006,57 +795,7 @@
                     </div>
                 </div>
             </div>
-            <!-- Tab Content: Competitive Exams -->
-            <div class="tab-content" id="tab-exams">
-                <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-clipboard-list text-neon-cyan"></i> Active Government & Competitive Exams Feed</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">24/7 automated crawler monitoring national and international competitive exam bulletins (GATE, UPSC, ISRO, IES, GRE, etc.).</p>
-                    
-                    <div class="search-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-                        <div class="input-group">
-                            <label for="exam-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
-                            <select id="exam-branch-filter">
-                                <option value="all">All Branches & Sectors</option>
-                                <option value="cse">Computer Science (CSE/IT)</option>
-                                <option value="ece">Electronics (ECE/IoT)</option>
-                                <option value="mechanical">Mechanical Engineering</option>
-                                <option value="electrical">Electrical Engineering</option>
-                                <option value="civil">Civil Engineering</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="exam-exp-filter"><i class="fa-solid fa-user-clock"></i> Eligibility Age/Exp</label>
-                            <select id="exam-exp-filter">
-                                <option value="all">All Eligibility Levels</option>
-                                <option value="fresher">Freshers / Final Year</option>
-                                <option value="1">1 Year Experience</option>
-                                <option value="2">2+ Years Experience</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="exam-qual-filter"><i class="fa-solid fa-graduation-cap"></i> Qualification</label>
-                            <select id="exam-qual-filter">
-                                <option value="all">All Qualifications</option>
-                                <option value="diploma">Diploma</option>
-                                <option value="btech">B.Tech / B.E</option>
-                                <option value="mtech">M.Tech / M.E / MS</option>
-                            </select>
-                        </div>
-                        <button id="refresh-exams-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center;">
-                            <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
-                        </button>
-                    </div>
-                    
-                    <div id="exams-loading" style="display: none; text-align: center; padding: 2rem;">
-                        <i class="fa-solid fa-spinner fa-spin text-neon-cyan" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                        <p class="text-muted" style="font-size: 0.85rem;">Scraping latest exam bulletins...</p>
-                    </div>
 
-                    <div id="exams-container" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
-                        <!-- Exam cards injected dynamically by JavaScript -->
-                    </div>
-                </div>
-            </div>
 
 
             <!-- Tab Content: User Guide of all 230 Features -->
