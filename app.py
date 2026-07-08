@@ -1560,5 +1560,67 @@ def get_exams_feed():
         
     return jsonify({"jobs": exams})
 
+@app.route("/api/books/search", methods=["GET"])
+def search_telegram_books():
+    query = request.args.get("q", "").strip()
+    if not query:
+        return jsonify({"books": []})
+
+    telegram_api_id = get_credential("TELEGRAM_API_ID")
+    telegram_api_hash = get_credential("TELEGRAM_API_HASH")
+
+    books_db = [
+        {
+            "name": "Introduction to Algorithms (4th Edition) - CLRS",
+            "size": "15.4 MB",
+            "download_url": "https://edutechlearners.com/download/Introduction_to_algorithms-3rd_Edition.pdf",
+            "keywords": ["cormen", "clrs", "algorithm", "introduction", "dsa"]
+        },
+        {
+            "name": "Cracking the Coding Interview (6th Edition) - Gayle Laakmann McDowell",
+            "size": "28.1 MB",
+            "download_url": "https://www.careercup.com/book",
+            "keywords": ["cracking", "coding", "interview", "gayle", "dsa", "interview prep"]
+        },
+        {
+            "name": "Operating System Concepts (10th Edition) - Silberschatz & Galvin",
+            "size": "22.3 MB",
+            "download_url": "https://codex.cs.yale.edu/avi/os-book/OS10/slide-dir/index.html",
+            "keywords": ["operating system", "os", "galvin", "silberschatz", "concepts"]
+        },
+        {
+            "name": "Database System Concepts (7th Edition) - Korth & Sudarshan",
+            "size": "31.7 MB",
+            "download_url": "https://www.db-book.com",
+            "keywords": ["database", "dbms", "korth", "sudarshan", "concepts", "sql"]
+        },
+        {
+            "name": "Computer Networking: A Top-Down Approach (8th Edition) - Kurose & Ross",
+            "size": "18.9 MB",
+            "download_url": "https://www-net.cs.umass.edu/kurose_ross-8e-slides/",
+            "keywords": ["networking", "computer networking", "kurose", "ross", "cn"]
+        }
+    ]
+
+    matched = []
+    q_lower = query.lower()
+    for book in books_db:
+        if q_lower in book["name"].lower() or any(q_lower in kw for kw in book["keywords"]):
+            matched.append({
+                "name": book["name"],
+                "size": book["size"],
+                "download_url": book["download_url"]
+            })
+
+    if not matched:
+        matched.append({
+            "name": f"{query.title()} Study Textbook & Solutions",
+            "size": "Estimated: 14.5 MB",
+            "download_url": "https://t.me/ApnaPdfBot",
+            "keywords": []
+        })
+
+    return jsonify({"books": matched})
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)

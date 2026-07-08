@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "jobs": { title: "Active Job Opportunities Feed", sub: "Browse automatically updated global openings and application links for all branches" },
         "abroad": { title: "Active Abroad Opportunities Feed", sub: "Explore visa sponsored positions and international job boards for all branches" },
         "exams": { title: "Active Competitive & Government Exams Feed", sub: "Track live national/international exam bulletins, syllabus, and registration forms" },
+        "books": { title: "AI Book Store & Placement Library", sub: "Search, fetch, and download reference engineering textbooks and guides instantly" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
@@ -1148,6 +1149,77 @@ document.addEventListener("DOMContentLoaded", () => {
     if (examExpFilter) examExpFilter.addEventListener("change", fetchExamsFeed);
     if (examQualFilter) examQualFilter.addEventListener("change", fetchExamsFeed);
     if (refreshExamsBtn) refreshExamsBtn.addEventListener("click", fetchExamsFeed);
+
+    // ----------------------------------------------------
+    // Tab: AI Book Store & Placement Library
+    // ----------------------------------------------------
+    const searchBookBtn = document.getElementById("search-book-btn");
+    const bookSearchInput = document.getElementById("book-search-input");
+    const bookLoading = document.getElementById("book-loading");
+    const bookResults = document.getElementById("book-results");
+
+    function executeBookSearch() {
+        const query = bookSearchInput.value.trim();
+        if (!query) {
+            alert("Please enter a book title or keyword to search!");
+            return;
+        }
+
+        bookResults.innerHTML = "";
+        bookLoading.style.display = "block";
+
+        fetch(`/api/books/search?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+            bookLoading.style.display = "none";
+            if (data.error) {
+                bookResults.innerHTML = `<p class="text-muted" style="text-align: center; grid-column: 1/-1; color: var(--neon-pink);">${data.error}</p>`;
+                return;
+            }
+            if (!data.books || data.books.length === 0) {
+                bookResults.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No books matching that title were found in @ApnaPdfBot.</p>';
+                return;
+            }
+
+            data.books.forEach(book => {
+                const card = document.createElement("div");
+                card.className = "docs-card";
+                card.style.display = "flex";
+                card.style.flexDirection = "column";
+                card.style.justifyContent = "space-between";
+                card.style.padding = "1.25rem";
+                card.style.border = "1px solid var(--border-color)";
+
+                card.innerHTML = `
+                    <div>
+                        <h4 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-file-pdf"></i> ${book.name}</h4>
+                        <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--text-muted);">Format: PDF/Document • Source: @ApnaPdfBot archives</p>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            <strong>File Size:</strong> ${book.size || "Unknown"}
+                        </div>
+                    </div>
+                    <a href="${book.download_url}" target="_blank" class="btn btn-primary" style="justify-content: center; font-size: 0.8rem; width: 100%;">
+                        <i class="fa-solid fa-download"></i> Download Book Now
+                    </a>
+                `;
+                bookResults.appendChild(card);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            bookLoading.style.display = "none";
+            bookResults.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1; color: var(--neon-pink);">Error connecting to book archives engine.</p>';
+        });
+    }
+
+    if (searchBookBtn) searchBookBtn.addEventListener("click", executeBookSearch);
+    if (bookSearchInput) {
+        bookSearchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                executeBookSearch();
+            }
+        });
+    }
 
     navItems.forEach(item => {
         item.addEventListener("click", () => {

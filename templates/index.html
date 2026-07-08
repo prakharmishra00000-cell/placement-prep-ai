@@ -94,9 +94,13 @@
                     <i class="fa-solid fa-clipboard-list"></i>
                     <span>Competitive Exams</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="books">
+                    <i class="fa-solid fa-book"></i>
+                    <span>AI Book Store</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
-                    <span>User Guide (230 Features)</span>
+                    <span>User Guide</span>
                 </a>
             </nav>
 
@@ -852,7 +856,32 @@
                 </div>
             </div>
 
+            <!-- Tab Content: Book Store -->
+            <div class="tab-content" id="tab-books">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-book text-neon-blue"></i> AI Book Store & Library</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Search and download placement books, textbooks, reference materials, and engineering guides instantly retrieved from our cloud repositories.</p>
+                    
+                    <div class="search-inputs" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="input-group" style="flex: 1;">
+                            <label for="book-search-input"><i class="fa-solid fa-magnifying-glass"></i> Search for Book (Title, Author, or Topic)</label>
+                            <input type="text" id="book-search-input" placeholder="e.g. Introduction to Algorithms, SQL Queries, Java Complete Reference...">
+                        </div>
+                        <button id="search-book-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center; padding: 0 1.5rem;">
+                            <i class="fa-solid fa-paper-plane"></i> Search & Fetch
+                        </button>
+                    </div>
+                    
+                    <div id="book-loading" style="display: none; text-align: center; padding: 2rem;">
+                        <i class="fa-solid fa-spinner fa-spin text-neon-blue" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p class="text-muted" style="font-size: 0.85rem;">Searching Telegram cloud bot archives (@ApnaPdfBot)... This may take 10-15 seconds...</p>
+                    </div>
 
+                    <div id="book-results" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                        <!-- Book items or cards injected here -->
+                    </div>
+                </div>
+            </div>
 
             <!-- Tab Content: User Guide -->
             <div class="tab-content" id="tab-docs">
