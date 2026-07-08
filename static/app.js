@@ -895,6 +895,21 @@ document.addEventListener("DOMContentLoaded", () => {
         appendCopilotMsg("user", text);
         copilotInput.value = "";
 
+        // Append thinking indicator
+        const thinkingDiv = document.createElement("div");
+        thinkingDiv.className = "message system-msg thinking-msg";
+        thinkingDiv.innerHTML = `
+            <div class="msg-avatar"><i class="fa-solid fa-brain fa-spin-pulse" style="color: var(--neon-purple);"></i></div>
+            <div class="msg-body">
+                <span class="thinking-text" style="color: var(--neon-blue); font-weight: 600;">PrepOS AI is researching your query...</span>
+                <div class="thinking-progress-container" style="width: 150px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 8px; overflow: hidden; position: relative;">
+                    <div class="thinking-progress-bar" style="width: 100%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); border-radius: 10px; position: absolute; left: -100%; animation: think-slide 1.5s infinite ease-in-out;"></div>
+                </div>
+            </div>
+        `;
+        copilotMessages.appendChild(thinkingDiv);
+        copilotMessages.scrollTop = copilotMessages.scrollHeight;
+
         fetch("/api/query", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -902,10 +917,12 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(res => res.json())
         .then(data => {
+            thinkingDiv.remove();
             appendCopilotMsg("system", data.answer || data.error || "Error processing request.");
         })
         .catch(err => {
             console.error(err);
+            thinkingDiv.remove();
             appendCopilotMsg("system", "Error processing request.");
         });
     });

@@ -1388,3 +1388,9 @@ body {
 .mt-1-5 {
     margin-top: 1.5rem;
 }
+
+@keyframes think-slide {
+    0% { left: -100%; }
+    50% { left: 0%; }
+    100% { left: 100%; }
+}
