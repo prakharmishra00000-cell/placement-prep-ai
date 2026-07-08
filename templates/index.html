@@ -879,7 +879,19 @@
                         </button>
                     </div>
 
-                    <div class="search-inputs" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <!-- Mode Selector Dropdown -->
+                    <div class="search-inputs" style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label for="book-mode-select"><i class="fa-solid fa-gears"></i> Select Library Module</label>
+                            <select id="book-mode-select">
+                                <option value="search" selected>Search Reference Books (PDFs)</option>
+                                <option value="notes">AI Study Notes Generator</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Mode 1: Search Books -->
+                    <div id="book-search-section" class="search-inputs" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group" style="flex: 1;">
                             <label for="book-search-input"><i class="fa-solid fa-magnifying-glass"></i> Search for Book (Title, Author, or Topic)</label>
                             <input type="text" id="book-search-input" placeholder="e.g. Introduction to Algorithms, SQL Queries, Java Complete Reference...">
@@ -888,14 +900,35 @@
                             <i class="fa-solid fa-paper-plane"></i> Search & Fetch
                         </button>
                     </div>
+
+                    <!-- Mode 2: AI Notes Generator -->
+                    <div id="book-notes-section" class="search-inputs" style="display: none; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="input-group" style="flex: 1;">
+                            <label for="book-notes-input"><i class="fa-solid fa-pen-nib"></i> Enter Topic Name for AI Notes Generation</label>
+                            <input type="text" id="book-notes-input" placeholder="e.g. Memory Management, Two-Phase Locking (2PL), Dijkstra's Algorithm...">
+                        </div>
+                        <button id="generate-notes-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center; padding: 0 1.5rem;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Notes
+                        </button>
+                    </div>
                     
                     <div id="book-loading" style="display: none; text-align: center; padding: 2rem;">
                         <i class="fa-solid fa-spinner fa-spin text-neon-blue" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                        <p class="text-muted" style="font-size: 0.85rem;">Searching cloud book repositories... This may take 10-15 seconds...</p>
+                        <p class="text-muted" style="font-size: 0.85rem;" id="book-loading-text">Searching cloud book repositories... This may take 10-15 seconds...</p>
                     </div>
 
                     <div id="book-results" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
                         <!-- Book items or cards injected here -->
+                    </div>
+
+                    <!-- Notes Output Container -->
+                    <div id="book-notes-output" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5); margin-top: 1.5rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--neon-cyan); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-file-lines"></i> Generated Study Notes
+                        </h4>
+                        <div id="book-notes-body" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary);">
+                            <!-- Generated notes HTML will be loaded here -->
+                        </div>
                     </div>
                 </div>
             </div>

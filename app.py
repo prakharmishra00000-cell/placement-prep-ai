@@ -1763,5 +1763,45 @@ def tg_status():
     session_exists = os.path.exists("prep_bot_user_session.session")
     return jsonify({"authenticated": session_exists})
 
+@app.route("/api/notes/generate", methods=["POST"])
+def generate_study_notes():
+    data = request.get_json() or {}
+    topic = data.get("topic", "").strip()
+    if not topic:
+        return jsonify({"error": "Topic name is required!"})
+
+    api_key = get_credential("GEMINI_API_KEY")
+    if not api_key:
+        return jsonify({"error": "Google Gemini API Key is missing! Set it as an environment variable."})
+
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        
+        prompt = f"""
+        Generate detailed, comprehensive engineering notes on the topic: "{topic}".
+        Structure the notes beautifully using HTML tags:
+        1. Start with an <h4> header title of the topic.
+        2. Provide a detailed introductory paragraph (<p>) explaining the core concept.
+        3. Provide multiple paragraphs (<p>) explaining the mechanics, algorithms, logic, architecture, or equations in detail. Use <strong> for emphasis.
+        4. Provide a structured bulleted list (<ul>, <li>) summarizing key takeaways, parameters, advantages/disadvantages, or checklists.
+        5. If applicable, wrap code snippets or pseudocode inside <pre><code> blocks.
+        
+        Do not return markdown, backticks, or raw markdown headers (e.g. # or ## or **). Return clean, raw HTML ready to be injected inside a div.
+        """
+        
+        response = model.generate_content(prompt)
+        notes_html = response.text.strip()
+        
+        if notes_html.startswith("```html"):
+            notes_html = notes_html[7:]
+        if notes_html.endswith("```"):
+            notes_html = notes_html[:-3]
+        notes_html = notes_html.strip()
+        
+        return jsonify({"notes": notes_html})
+    except Exception as e:
+        return jsonify({"error": f"AI notes generation failed: {str(e)}"})
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)

@@ -1212,11 +1212,81 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const bookModeSelect = document.getElementById("book-mode-select");
+    const bookSearchSection = document.getElementById("book-search-section");
+    const bookNotesSection = document.getElementById("book-notes-section");
+    const bookNotesInput = document.getElementById("book-notes-input");
+    const generateNotesBtn = document.getElementById("generate-notes-btn");
+    const bookNotesOutput = document.getElementById("book-notes-output");
+    const bookNotesBody = document.getElementById("book-notes-body");
+    const bookLoadingText = document.getElementById("book-loading-text");
+
+    if (bookModeSelect) {
+        bookModeSelect.addEventListener("change", () => {
+            const mode = bookModeSelect.value;
+            if (mode === "search") {
+                bookSearchSection.style.display = "flex";
+                bookResults.style.display = "grid";
+                bookNotesSection.style.display = "none";
+                bookNotesOutput.style.display = "none";
+            } else {
+                bookSearchSection.style.display = "none";
+                bookResults.style.display = "none";
+                bookNotesSection.style.display = "flex";
+                bookNotesOutput.style.display = "block";
+            }
+        });
+    }
+
+    function executeNotesGeneration() {
+        const topic = bookNotesInput.value.trim();
+        if (!topic) {
+            alert("Please enter a topic name to generate notes!");
+            return;
+        }
+
+        bookNotesBody.innerHTML = "";
+        bookLoadingText.textContent = "Generating detailed study notes via Google Gemini... This may take 5-10 seconds...";
+        bookLoading.style.display = "block";
+
+        fetch("/api/notes/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic })
+        })
+        .then(res => res.json())
+        .then(data => {
+            bookLoading.style.display = "none";
+            bookLoadingText.textContent = "Searching cloud book repositories... This may take 10-15 seconds...";
+            
+            if (data.error) {
+                bookNotesBody.innerHTML = `<p class="text-muted" style="color: var(--neon-pink);">${data.error}</p>`;
+                return;
+            }
+            bookNotesBody.innerHTML = data.notes || "<p class='text-muted'>No notes generated.</p>";
+        })
+        .catch(err => {
+            console.error(err);
+            bookLoading.style.display = "none";
+            bookLoadingText.textContent = "Searching cloud book repositories... This may take 10-15 seconds...";
+            bookNotesBody.innerHTML = '<p class="text-muted" style="color: var(--neon-pink);">Error connecting to AI Notes engine.</p>';
+        });
+    }
+
     if (searchBookBtn) searchBookBtn.addEventListener("click", executeBookSearch);
     if (bookSearchInput) {
         bookSearchInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 executeBookSearch();
+            }
+        });
+    }
+
+    if (generateNotesBtn) generateNotesBtn.addEventListener("click", executeNotesGeneration);
+    if (bookNotesInput) {
+        bookNotesInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                executeNotesGeneration();
             }
         });
     }
