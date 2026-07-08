@@ -1221,6 +1221,94 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ----------------------------------------------------
+    // Telegram Userbot Authorization Handling
+    // ----------------------------------------------------
+    const telegramAuthSection = document.getElementById("telegram-auth-section");
+    const sendAuthCodeBtn = document.getElementById("send-auth-code-btn");
+    const authCodeInputGroup = document.getElementById("auth-code-input-group");
+    const submitAuthCodeBtn = document.getElementById("submit-auth-code-btn");
+    const authOtpCode = document.getElementById("auth-otp-code");
+
+    function checkTelegramStatus() {
+        if (!telegramAuthSection) return;
+        fetch("/api/telegram/status")
+        .then(res => res.json())
+        .then(data => {
+            if (data.authenticated) {
+                telegramAuthSection.style.display = "none";
+            } else {
+                telegramAuthSection.style.display = "block";
+            }
+        })
+        .catch(err => console.error("Error checking Telegram status:", err));
+    }
+
+    if (sendAuthCodeBtn) {
+        sendAuthCodeBtn.addEventListener("click", () => {
+            sendAuthCodeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending Request...';
+            sendAuthCodeBtn.disabled = true;
+
+            fetch("/api/telegram/send_code", { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    authCodeInputGroup.style.display = "flex";
+                    sendAuthCodeBtn.style.display = "none";
+                } else {
+                    alert(data.error || "Failed to trigger login request.");
+                    sendAuthCodeBtn.innerHTML = '<i class="fa-solid fa-key"></i> Request Login OTP';
+                    sendAuthCodeBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error connecting to server authentication API.");
+                sendAuthCodeBtn.innerHTML = '<i class="fa-solid fa-key"></i> Request Login OTP';
+                sendAuthCodeBtn.disabled = false;
+            });
+        });
+    }
+
+    if (submitAuthCodeBtn) {
+        submitAuthCodeBtn.addEventListener("click", () => {
+            const code = authOtpCode.value.trim();
+            if (!code) {
+                alert("Please enter the verification code received on Telegram!");
+                return;
+            }
+
+            submitAuthCodeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+            submitAuthCodeBtn.disabled = true;
+
+            fetch("/api/telegram/verify_code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    telegramAuthSection.style.display = "none";
+                } else {
+                    alert(data.error || "Verification failed.");
+                    submitAuthCodeBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verify & Link';
+                    submitAuthCodeBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Verification failed due to connection error.");
+                submitAuthCodeBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verify & Link';
+                submitAuthCodeBtn.disabled = false;
+            });
+        });
+    }
+
+    checkTelegramStatus();
+
     navItems.forEach(item => {
         item.addEventListener("click", () => {
             const tab = item.getAttribute("data-tab");

@@ -1701,5 +1701,72 @@ def search_telegram_books():
     }
     return jsonify({"books": [fallback_book]})
 
+temp_tg_client = {}
+
+@app.route("/api/telegram/send_code", methods=["POST"])
+def tg_send_code():
+    api_id = get_credential("TELEGRAM_API_ID")
+    api_hash = get_credential("TELEGRAM_API_HASH")
+    phone = get_credential("TELEGRAM_PHONE")
+    
+    if not api_id or not api_hash or not phone:
+        return jsonify({"error": "Telegram credentials (API ID, Hash, Phone) are not set in Render environment!"})
+        
+    try:
+        from telethon import TelegramClient
+        import asyncio
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        client = TelegramClient('prep_bot_user_session', int(api_id), api_hash)
+        
+        async def connect_and_send():
+            await client.connect()
+            sent = await client.send_code_request(phone)
+            return sent.phone_code_hash
+            
+        code_hash = loop.run_until_complete(connect_and_send())
+        
+        temp_tg_client["phone_code_hash"] = code_hash
+        temp_tg_client["client"] = client
+        temp_tg_client["loop"] = loop
+        
+        return jsonify({"success": True, "message": "Verification code sent to your Telegram app!"})
+    except Exception as e:
+        return jsonify({"error": f"Failed to send code: {str(e)}"})
+
+@app.route("/api/telegram/verify_code", methods=["POST"])
+def tg_verify_code():
+    data = request.get_json() or {}
+    code = data.get("code", "").strip()
+    if not code:
+        return jsonify({"error": "Verification code is required!"})
+        
+    client = temp_tg_client.get("client")
+    phone_code_hash = temp_tg_client.get("phone_code_hash")
+    loop = temp_tg_client.get("loop")
+    phone = get_credential("TELEGRAM_PHONE")
+    
+    if not client or not phone_code_hash or not loop:
+        return jsonify({"error": "No active authorization request found! Please send verification code first."})
+        
+    try:
+        async def sign_in_user():
+            await client.sign_in(phone, code, phone_code_hash=phone_code_hash)
+            await client.disconnect()
+            
+        loop.run_until_complete(sign_in_user())
+        temp_tg_client.clear()
+        
+        return jsonify({"success": True, "message": "Telegram Scraper authorized successfully! You can now search any book."})
+    except Exception as e:
+        return jsonify({"error": f"Verification failed: {str(e)}"})
+
+@app.route("/api/telegram/status", methods=["GET"])
+def tg_status():
+    session_exists = os.path.exists("prep_bot_user_session.session")
+    return jsonify({"authenticated": session_exists})
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
