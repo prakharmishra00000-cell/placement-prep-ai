@@ -614,8 +614,8 @@ import google.generativeai as genai
 
 def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     try:
-        genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+        headers = {"Content-Type": "application/json"}
         prompt = f"""
         Provide a placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
         All skills, topics weightages, salaries, and solved previous year questions (PYQs) must be tailored specifically to what a "{branch}" candidate is asked at "{company}".
@@ -656,17 +656,29 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
         }}
         Provide real or highly realistic placement questions, correct answers, and exact details. Return raw JSON.
         """
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        return json.loads(text)
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt}
+                    ]
+                }
+            ]
+        }
+        
+        r = requests.post(url, json=payload, headers=headers, timeout=8)
+        if r.status_code == 200:
+            res_data = r.json()
+            text = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+            return json.loads(text)
     except Exception as e:
         print("Gemini Search integration error:", e)
-        return None
+    return None
 
 def query_gemini_chat(prompt, company, category, api_key):
     try:
