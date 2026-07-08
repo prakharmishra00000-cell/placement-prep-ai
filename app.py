@@ -1,4 +1,5 @@
 import os
+os.environ["GOOGLE_API_VERSION"] = "v1"
 import re
 import json
 import urllib.parse
