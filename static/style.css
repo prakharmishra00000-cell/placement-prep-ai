@@ -1,3 +1,29 @@
+@property --neon-blue {
+  syntax: '<color>';
+  initial-value: #c77dff;
+  inherits: true;
+}
+@property --neon-purple {
+  syntax: '<color>';
+  initial-value: #9d4ede;
+  inherits: true;
+}
+@property --neon-cyan {
+  syntax: '<color>';
+  initial-value: #7b2cbf;
+  inherits: true;
+}
+@property --border-color {
+  syntax: '<color>';
+  initial-value: rgba(157, 78, 221, 0.18);
+  inherits: true;
+}
+@property --border-glow {
+  syntax: '<color>';
+  initial-value: rgba(157, 78, 221, 0.35);
+  inherits: true;
+}
+
 :root {
     --bg-dark: #030008;
     --card-bg: rgba(18, 5, 30, 0.45);
@@ -29,6 +55,7 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
+    animation: theme-cycle 50s infinite linear;
 }
 
 /* Floating Ambient Background Balls */
@@ -54,7 +81,7 @@ body {
 .ball1 {
     width: 45vw;
     height: 45vw;
-    background: radial-gradient(circle, #7b2cbf 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, var(--neon-cyan) 0%, rgba(0,0,0,0) 70%);
     top: -10%;
     left: -10%;
 }
@@ -62,7 +89,7 @@ body {
 .ball2 {
     width: 35vw;
     height: 35vw;
-    background: radial-gradient(circle, #9d4ede 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, var(--neon-purple) 0%, rgba(0,0,0,0) 70%);
     bottom: -5%;
     right: -5%;
     animation-delay: -5s;
@@ -71,7 +98,7 @@ body {
 .ball3 {
     width: 30vw;
     height: 30vw;
-    background: radial-gradient(circle, #3c096c 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, var(--neon-blue) 0%, rgba(0,0,0,0) 70%);
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -1393,4 +1420,47 @@ body {
     0% { left: -100%; }
     50% { left: 0%; }
     100% { left: 100%; }
+}
+
+@keyframes theme-cycle {
+    /* 1. Deep Purple / Amethyst */
+    0%, 100% {
+        --neon-blue: #c77dff;
+        --neon-purple: #9d4ede;
+        --neon-cyan: #7b2cbf;
+        --border-color: rgba(157, 78, 221, 0.18);
+        --border-glow: rgba(157, 78, 221, 0.35);
+    }
+    /* 2. Cyber Blue / Teal */
+    20% {
+        --neon-blue: #00f0ff;
+        --neon-purple: #0072ff;
+        --neon-cyan: #00d2ff;
+        --border-color: rgba(0, 114, 255, 0.18);
+        --border-glow: rgba(0, 114, 255, 0.35);
+    }
+    /* 3. Emerald / Lime Green */
+    40% {
+        --neon-blue: #00ff87;
+        --neon-purple: #60efff;
+        --neon-cyan: #00e676;
+        --border-color: rgba(0, 230, 118, 0.18);
+        --border-glow: rgba(0, 230, 118, 0.35);
+    }
+    /* 4. Sunset Amber / Hot Pink */
+    60% {
+        --neon-blue: #ff9900;
+        --neon-purple: #ff007f;
+        --neon-cyan: #ff0055;
+        --border-color: rgba(255, 0, 127, 0.18);
+        --border-glow: rgba(255, 0, 127, 0.35);
+    }
+    /* 5. Crimson Rose / Electric Violet */
+    80% {
+        --neon-blue: #ff007f;
+        --neon-purple: #7b2cbf;
+        --neon-cyan: #c77dff;
+        --border-color: rgba(123, 44, 191, 0.18);
+        --border-glow: rgba(123, 44, 191, 0.35);
+    }
 }
