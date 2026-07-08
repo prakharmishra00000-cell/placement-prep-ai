@@ -1797,6 +1797,7 @@ def generate_study_notes():
         return jsonify({"error": "Google Gemini API Key is missing or invalid! Please configure GEMINI_API_KEY as an environment variable in Render."})
 
     try:
+        os.environ["GOOGLE_API_VERSION"] = "v1"
         genai.configure(api_key=api_key)
         prompt = f"""
         Generate detailed, comprehensive engineering notes on the topic: "{topic}".
@@ -1814,9 +1815,9 @@ def generate_study_notes():
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(prompt)
         except Exception as model_err:
-            print("gemini-1.5-flash failed, trying gemini-pro fallback...", model_err)
+            print("gemini-1.5-flash failed on v1 API, trying gemini-1.5-pro fallback...", model_err)
             try:
-                model = genai.GenerativeModel("gemini-pro")
+                model = genai.GenerativeModel("gemini-1.5-pro")
                 response = model.generate_content(prompt)
             except Exception as final_err:
                 raise Exception(f"Gemini API model execution failed: {str(final_err)}")
