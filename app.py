@@ -1816,38 +1816,43 @@ def test_gemini_endpoints():
             }
         ]
     }
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": api_key
+    headers_options = {
+        "x-goog-api-key-header": {
+            "Content-Type": "application/json",
+            "x-goog-api-key": api_key
+        },
+        "bearer-authorization-header": {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
     }
     
     fallback_matrix = [
         ("v1", "gemini-1.5-flash"),
         ("v1beta", "gemini-1.5-flash"),
         ("v1", "gemini-1.5-pro"),
-        ("v1beta", "gemini-1.5-pro"),
-        ("v1", "gemini-pro"),
-        ("v1beta", "gemini-pro")
+        ("v1beta", "gemini-1.5-pro")
     ]
     
     results = {}
     for version, model_name in fallback_matrix:
-        url = f"https://generativelanguage.googleapis.com/{version}/models/{model_name}:generateContent"
-        try:
-            r = requests.post(url, json=payload, headers=headers, timeout=10)
+        for header_name, headers_dict in headers_options.items():
+            url = f"https://generativelanguage.googleapis.com/{version}/models/{model_name}:generateContent"
             try:
-                resp_json = r.json()
-            except:
-                resp_json = r.text
-            results[f"{version}/{model_name}"] = {
-                "status": r.status_code,
-                "response": resp_json
-            }
-        except Exception as e:
-            results[f"{version}/{model_name}"] = {
-                "status": 500,
-                "error": str(e)
-            }
+                r = requests.post(url, json=payload, headers=headers_dict, timeout=8)
+                try:
+                    resp_json = r.json()
+                except:
+                    resp_json = r.text
+                results[f"{version}/{model_name} (using {header_name})"] = {
+                    "status": r.status_code,
+                    "response": resp_json
+                }
+            except Exception as e:
+                results[f"{version}/{model_name} (using {header_name})"] = {
+                    "status": 500,
+                    "error": str(e)
+                }
             
     return jsonify({
         "api_key_preview": f"{api_key[:5]}...{api_key[-5:]}" if len(api_key) > 10 else "invalid",
