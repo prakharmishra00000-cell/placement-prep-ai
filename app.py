@@ -691,17 +691,30 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     }}
     Provide real or highly realistic placement questions, correct answers, and exact details. Return raw JSON.
     """
-    try:
-        text = call_gemini_api(prompt, api_key)
-        if text:
-            if text.startswith("```json"):
-                text = text[7:]
-            if text.endswith("```"):
-                text = text[:-3]
-            text = text.strip()
-            return json.loads(text)
-    except Exception as e:
-        print("Gemini Search integration error:", e)
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}]
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key
+    }
+    
+    for model in ["gemini-3.5-flash", "gemini-1.5-flash"]:
+        url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent"
+        try:
+            r = requests.post(url, json=payload, headers=headers, timeout=4)
+            if r.status_code == 200:
+                res_data = r.json()
+                text = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if text.startswith("```json"):
+                    text = text[7:]
+                if text.endswith("```"):
+                    text = text[:-3]
+                text = text.strip()
+                return json.loads(text)
+        except Exception as e:
+            print(f"Fast Gemini Search query failed for {model}: {e}")
+            
     return None
 
 def query_gemini_chat(prompt, company, category, api_key):
