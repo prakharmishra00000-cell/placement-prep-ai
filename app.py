@@ -1854,8 +1854,19 @@ def test_gemini_endpoints():
                     "error": str(e)
                 }
             
+    list_url = "https://generativelanguage.googleapis.com/v1/models"
+    list_headers = {
+        "x-goog-api-key": api_key
+    }
+    try:
+        lr = requests.get(list_url, headers=list_headers, timeout=8)
+        models_list = lr.json() if lr.status_code == 200 else lr.text
+    except Exception as list_err:
+        models_list = str(list_err)
+            
     return jsonify({
         "api_key_preview": f"{api_key[:5]}...{api_key[-5:]}" if len(api_key) > 10 else "invalid",
+        "allowed_models_list": models_list,
         "results": results
     })
 
