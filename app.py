@@ -1801,6 +1801,59 @@ def tg_status():
     session_exists = bool(get_credential("TELEGRAM_SESSION_STRING")) or os.path.exists("prep_bot_user_session.session")
     return jsonify({"authenticated": session_exists})
 
+@app.route("/api/test/gemini", methods=["GET"])
+def test_gemini_endpoints():
+    api_key = get_backend_gemini_key()
+    if not api_key:
+        return jsonify({"error": "No API key configured."})
+        
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": "Hello, write one word."}
+                ]
+            }
+        ]
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key
+    }
+    
+    fallback_matrix = [
+        ("v1", "gemini-1.5-flash"),
+        ("v1beta", "gemini-1.5-flash"),
+        ("v1", "gemini-1.5-pro"),
+        ("v1beta", "gemini-1.5-pro"),
+        ("v1", "gemini-pro"),
+        ("v1beta", "gemini-pro")
+    ]
+    
+    results = {}
+    for version, model_name in fallback_matrix:
+        url = f"https://generativelanguage.googleapis.com/{version}/models/{model_name}:generateContent"
+        try:
+            r = requests.post(url, json=payload, headers=headers, timeout=10)
+            try:
+                resp_json = r.json()
+            except:
+                resp_json = r.text
+            results[f"{version}/{model_name}"] = {
+                "status": r.status_code,
+                "response": resp_json
+            }
+        except Exception as e:
+            results[f"{version}/{model_name}"] = {
+                "status": 500,
+                "error": str(e)
+            }
+            
+    return jsonify({
+        "api_key_preview": f"{api_key[:5]}...{api_key[-5:]}" if len(api_key) > 10 else "invalid",
+        "results": results
+    })
+
 @app.route("/api/notes/generate", methods=["POST"])
 def generate_study_notes():
     data = request.get_json() or {}
