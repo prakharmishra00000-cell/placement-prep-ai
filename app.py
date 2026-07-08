@@ -1798,8 +1798,6 @@ def generate_study_notes():
 
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        
         prompt = f"""
         Generate detailed, comprehensive engineering notes on the topic: "{topic}".
         Structure the notes beautifully using HTML tags:
@@ -1812,7 +1810,17 @@ def generate_study_notes():
         Do not return markdown, backticks, or raw markdown headers (e.g. # or ## or **). Return clean, raw HTML ready to be injected inside a div.
         """
         
-        response = model.generate_content(prompt)
+        try:
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
+        except Exception as model_err:
+            print("gemini-1.5-flash failed, trying gemini-pro fallback...", model_err)
+            try:
+                model = genai.GenerativeModel("gemini-pro")
+                response = model.generate_content(prompt)
+            except Exception as final_err:
+                raise Exception(f"Gemini API model execution failed: {str(final_err)}")
+
         notes_html = response.text.strip()
         
         if notes_html.startswith("```html"):
