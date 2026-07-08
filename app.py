@@ -1809,7 +1809,6 @@ def generate_study_notes():
     if not api_key:
         return jsonify({"error": "Google Gemini API Key is missing or invalid! Please configure GEMINI_API_KEY as an environment variable in Render."})
 
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
     prompt = f"""
     Generate detailed, comprehensive engineering notes on the topic: "{topic}".
@@ -1833,11 +1832,25 @@ def generate_study_notes():
         ]
     }
 
-    try:
-        r = requests.post(url, json=payload, headers=headers, timeout=30)
-        if r.status_code == 200:
-            res_data = r.json()
-            try:
+    # Configuration Fallback Matrix (API Endpoint Version, Model Name)
+    fallback_matrix = [
+        ("v1", "gemini-1.5-flash"),
+        ("v1beta", "gemini-1.5-flash"),
+        ("v1", "gemini-1.5-pro"),
+        ("v1beta", "gemini-1.5-pro"),
+        ("v1", "gemini-pro"),
+        ("v1beta", "gemini-pro")
+    ]
+
+    last_status = 500
+    last_response = "All fallback endpoints failed to connect."
+
+    for version, model_name in fallback_matrix:
+        url = f"https://generativelanguage.googleapis.com/{version}/models/{model_name}:generateContent?key={api_key}"
+        try:
+            r = requests.post(url, json=payload, headers=headers, timeout=15)
+            if r.status_code == 200:
+                res_data = r.json()
                 notes_html = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
                 if notes_html.startswith("```html"):
                     notes_html = notes_html[7:]
@@ -1845,24 +1858,14 @@ def generate_study_notes():
                     notes_html = notes_html[:-3]
                 notes_html = notes_html.strip()
                 return jsonify({"notes": notes_html})
-            except Exception as parse_err:
-                return jsonify({"error": f"Failed to parse notes response: {str(parse_err)}"}), 500
-        else:
-            if r.status_code == 404:
-                fallback_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={api_key}"
-                fr = requests.post(fallback_url, json=payload, headers=headers, timeout=30)
-                if fr.status_code == 200:
-                    res_data = fr.json()
-                    notes_html = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                    if notes_html.startswith("```html"):
-                        notes_html = notes_html[7:]
-                    if notes_html.endswith("```"):
-                        notes_html = notes_html[:-3]
-                    notes_html = notes_html.strip()
-                    return jsonify({"notes": notes_html})
-            return jsonify({"error": f"Gemini API returned error code {r.status_code}: {r.text}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"AI notes generation failed: {str(e)}"}), 500
+            else:
+                last_status = r.status_code
+                last_response = r.text
+        except Exception as e:
+            last_status = 500
+            last_response = str(e)
+
+    return jsonify({"error": f"Gemini API execution failed (last status {last_status}): {last_response}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
