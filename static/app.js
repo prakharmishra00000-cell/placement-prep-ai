@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "jobs": { title: "Active Job Opportunities Feed", sub: "Browse automatically updated global openings and application links for all branches" },
         "abroad": { title: "Active Abroad Opportunities Feed", sub: "Explore visa sponsored positions and international job boards for all branches" },
         "exams": { title: "Active Competitive & Government Exams Feed", sub: "Track live national/international exam bulletins, syllabus, and registration forms" },
-        "books": { title: "AI Book Store & Placement Library", sub: "Search, fetch, and download reference engineering textbooks and guides instantly" },
+        "books": { title: "AI Book Store & Placement Library (Only Competitive Exam Books)", sub: "Search, fetch, and download reference engineering textbooks and guides instantly" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
