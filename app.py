@@ -652,9 +652,17 @@ def call_gemini_api(prompt, api_key, system_instruction=None):
 
 def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     prompt = f"""
-    Provide a placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
-    All skills, topics weightages, salaries, and solved previous year questions (PYQs) must be tailored specifically to what a "{branch}" candidate is asked at "{company}".
-    If a core branch is selected (e.g. mechanical, electrical, civil, chemical), make sure the technical details, skills, and questions are core engineering questions (e.g. for Mechanical, ask about thermodynamics/fluids/CAD; for ECE IoT, ask about sensors/microcontrollers/embedded devices; for Civil, ask about RCC/concrete).
+    Provide an authentic, highly accurate placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
+    
+    CRITICAL QUALITY CONTROL:
+    - DO NOT return mock, placeholder, template, or generic data.
+    - All skills required, important topics weightages, salaries, and solved previous year questions (PYQs) must be REAL and SPECIFIC to what a "{branch}" candidate is asked at "{company}".
+    - For the salary object, search your database for real-world salary structures (e.g. Graduate Engineer Trainee vs SDE) for this branch at "{company}". Provide the actual average base package, exact estimated in-hand salary per month, and detailed allowances/PF deductions.
+    - Provide a real career ladder showing actual roles, durations to upgrade, and salaries.
+    - The "pyqs" array MUST contain real previous year questions (or highly authentic technical puzzles/coding questions) asked in actual placement drives of "{company}" for "{branch}" candidates. Provide options, the correct answer, and a detailed step-by-step mathematical/logical solution. Do NOT return generic mock questions.
+    
+    If a core engineering branch is selected (e.g. mechanical, electrical, civil, chemical), make sure the skills, topics, salaries, and PYQs are core engineering questions (e.g. for Mechanical, ask about thermodynamics/fluids/CAD; for ECE IoT, ask about sensors/microcontrollers/embedded devices; for Civil, ask about RCC/concrete).
+    
     You must return a raw JSON object and nothing else (do NOT include ```json wrappers, backticks, or any explanation).
     The structure must be exactly:
     {{
@@ -667,7 +675,7 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
       ],
       "salary": {{
          "tiers": [
-            {{"name": "Role Name (e.g. SDE 1)", "package": "Salary in LPA", "inhand": "Approx. take home per month", "details": "Breakdown description"}}
+            {{"name": "Role Name (e.g. GET / SDE 1)", "package": "Salary in LPA", "inhand": "Approx. take home per month", "details": "Breakdown description"}}
          ]
       }},
       "career_path": [
@@ -702,7 +710,7 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     for model in ["gemini-3.5-flash", "gemini-1.5-flash"]:
         url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent"
         try:
-            r = requests.post(url, json=payload, headers=headers, timeout=4)
+            r = requests.post(url, json=payload, headers=headers, timeout=9)
             if r.status_code == 200:
                 res_data = r.json()
                 text = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
