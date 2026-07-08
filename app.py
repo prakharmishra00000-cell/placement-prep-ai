@@ -222,23 +222,20 @@ def scrape_company_meta(company_name, domain):
     return scraped_salary, scraped_tips
 
 def synthesize_company_data(company_name, category, branch="cse"):
+    import random
+    import hashlib
+    
     c_key = company_name.lower().strip()
     
-    # Check cache first
-    if c_key in COMPANY_KNOWLEDGE:
-        data = COMPANY_KNOWLEDGE[c_key].copy()
-        data["pyqs"] = generate_55_pyqs(company_name, "software" if branch in ["cse", "it"] else branch)
-        return data
-        
-    # Generate intelligent dynamic data based on company name
-    # We will also pull from Google Search to supplement.
-    search_query = f"{company_name} placement papers previous year questions solutions"
-    scraped_questions = fetch_real_pyqs_from_search(company_name)
+    # Consistent seeded RNG for unique but reproducible metadata per company/branch
+    seed_str = f"{company_name.lower().strip()}_{branch.lower().strip()}"
+    seed_int = int(hashlib.md5(seed_str.encode('utf-8')).hexdigest(), 16) % (10**8)
+    rng = random.Random(seed_int)
     
     # Classify the domain of the target company
     domain = classify_company_domain(company_name)
     
-    # Scrape internet for company-specific metrics
+    # Search internet for company-specific metrics
     scraped_sal_str, scraped_tips_list = scrape_company_meta(company_name, domain)
     
     # Override domain if branch parameter is provided
@@ -255,33 +252,69 @@ def synthesize_company_data(company_name, category, branch="cse"):
         elif b_clean in ["chemical"]:
             domain = "chemical"
             
+    # Classify salary tier based on company name
+    is_tier1 = any(x in company_name.lower() for x in ["google", "amazon", "microsoft", "meta", "netflix", "apple", "nvidia", "uber", "goldman", "adobe", "samsung", "intel", "amd", "qualcomm", "jpmorgan", "salesforce", "oracle"])
+    
+    if is_tier1:
+        base_pkg_min = rng.randint(14, 18)
+        base_pkg_max = rng.randint(22, 28)
+        mid_pkg_min = rng.randint(28, 34)
+        mid_pkg_max = rng.randint(40, 48)
+        senior_pkg_min = rng.randint(60, 75)
+        senior_pkg_max = rng.randint(90, 110)
+    else:
+        base_pkg_min = rng.choice([3, 4, 5])
+        base_pkg_max = rng.choice([6, 7, 8])
+        mid_pkg_min = rng.choice([9, 10, 11])
+        mid_pkg_max = rng.choice([12, 14, 16])
+        senior_pkg_min = rng.choice([18, 20, 22])
+        senior_pkg_max = rng.choice([25, 28, 30])
+        
+    sal_tier1 = f"{base_pkg_min}.0 - {base_pkg_max}.0 LPA"
+    sal_tier2 = f"{mid_pkg_min}.0 - {mid_pkg_max}.0 LPA"
+    sal_tier3 = f"{senior_pkg_min}.0 - {senior_pkg_max}.0 LPA"
+    
+    # Calculate exact monthly inhand averages based on packages
+    inhand_1 = int((base_pkg_min + base_pkg_max) / 2 * 100000 / 12 * 0.85)
+    inhand_2 = int((mid_pkg_min + mid_pkg_max) / 2 * 100000 / 12 * 0.80)
+    inhand_3 = int((senior_pkg_min + senior_pkg_max) / 2 * 100000 / 12 * 0.75)
+    
+    # Dynamic skill levels
+    l1, l2, l3, l4, l5 = rng.randint(78, 93), rng.randint(74, 88), rng.randint(70, 84), rng.randint(75, 90), rng.randint(72, 86)
+    
+    # Dynamic topic weightages summing to 100
+    w1 = rng.randint(32, 42)
+    w2 = rng.randint(22, 28)
+    w3 = rng.randint(18, 22)
+    w4 = 100 - (w1 + w2 + w3)
+            
     if domain == "mechanical":
         skills = [
-            {"name": "Thermodynamics & Heat Transfer", "level": 85},
-            {"name": "Fluid Mechanics & Machines", "level": 80},
-            {"name": "CAD / CAM & Machine Design", "level": 75},
-            {"name": "Manufacturing & Materials Science", "level": 80},
-            {"name": "Quantitative Aptitude", "level": 85}
+            {"name": "Thermodynamics & Heat Transfer", "level": l1},
+            {"name": "Fluid Mechanics & Machines", "level": l2},
+            {"name": "CAD / CAM & Machine Design", "level": l3},
+            {"name": "Manufacturing & Materials Science", "level": l4},
+            {"name": "Quantitative Aptitude", "level": l5}
         ]
         topics = [
-            {"name": "Thermal & Fluids Engineering", "weight": 35},
-            {"name": "Machine Design & Theory of Machines", "weight": 25},
-            {"name": "Industrial Engineering & Operations", "weight": 20},
-            {"name": "General Aptitude & Reasoning", "weight": 20}
+            {"name": "Thermal & Fluids Engineering", "weight": w1},
+            {"name": "Machine Design & Theory of Machines", "weight": w2},
+            {"name": "Industrial Engineering & Operations", "weight": w3},
+            {"name": "General Aptitude & Reasoning", "weight": w4}
         ]
         salary = {
             "tiers": [
-                {"name": "Graduate Engineer Trainee (GET)", "package": "4.5 - 6.5 LPA", "inhand": "₹32,000 - ₹42,000 / month", "details": "Base Salary: ₹25K, Allowances: ₹10K. Deductions: PF (₹1.8K)"},
-                {"name": "Assistant Plant Manager", "package": "7.5 - 10.5 LPA", "inhand": "₹55,000 - ₹72,000 / month", "details": "Base Salary: ₹48K, HRA: ₹15K. Deductions: Tax, PF"},
-                {"name": "Senior Operations Manager", "package": "14.0 - 20.0 LPA", "inhand": "₹95,000 - ₹1,30,000 / month", "details": "Base Salary: ₹90K, HRA: ₹30K. Deductions: Tax"}
+                {"name": "Graduate Engineer Trainee (GET)", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                {"name": "Assistant Plant Manager", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                {"name": "Senior Operations Manager", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
             ]
         }
         career_path = [
-            {"level": "Level 1", "role": "Graduate Engineer Trainee (GET)", "duration": "1 Year", "salary": "4.5 - 6.5 LPA"},
-            {"level": "Level 2", "role": "Assistant Engineer / Shift In-charge", "duration": "2 Years", "salary": "6.0 - 9.0 LPA"},
-            {"level": "Level 3", "role": "Executive Plant Engineer", "duration": "3 Years", "salary": "8.5 - 13.0 LPA"},
-            {"level": "Level 4", "role": "Assistant Plant Manager", "duration": "4+ Years", "salary": "14.0 - 22.0 LPA"},
-            {"level": "Level 5", "role": "Plant Operations Head / Director", "duration": "To the top!", "salary": "25.0+ LPA"}
+            {"level": "Level 1", "role": "Graduate Engineer Trainee (GET)", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Assistant Engineer / Shift In-charge", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Executive Plant Engineer", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "Assistant Plant Manager", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "Plant Operations Head / Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
         ]
         tips = {
             "technical": f"Focus on thermodynamics cycles (Carnot, Otto, Rankine), fluid mechanics viscosity problems, and CAD views. Standard core interviews ask about material properties.",
@@ -291,45 +324,45 @@ def synthesize_company_data(company_name, category, branch="cse"):
     elif domain == "electrical":
         if branch == "ece_iot":
             skills = [
-                {"name": "IoT Architectures & Sensors", "level": 85},
-                {"name": "Embedded C & RTOS", "level": 80},
-                {"name": "Microcontrollers & VLSI", "level": 75},
-                {"name": "Wireless Communication Protocols", "level": 80},
-                {"name": "Quantitative Aptitude", "level": 85}
+                {"name": "IoT Architectures & Sensors", "level": l1},
+                {"name": "Embedded C & RTOS", "level": l2},
+                {"name": "Microcontrollers & VLSI", "level": l3},
+                {"name": "Wireless Communication Protocols", "level": l4},
+                {"name": "Quantitative Aptitude", "level": l5}
             ]
             topics = [
-                {"name": "IoT Protocols (MQTT, CoAP, Zigbee)", "weight": 35},
-                {"name": "Embedded Systems & RTOS", "weight": 25},
-                {"name": "Microcontrollers (Arduino, ESP32, ARM)", "weight": 20},
-                {"name": "Quantitative Aptitude & Logic", "weight": 20}
+                {"name": "IoT Protocols (MQTT, CoAP, Zigbee)", "weight": w1},
+                {"name": "Embedded Systems & RTOS", "weight": w2},
+                {"name": "Microcontrollers (Arduino, ESP32, ARM)", "weight": w3},
+                {"name": "Quantitative Aptitude & Logic", "weight": w4}
             ]
         else:
             skills = [
-                {"name": "Circuit Theory & Networks", "level": 85},
-                {"name": "Analog & Digital Electronics", "level": 80},
-                {"name": "Power Systems & Electrical Machines", "level": 75},
-                {"name": "Microcontrollers & VLSI Design", "level": 80},
-                {"name": "Quantitative Aptitude", "level": 85}
+                {"name": "Circuit Theory & Networks", "level": l1},
+                {"name": "Analog & Digital Electronics", "level": l2},
+                {"name": "Power Systems & Electrical Machines", "level": l3},
+                {"name": "Microcontrollers & VLSI Design", "level": l4},
+                {"name": "Quantitative Aptitude", "level": l5}
             ]
             topics = [
-                {"name": "Analog & VLSI Design", "weight": 35},
-                {"name": "AC/DC Machines & Power Electronics", "weight": 25},
-                {"name": "Microcontrollers & Signal Processing", "weight": 20},
-                {"name": "Logical & Aptitude Reasoning", "weight": 20}
+                {"name": "Analog & VLSI Design", "weight": w1},
+                {"name": "AC/DC Machines & Power Electronics", "weight": w2},
+                {"name": "Microcontrollers & Signal Processing", "weight": w3},
+                {"name": "Logical & Aptitude Reasoning", "weight": w4}
             ]
         salary = {
             "tiers": [
-                {"name": "GET (Electrical/Hardware)", "package": "5.0 - 7.5 LPA", "inhand": "₹38,000 - ₹52,000 / month", "details": "Base: ₹28K, HRA: ₹10K. Deductions: PF"},
-                {"name": "Design / Hardware Engineer", "package": "8.5 - 12.5 LPA", "inhand": "₹60,000 - ₹85,000 / month", "details": "Base: ₹55K, Allowances: ₹15K. Deductions: Tax, PF"},
-                {"name": "Principal Systems Architect", "package": "16.0 - 24.0+ LPA", "inhand": "₹1,10,000 - ₹1,65,000 / month", "details": "Base: ₹110K, Allowances: ₹40K. Deductions: Tax"}
+                {"name": "GET (Electrical/Hardware)", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                {"name": "Design / Hardware Engineer", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                {"name": "Principal Systems Architect", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
             ]
         }
         career_path = [
-            {"level": "Level 1", "role": "Hardware / Electrical Associate", "duration": "1 Year", "salary": "5.0 - 7.5 LPA"},
-            {"level": "Level 2", "role": "Systems Design Engineer", "duration": "2 Years", "salary": "8.0 - 11.5 LPA"},
-            {"level": "Level 3", "role": "Senior Hardware Engineer", "duration": "3 Years", "salary": "12.0 - 18.0 LPA"},
-            {"level": "Level 4", "role": "Lead Architect", "duration": "4+ Years", "salary": "18.0 - 28.0 LPA"},
-            {"level": "Level 5", "role": "Engineering Director", "duration": "To the top!", "salary": "30.0+ LPA"}
+            {"level": "Level 1", "role": "Hardware / Electrical Associate", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Systems Design Engineer", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Senior Hardware Engineer", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "Lead Architect", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "Engineering Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
         ]
         tips = {
             "technical": f"Revise Kirchhoff's Current/Voltage laws, synchronous motors configurations, and basic VLSI logic designs. Draw clean schematics when asked.",
@@ -338,31 +371,31 @@ def synthesize_company_data(company_name, category, branch="cse"):
         }
     elif domain == "civil":
         skills = [
-            {"name": "Structural Analysis & Design", "level": 85},
-            {"name": "Concrete Technology", "level": 80},
-            {"name": "Geotechnical & Soil Mechanics", "level": 75},
-            {"name": "Surveying & Estimation", "level": 80},
-            {"name": "Aptitude & Spatial Reasoning", "level": 80}
+            {"name": "Structural Analysis & Design", "level": l1},
+            {"name": "Concrete Technology", "level": l2},
+            {"name": "Geotechnical & Soil Mechanics", "level": l3},
+            {"name": "Surveying & Estimation", "level": l4},
+            {"name": "Aptitude & Spatial Reasoning", "level": l5}
         ]
         topics = [
-            {"name": "Concrete Design & Reinforcements", "weight": 35},
-            {"name": "Soil Mechanics & Foundation Eng.", "weight": 25},
-            {"name": "Surveying & Building Estimations", "weight": 20},
-            {"name": "Reasoning & Cognitive Aptitude", "weight": 20}
+            {"name": "Concrete Design & Reinforcements", "weight": w1},
+            {"name": "Soil Mechanics & Foundation Eng.", "weight": w2},
+            {"name": "Surveying & Building Estimations", "weight": w3},
+            {"name": "Reasoning & Cognitive Aptitude", "weight": w4}
         ]
         salary = {
             "tiers": [
-                {"name": "Site Engineer Trainee", "package": "4.0 - 5.5 LPA", "inhand": "₹28,000 - ₹38,000 / month", "details": "Base: ₹20K, Site Allowance: ₹8K. Deductions: PF"},
-                {"name": "Project Engineer", "package": "7.0 - 10.0 LPA", "inhand": "₹50,000 - ₹68,000 / month", "details": "Base: ₹45K, Allowance: ₹10K. Deductions: Tax, PF"},
-                {"name": "Infrastructure Manager", "package": "13.0 - 18.0 LPA", "inhand": "₹90,000 - ₹1,20,000 / month", "details": "Base: ₹80K, HRA: ₹25K. Deductions: Tax"}
+                {"name": "Site Engineer Trainee", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                {"name": "Project Engineer", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                {"name": "Infrastructure Manager", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
             ]
         }
         career_path = [
-            {"level": "Level 1", "role": "Site Engineer Trainee", "duration": "1 Year", "salary": "4.0 - 5.5 LPA"},
-            {"level": "Level 2", "role": "Site Engineer / Supervisor", "duration": "2 Years", "salary": "5.5 - 8.0 LPA"},
-            {"level": "Level 3", "role": "Senior Project Engineer", "duration": "3 Years", "salary": "8.0 - 12.0 LPA"},
-            {"level": "Level 4", "role": "Assistant Project Manager", "duration": "4+ Years", "salary": "12.0 - 18.0 LPA"},
-            {"level": "Level 5", "role": "Project Manager / Director", "duration": "To the top!", "salary": "20.0+ LPA"}
+            {"level": "Level 1", "role": "Site Engineer Trainee", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Site Engineer / Supervisor", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Senior Project Engineer", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "Assistant Project Manager", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "Project Manager / Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
         ]
         tips = {
             "technical": f"Know concrete grades, reinforcement bar calculations, one-way/two-way slabs difference, and surveying methods (levelling, traversings).",
@@ -371,31 +404,31 @@ def synthesize_company_data(company_name, category, branch="cse"):
         }
     elif domain == "chemical":
         skills = [
-            {"name": "Heat & Mass Transfer operations", "level": 85},
-            {"name": "Chemical Reaction Engineering", "level": 80},
-            {"name": "Fluid Flow & Thermodynamics", "level": 75},
-            {"name": "Process Instrumentation & Design", "level": 80},
-            {"name": "Quantitative Aptitude", "level": 85}
+            {"name": "Heat & Mass Transfer operations", "level": l1},
+            {"name": "Chemical Reaction Engineering", "level": l2},
+            {"name": "Fluid Flow & Thermodynamics", "level": l3},
+            {"name": "Process Instrumentation & Design", "level": l4},
+            {"name": "Quantitative Aptitude", "level": l5}
         ]
         topics = [
-            {"name": "Mass & Heat Transfer calculations", "weight": 35},
-            {"name": "Chemical Kinetics & Reactor Design", "weight": 25},
-            {"name": "Fluid Dynamics & Bernoulli's", "weight": 20},
-            {"name": "Stoichiometry & General Aptitude", "weight": 20}
+            {"name": "Mass & Heat Transfer calculations", "weight": w1},
+            {"name": "Chemical Kinetics & Reactor Design", "weight": w2},
+            {"name": "Fluid Dynamics & Bernoulli's", "weight": w3},
+            {"name": "Stoichiometry & General Aptitude", "weight": w4}
         ]
         salary = {
             "tiers": [
-                {"name": "Process / Production GET", "package": "4.5 - 6.8 LPA", "inhand": "₹32,000 - ₹45,000 / month", "details": "Base: ₹25K, Shift allowance: ₹5K. Deductions: PF"},
-                {"name": "Process Engineer", "package": "7.5 - 11.5 LPA", "inhand": "₹55,000 - ₹78,000 / month", "details": "Base: ₹50K, HRA: ₹15K. Deductions: Tax, PF"},
-                {"name": "Senior Plant superintendent", "package": "15.0 - 22.0 LPA", "inhand": "₹1,05,000 - ₹1,45,000 / month", "details": "Base: ₹95K, HRA: ₹30K. Deductions: Tax"}
+                {"name": "Process / Production GET", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                {"name": "Process Engineer", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                {"name": "Senior Plant superintendent", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
             ]
         }
         career_path = [
-            {"level": "Level 1", "role": "Process Engineer Trainee", "duration": "1 Year", "salary": "4.5 - 6.8 LPA"},
-            {"level": "Level 2", "role": "Production / Process Engineer", "duration": "2 Years", "salary": "6.5 - 9.5 LPA"},
-            {"level": "Level 3", "role": "Senior Process Engineer", "duration": "3 Years", "salary": "9.0 - 14.0 LPA"},
-            {"level": "Level 4", "role": "Process Manager", "duration": "4+ Years", "salary": "15.0 - 22.0 LPA"},
-            {"level": "Level 5", "role": "Plant Director", "duration": "To the top!", "salary": "25.0+ LPA"}
+            {"level": "Level 1", "role": "Process Engineer Trainee", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Production / Process Engineer", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Senior Process Engineer", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "Process Manager", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "Plant Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
         ]
         tips = {
             "technical": f"Focus on heat exchanger efficiency equations, distillation column configurations, and Bernoulli's application for fluid flowing operations.",
@@ -403,35 +436,34 @@ def synthesize_company_data(company_name, category, branch="cse"):
             "assessment": "Revise stoichiometry calculations, fluid flow formulas, and general numerical aptitude."
         }
     else:
-        # Standard tier template for salary based on company type (e.g. FAANG vs MNC)
-        is_faang = any(x in c_key for x in ["amazon", "meta", "netflix", "microsoft", "apple", "google", "uber", "goldman", "adobe"])
-        
-        if is_faang:
+        # Standard software MNC / FAANG domain
+        if is_tier1:
             skills = [
-                {"name": "Algorithms & Advanced DS", "level": 95},
-                {"name": "System Design", "level": 85},
-                {"name": "Coding (C++/Java/Go/Python)", "level": 90},
-                {"name": "Logical Puzzles", "level": 80}
+                {"name": "Algorithms & Advanced DS", "level": l1},
+                {"name": "System Design", "level": l2},
+                {"name": "Coding (C++/Java/Go/Python)", "level": l3},
+                {"name": "Logical Puzzles", "level": l4},
+                {"name": "Quantitative Aptitude", "level": l5}
             ]
             topics = [
-                {"name": "Data Structures & Algorithms (Trees, Graphs, DP)", "weight": 40},
-                {"name": "System Design (Scalability, Microservices)", "weight": 25},
-                {"name": "OOPS, Operating Systems & DBMS", "weight": 20},
-                {"name": "Behavioral & Leadership Scenario Qs", "weight": 15}
+                {"name": "Data Structures & Algorithms (Trees, Graphs, DP)", "weight": w1},
+                {"name": "System Design (Scalability, Microservices)", "weight": w2},
+                {"name": "OOPS, Operating Systems & DBMS", "weight": w3},
+                {"name": "Behavioral & Leadership Scenario Qs", "weight": w4}
             ]
             salary = {
                 "tiers": [
-                    {"name": "SDE 1 (Entry)", "package": "20 - 35 LPA", "inhand": "₹1,40,000 - ₹1,80,000 / month", "details": "Base Salary: ₹15-20L, Stocks: ₹8-12L/yr, Variable Bonus: 10%"},
-                    {"name": "SDE 2 (Mid)", "package": "40 - 65 LPA", "inhand": "₹2,50,000 - ₹3,20,000 / month", "details": "Base: ₹28-36L, Stocks: ₹15-25L/yr, Allowances & Bonus."},
-                    {"name": "SDE 3 (Senior)", "package": "75 - 110+ LPA", "inhand": "₹4,00,000 - ₹5,00,000 / month", "details": "Base: ₹45-55L, Stocks: ₹30-45L/yr, Performance Bonus."}
+                    {"name": "SDE 1 (Entry)", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                    {"name": "SDE 2 (Mid)", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                    {"name": "SDE 3 (Senior)", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
                 ]
             }
             career_path = [
-                {"level": "Level 1", "role": "Software Engineer I", "duration": "1-2 Years", "salary": "20 - 35 LPA"},
-                {"level": "Level 2", "role": "Software Engineer II", "duration": "2-3 Years", "salary": "40 - 65 LPA"},
-                {"level": "Level 3", "role": "Senior Software Engineer", "duration": "3-5 Years", "salary": "75 - 110 LPA"},
-                {"level": "Level 4", "role": "Principal / Staff Architect", "duration": "4+ Years", "salary": "1.5 - 2.5 Cr"},
-                {"level": "Level 5", "role": "Engineering Manager / Director", "duration": "To the top!", "salary": "3.0+ Cr"}
+                {"level": "Level 1", "role": "Software Engineer I", "duration": "1-2 Years", "salary": sal_tier1},
+                {"level": "Level 2", "role": "Software Engineer II", "duration": "2-3 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+                {"level": "Level 3", "role": "Senior Software Engineer", "duration": "3-5 Years", "salary": sal_tier2},
+                {"level": "Level 4", "role": "Principal / Staff Architect", "duration": "4+ Years", "salary": sal_tier3},
+                {"level": "Level 5", "role": "Engineering Manager / Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
             ]
             tips = {
                 "technical": f"Focus on high-level coding challenges (LeetCode Medium/Hard). Speak out loud during solution explanation.",
@@ -439,34 +471,32 @@ def synthesize_company_data(company_name, category, branch="cse"):
                 "assessment": "Expect hard coding assessments and structural engineering questions."
             }
         else:
-            # Standard Service/Product MNC (Accenture, Cognizant, Wipro, Capgemini)
             skills = [
-                {"name": "Core Language (Java/C++/Python/JS)", "level": 75},
-                {"name": "Quantitative Aptitude", "level": 85},
-                {"name": "Logical Reasoning", "level": 80},
-                {"name": "Verbal Ability", "level": 75},
-                {"name": "RDBMS & SQL", "level": 70}
+                {"name": "Core Language (Java/C++/Python/JS)", "level": l1},
+                {"name": "Quantitative Aptitude", "level": l2},
+                {"name": "Logical Reasoning", "level": l3},
+                {"name": "Verbal Ability", "level": l4},
+                {"name": "RDBMS & SQL", "level": l5}
             ]
             topics = [
-                {"name": "Aptitude & Verbal Ability", "weight": 35},
-                {"name": "Logical & Visual Reasoning", "weight": 25},
-                {"name": "Pseudocode, Debugging & Output Tracing", "weight": 20},
-                {"name": "Coding (Basic Data Structures, Strings, Arrays)", "weight": 20}
+                {"name": "Aptitude & Verbal Ability", "weight": w1},
+                {"name": "Logical & Visual Reasoning", "weight": w2},
+                {"name": "Pseudocode, Debugging & Output Tracing", "weight": w3},
+                {"name": "Coding (Basic Data Structures, Strings, Arrays)", "weight": w4}
             ]
             salary = {
                 "tiers": [
-                    {"name": "Associate / Trainee", "package": "3.5 - 4.5 LPA", "inhand": "₹24,000 - ₹28,000 / month", "details": "Base Salary: ₹18K, HRA: ₹5K, Allowances: ₹3K. Deductions: PF (₹1.8K)"},
-                    {"name": "Senior Software Engineer", "package": "6.5 - 8.5 LPA", "inhand": "₹45,000 - ₹55,000 / month", "details": "Base Salary: ₹35K, HRA: ₹12K, Allowances: ₹5K. Deductions: PF (₹3.6K), Tax"},
-                    {"name": "Team Lead / Consultant", "package": "10 - 15 LPA", "inhand": "₹70,000 - ₹95,000 / month", "details": "Base: ₹65K, HRA: ₹25K, Variable: ₹10K. Deductions: PF (₹7.8K), Tax"}
+                    {"name": "Associate / Trainee", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                    {"name": "Senior Software Engineer", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                    {"name": "Team Lead / Consultant", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
                 ]
             }
             career_path = [
-                {"level": "Level 1", "role": "Software Engineer Associate", "duration": "1 Year", "salary": "3.5 - 4.5 LPA"},
-                {"level": "Level 2", "role": "Software Engineer", "duration": "1-2 Years", "salary": "4.5 - 6.0 LPA"},
-                {"level": "Level 3", "role": "Senior Software Engineer", "duration": "2 Years", "salary": "6.5 - 9.0 LPA"},
-                {"level": "Level 4", "role": "Team Lead / Consultant", "duration": "3 Years", "salary": "10 - 15 LPA"},
-                {"level": "Level 5", "role": "Manager / Architect", "duration": "4+ Years", "salary": "16 - 25 LPA"},
-                {"level": "Level 6", "role": "Senior Manager / VP", "duration": "To the top!", "salary": "30.0+ LPA"}
+                {"level": "Level 1", "role": "Software Engineer Associate", "duration": "1 Year", "salary": sal_tier1},
+                {"level": "Level 2", "role": "Software Engineer", "duration": "1-2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+                {"level": "Level 3", "role": "Senior Software Engineer", "duration": "2 Years", "salary": sal_tier2},
+                {"level": "Level 4", "role": "Team Lead / Consultant", "duration": "3 Years", "salary": sal_tier3},
+                {"level": "Level 5", "role": "Manager / Architect", "duration": "4+ Years", "salary": f"{senior_pkg_max + 10}+ LPA"}
             ]
             tips = {
                 "technical": f"Focus on logical reasoning and pseudo-code outputs. TCS/Accenture NQT style questions dominate the test pattern.",
