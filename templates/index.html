@@ -107,6 +107,10 @@
                     <i class="fa-solid fa-bullhorn"></i>
                     <span>Job Opportunities</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="abroad">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Abroad Opportunities</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
                     <span>User Guide (230 Features)</span>
@@ -885,8 +889,8 @@
                     <h3 class="panel-title"><i class="fa-solid fa-bullhorn text-neon-green-glow"></i> Active Global Job Openings Feed</h3>
                     <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">24/7 automated real-time scraper crawling LinkedIn, Indeed, Glassdoor, and top company career portals for all engineering branches.</p>
                     
-                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
-                        <div class="input-group" style="flex: 1;">
+                    <div class="search-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="input-group">
                             <label for="job-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
                             <select id="job-branch-filter">
                                 <option value="all">All Branches & Sectors</option>
@@ -897,7 +901,27 @@
                                 <option value="civil">Civil & Structural Engineering</option>
                             </select>
                         </div>
-                        <button id="refresh-jobs-btn" class="btn btn-primary" style="align-self: flex-end; height: 42px;">
+                        <div class="input-group">
+                            <label for="job-exp-filter"><i class="fa-solid fa-briefcase"></i> Experience Level</label>
+                            <select id="job-exp-filter">
+                                <option value="all">All Experience Levels</option>
+                                <option value="fresher">Freshers / Entry Level</option>
+                                <option value="1">1 Year Experience</option>
+                                <option value="2">2 Years Experience</option>
+                                <option value="3">3+ Years Experience</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="job-qual-filter"><i class="fa-solid fa-graduation-cap"></i> Qualification</label>
+                            <select id="job-qual-filter">
+                                <option value="all">All Qualifications</option>
+                                <option value="12th">12th Pass</option>
+                                <option value="diploma">Diploma</option>
+                                <option value="btech">B.Tech / B.E</option>
+                                <option value="mtech">M.Tech / M.E / MS</option>
+                            </select>
+                        </div>
+                        <button id="refresh-jobs-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center;">
                             <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
                         </button>
                     </div>
@@ -909,6 +933,72 @@
 
                     <div id="jobs-container" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
                         <!-- Job cards injected dynamically by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Abroad Opportunities -->
+            <div class="tab-content" id="tab-abroad">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-globe text-neon-cyan"></i> Active Abroad Job Opportunities</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">24/7 automated real-time crawling of overseas listings, visa sponsor openings, and international career platforms.</p>
+                    
+                    <div class="search-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label for="abroad-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
+                            <select id="abroad-branch-filter">
+                                <option value="all">All Branches & Sectors</option>
+                                <option value="cse">Computer Science / Software (CSE/IT)</option>
+                                <option value="ece">Electronics & Communication (ECE/IoT)</option>
+                                <option value="mechanical">Mechanical Engineering (Mech/Automobile)</option>
+                                <option value="electrical">Electrical Engineering (EEE/Power)</option>
+                                <option value="civil">Civil & Structural Engineering</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="abroad-country-filter"><i class="fa-solid fa-earth-americas"></i> Target Country</label>
+                            <select id="abroad-country-filter">
+                                <option value="all">All Countries</option>
+                                <option value="usa">United States (USA)</option>
+                                <option value="uk">United Kingdom (UK)</option>
+                                <option value="germany">Germany</option>
+                                <option value="canada">Canada</option>
+                                <option value="japan">Japan</option>
+                                <option value="singapore">Singapore</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="abroad-exp-filter"><i class="fa-solid fa-briefcase"></i> Experience Level</label>
+                            <select id="abroad-exp-filter">
+                                <option value="all">All Experience Levels</option>
+                                <option value="fresher">Freshers / Entry Level</option>
+                                <option value="1">1 Year Experience</option>
+                                <option value="2">2 Years Experience</option>
+                                <option value="3">3+ Years Experience</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="abroad-qual-filter"><i class="fa-solid fa-graduation-cap"></i> Qualification</label>
+                            <select id="abroad-qual-filter">
+                                <option value="all">All Qualifications</option>
+                                <option value="12th">12th Pass</option>
+                                <option value="diploma">Diploma</option>
+                                <option value="btech">B.Tech / B.E</option>
+                                <option value="mtech">M.Tech / M.E / MS</option>
+                            </select>
+                        </div>
+                        <button id="refresh-abroad-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
+                        </button>
+                    </div>
+                    
+                    <div id="abroad-loading" style="display: none; text-align: center; padding: 2rem;">
+                        <i class="fa-solid fa-spinner fa-spin text-neon-cyan" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p class="text-muted" style="font-size: 0.85rem;">Scraping abroad job portals...</p>
+                    </div>
+
+                    <div id="abroad-container" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                        <!-- Abroad job cards injected dynamically by JavaScript -->
                     </div>
                 </div>
             </div>

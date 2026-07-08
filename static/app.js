@@ -1109,6 +1109,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const jobsContainer = document.getElementById("jobs-container");
     const jobsLoading = document.getElementById("jobs-loading");
     const jobBranchFilter = document.getElementById("job-branch-filter");
+    const jobExpFilter = document.getElementById("job-exp-filter");
+    const jobQualFilter = document.getElementById("job-qual-filter");
     const refreshJobsBtn = document.getElementById("refresh-jobs-btn");
 
     function fetchJobsFeed() {
@@ -1117,12 +1119,15 @@ document.addEventListener("DOMContentLoaded", () => {
         jobsLoading.style.display = "block";
 
         const branch = jobBranchFilter.value;
-        fetch(`/api/jobs?branch=${branch}`)
+        const experience = jobExpFilter.value;
+        const qualification = jobQualFilter.value;
+
+        fetch(`/api/jobs?branch=${branch}&experience=${experience}&qualification=${qualification}`)
         .then(res => res.json())
         .then(data => {
             jobsLoading.style.display = "none";
             if (!data.jobs || data.jobs.length === 0) {
-                jobsContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No job vacancies listed for this branch currently.</p>';
+                jobsContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No job vacancies matched your filter selection.</p>';
                 return;
             }
 
@@ -1143,11 +1148,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h5 style="color: var(--text-primary); margin-bottom: 0.75rem;"><i class="fa-solid fa-building"></i> ${job.company}</h5>
                         <p style="font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.5; color: var(--text-muted);">${job.description}</p>
                         
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
                             <strong>💼 Experience:</strong> ${job.experience}
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
                             <strong>🎓 Qualification:</strong> ${job.qualification}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--neon-cyan); margin-bottom: 1.25rem;">
+                            <strong>📅 Posted Date:</strong> ${job.posted_date}
                         </div>
                     </div>
                     <a href="${job.link}" target="_blank" class="btn btn-primary" style="justify-content: center; font-size: 0.8rem; width: 100%;">
@@ -1164,17 +1172,95 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (jobBranchFilter) {
-        jobBranchFilter.addEventListener("change", fetchJobsFeed);
+    if (jobBranchFilter) jobBranchFilter.addEventListener("change", fetchJobsFeed);
+    if (jobExpFilter) jobExpFilter.addEventListener("change", fetchJobsFeed);
+    if (jobQualFilter) jobQualFilter.addEventListener("change", fetchJobsFeed);
+    if (refreshJobsBtn) refreshJobsBtn.addEventListener("click", fetchJobsFeed);
+
+    // ----------------------------------------------------
+    // Tab: Abroad Opportunities Feed
+    // ----------------------------------------------------
+    const abroadContainer = document.getElementById("abroad-container");
+    const abroadLoading = document.getElementById("abroad-loading");
+    const abroadBranchFilter = document.getElementById("abroad-branch-filter");
+    const abroadCountryFilter = document.getElementById("abroad-country-filter");
+    const abroadExpFilter = document.getElementById("abroad-exp-filter");
+    const abroadQualFilter = document.getElementById("abroad-qual-filter");
+    const refreshAbroadBtn = document.getElementById("refresh-abroad-btn");
+
+    function fetchAbroadJobsFeed() {
+        if (!abroadContainer) return;
+        abroadContainer.innerHTML = "";
+        abroadLoading.style.display = "block";
+
+        const branch = abroadBranchFilter.value;
+        const country = abroadCountryFilter.value;
+        const experience = abroadExpFilter.value;
+        const qualification = abroadQualFilter.value;
+
+        fetch(`/api/abroad?branch=${branch}&country=${country}&experience=${experience}&qualification=${qualification}`)
+        .then(res => res.json())
+        .then(data => {
+            abroadLoading.style.display = "none";
+            if (!data.jobs || data.jobs.length === 0) {
+                abroadContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No abroad opportunities matched your filter criteria.</p>';
+                return;
+            }
+
+            data.jobs.forEach(job => {
+                const card = document.createElement("div");
+                card.className = "docs-card";
+                card.style.display = "flex";
+                card.style.flexDirection = "column";
+                card.style.justifyContent = "space-between";
+                card.style.padding = "1.25rem";
+                card.style.border = "1px solid var(--border-color)";
+                card.style.position = "relative";
+
+                card.innerHTML = `
+                    <div>
+                        <span style="position: absolute; top: 1rem; right: 1rem; font-size: 0.75rem; background: rgba(157, 78, 221, 0.15); color: var(--neon-purple); padding: 0.25rem 0.5rem; border-radius: 4px; text-transform: uppercase;">${job.country}</span>
+                        <h4 style="color: var(--neon-cyan); margin-bottom: 0.25rem; padding-right: 4rem;">${job.title}</h4>
+                        <h5 style="color: var(--text-primary); margin-bottom: 0.75rem;"><i class="fa-solid fa-building"></i> ${job.company}</h5>
+                        <p style="font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.5; color: var(--text-muted);">${job.description}</p>
+                        
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+                            <strong>💼 Experience:</strong> ${job.experience}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+                            <strong>🎓 Qualification:</strong> ${job.qualification}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--neon-cyan); margin-bottom: 1.25rem;">
+                            <strong>📅 Posted Date:</strong> ${job.posted_date}
+                        </div>
+                    </div>
+                    <a href="${job.link}" target="_blank" class="btn btn-primary" style="justify-content: center; font-size: 0.8rem; width: 100%;">
+                        <i class="fa-solid fa-plane-departure"></i> Apply Abroad Instantly
+                    </a>
+                `;
+                abroadContainer.appendChild(card);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            abroadLoading.style.display = "none";
+            abroadContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1; color: var(--neon-pink);">Error loading international listings.</p>';
+        });
     }
-    if (refreshJobsBtn) {
-        refreshJobsBtn.addEventListener("click", fetchJobsFeed);
-    }
+
+    if (abroadBranchFilter) abroadBranchFilter.addEventListener("change", fetchAbroadJobsFeed);
+    if (abroadCountryFilter) abroadCountryFilter.addEventListener("change", fetchAbroadJobsFeed);
+    if (abroadExpFilter) abroadExpFilter.addEventListener("change", fetchAbroadJobsFeed);
+    if (abroadQualFilter) abroadQualFilter.addEventListener("change", fetchAbroadJobsFeed);
+    if (refreshAbroadBtn) refreshAbroadBtn.addEventListener("click", fetchAbroadJobsFeed);
 
     navItems.forEach(item => {
         item.addEventListener("click", () => {
-            if (item.getAttribute("data-tab") === "jobs") {
+            const tab = item.getAttribute("data-tab");
+            if (tab === "jobs") {
                 fetchJobsFeed();
+            } else if (tab === "abroad") {
+                fetchAbroadJobsFeed();
             }
         });
     });

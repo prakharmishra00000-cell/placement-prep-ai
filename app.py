@@ -1276,6 +1276,8 @@ def save_backend_credentials():
 @app.route("/api/jobs", methods=["GET"])
 def get_jobs_feed():
     branch_filter = request.args.get("branch", "all").lower().strip()
+    exp_filter = request.args.get("experience", "all").lower().strip()
+    qual_filter = request.args.get("qualification", "all").lower().strip()
     
     if os.path.exists("jobs_cache.json"):
         try:
@@ -1290,86 +1292,196 @@ def get_jobs_feed():
                 "company": "Google",
                 "branch": "cse",
                 "description": "Develop next-gen search features, optimize web latency, and build scalable microservices.",
-                "experience": "0-1 Years / Freshers",
-                "qualification": "B.Tech/M.Tech in Computer Science / IT / ECE",
-                "link": "https://careers.google.com"
+                "experience": "Fresher",
+                "qualification": "B.Tech",
+                "link": "https://careers.google.com",
+                "posted_date": "July 8, 2026"
             },
             {
                 "title": "Graduate Developer",
                 "company": "Microsoft",
                 "branch": "cse",
                 "description": "Build features for Azure Cloud platforms, developer toolings, and API interfaces.",
-                "experience": "0-2 Years",
-                "qualification": "B.E / B.Tech (CS, IT, Software Engineering)",
-                "link": "https://careers.microsoft.com"
+                "experience": "1 Year",
+                "qualification": "B.Tech",
+                "link": "https://careers.microsoft.com",
+                "posted_date": "July 7, 2026"
             },
             {
                 "title": "Embedded Systems Engineer Trainee",
                 "company": "Qualcomm",
                 "branch": "ece",
                 "description": "Design firmware drivers, optimize power consumption profiles, and test cellular transceiver hardware.",
-                "experience": "0-1 Years / Freshers",
-                "qualification": "B.Tech / M.Tech in ECE / Electronics / IoT",
-                "link": "https://www.qualcomm.com/company/careers"
+                "experience": "Fresher",
+                "qualification": "M.Tech",
+                "link": "https://www.qualcomm.com/company/careers",
+                "posted_date": "July 6, 2026"
             },
             {
                 "title": "Hardware Design Engineer",
                 "company": "Intel",
                 "branch": "ece",
                 "description": "Verify semiconductor RTL logic, prototype micro-architectures, and debug test-bench scripts.",
-                "experience": "0-2 Years",
-                "qualification": "B.Tech / M.Tech in ECE / Microelectronics / VLSI",
-                "link": "https://jobs.intel.com"
+                "experience": "2 Years",
+                "qualification": "B.Tech",
+                "link": "https://jobs.intel.com",
+                "posted_date": "July 5, 2026"
             },
             {
                 "title": "Graduate Engineer Trainee (GET)",
                 "company": "Tata Motors",
                 "branch": "mechanical",
                 "description": "Conduct structural FEA tests, design CAD transmission subsystems, and optimize assembly line output.",
-                "experience": "0-1 Years / Freshers",
-                "qualification": "B.Tech / B.E in Mechanical / Automobile Engineering",
-                "link": "https://www.tatamotors.com/careers/"
+                "experience": "Fresher",
+                "qualification": "Diploma",
+                "link": "https://www.tatamotors.com/careers/",
+                "posted_date": "July 4, 2026"
             },
             {
                 "title": "Robotics Production Lead",
                 "company": "Tesla",
                 "branch": "mechanical",
                 "description": "Manage automated welding robots, optimize manufacturing layouts, and maintain safety standards.",
-                "experience": "0-2 Years",
-                "qualification": "B.Tech / B.E in Mechanical / Mechatronics / Automation",
-                "link": "https://www.tesla.com/careers"
+                "experience": "3+ Years",
+                "qualification": "B.Tech",
+                "link": "https://www.tesla.com/careers",
+                "posted_date": "July 3, 2026"
             },
             {
                 "title": "Assistant Power Engineer",
                 "company": "Siemens",
                 "branch": "electrical",
                 "description": "Build high-voltage switchgear grids, configure smart meter models, and oversee electrical substation layouts.",
-                "experience": "0-1 Years / Freshers",
-                "qualification": "B.Tech / B.E in Electrical / Power Engineering",
-                "link": "https://jobs.siemens.com"
+                "experience": "1 Year",
+                "qualification": "B.Tech",
+                "link": "https://jobs.siemens.com",
+                "posted_date": "July 2, 2026"
             },
             {
                 "title": "Battery Management Systems Lead",
                 "company": "Ather Energy",
                 "branch": "electrical",
                 "description": "Optimize EV battery cell balancer algorithms, track thermal metrics, and test firmware drivers.",
-                "experience": "0-2 Years",
-                "qualification": "B.Tech / B.E in Electrical & Electronics / Instrumentation",
-                "link": "https://www.atherenergy.com/careers"
+                "experience": "2 Years",
+                "qualification": "M.Tech",
+                "link": "https://www.atherenergy.com/careers",
+                "posted_date": "July 1, 2026"
             },
             {
                 "title": "Junior Structural Designer",
                 "company": "L&T Construction",
                 "branch": "civil",
                 "description": "Perform RCC load analysis, check site safety parameters, and review blueprints in AutoCAD.",
-                "experience": "0-1 Years / Freshers",
-                "qualification": "B.Tech / B.E in Civil / Structural Engineering",
-                "link": "https://www.larsentoubro.com/corporate/careers/"
+                "experience": "Fresher",
+                "qualification": "Diploma",
+                "link": "https://www.larsentoubro.com/corporate/careers/",
+                "posted_date": "June 30, 2026"
             }
         ]
         
+    # Apply filters
     if branch_filter != "all":
         jobs = [j for j in jobs if j["branch"] == branch_filter]
+    if exp_filter != "all":
+        # Check substring match (e.g. "fresher" matches "Fresher", "1" matches "1 Year")
+        jobs = [j for j in jobs if exp_filter in j["experience"].lower()]
+    if qual_filter != "all":
+        jobs = [j for j in jobs if qual_filter in j["qualification"].lower()]
+        
+    return jsonify({"jobs": jobs})
+
+@app.route("/api/abroad", methods=["GET"])
+def get_abroad_jobs_feed():
+    branch_filter = request.args.get("branch", "all").lower().strip()
+    country_filter = request.args.get("country", "all").lower().strip()
+    exp_filter = request.args.get("experience", "all").lower().strip()
+    qual_filter = request.args.get("qualification", "all").lower().strip()
+    
+    if os.path.exists("abroad_cache.json"):
+        try:
+            with open("abroad_cache.json", "r") as f:
+                jobs = json.load(f)
+        except:
+            jobs = []
+    else:
+        jobs = [
+            {
+                "title": "AI Platform Engineer",
+                "company": "OpenAI",
+                "branch": "cse",
+                "country": "usa",
+                "description": "Build orchestration platforms for large language model deployments and low-latency APIs.",
+                "experience": "3+ Years",
+                "qualification": "M.Tech",
+                "link": "https://openai.com/careers",
+                "posted_date": "July 8, 2026"
+            },
+            {
+                "title": "Systems Architect",
+                "company": "Dyson",
+                "branch": "ece",
+                "country": "singapore",
+                "description": "Design electronic microcontrollers and sensor subsystems for robotic consumer products.",
+                "experience": "2 Years",
+                "qualification": "B.Tech",
+                "link": "https://careers.dyson.com",
+                "posted_date": "July 7, 2026"
+            },
+            {
+                "title": "Robotics Integration Specialist",
+                "company": "KUKA Robotics",
+                "branch": "mechanical",
+                "country": "germany",
+                "description": "Program factory automation cells, coordinate robotic arms paths, and perform kinematics simulations.",
+                "experience": "1 Year",
+                "qualification": "B.Tech",
+                "link": "https://www.kuka.com/en-de/about-kuka/careers",
+                "posted_date": "July 6, 2026"
+            },
+            {
+                "title": "Microprocessor Layout Designer",
+                "company": "TSMC",
+                "branch": "ece",
+                "country": "japan",
+                "description": "Structure sub-5nm microchip packaging physical designs and run electromagnetic analyses.",
+                "experience": "Fresher",
+                "qualification": "M.Tech",
+                "link": "https://www.tsmc.com/english/careers",
+                "posted_date": "July 5, 2026"
+            },
+            {
+                "title": "Senior Energy Storage Specialist",
+                "company": "BMW Group",
+                "branch": "electrical",
+                "country": "germany",
+                "description": "Integrate modular lithium-ion powertrains and optimize regenerative braking control parameters.",
+                "experience": "3+ Years",
+                "qualification": "M.Tech",
+                "link": "https://www.bmwgroup.jobs/de/en.html",
+                "posted_date": "July 4, 2026"
+            },
+            {
+                "title": "Junior BIM Infrastructure Engineer",
+                "company": "AECOM",
+                "branch": "civil",
+                "country": "usa",
+                "description": "Build high-precision 3D structural concrete models and track green building certifications.",
+                "experience": "Fresher",
+                "qualification": "B.Tech",
+                "link": "https://aecom.jobs",
+                "posted_date": "July 3, 2026"
+            }
+        ]
+        
+    # Apply filters
+    if branch_filter != "all":
+        jobs = [j for j in jobs if j["branch"] == branch_filter]
+    if country_filter != "all":
+        jobs = [j for j in jobs if j["country"] == country_filter]
+    if exp_filter != "all":
+        jobs = [j for j in jobs if exp_filter in j["experience"].lower()]
+    if qual_filter != "all":
+        jobs = [j for j in jobs if qual_filter in j["qualification"].lower()]
         
     return jsonify({"jobs": jobs})
 
