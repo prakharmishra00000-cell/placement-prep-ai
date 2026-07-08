@@ -1273,5 +1273,105 @@ def save_backend_credentials():
     except Exception as e:
         return jsonify({"success": False, "message": f"Failed to save credentials: {str(e)}"}), 500
 
+@app.route("/api/jobs", methods=["GET"])
+def get_jobs_feed():
+    branch_filter = request.args.get("branch", "all").lower().strip()
+    
+    if os.path.exists("jobs_cache.json"):
+        try:
+            with open("jobs_cache.json", "r") as f:
+                jobs = json.load(f)
+        except:
+            jobs = []
+    else:
+        jobs = [
+            {
+                "title": "Software Engineer Intern",
+                "company": "Google",
+                "branch": "cse",
+                "description": "Develop next-gen search features, optimize web latency, and build scalable microservices.",
+                "experience": "0-1 Years / Freshers",
+                "qualification": "B.Tech/M.Tech in Computer Science / IT / ECE",
+                "link": "https://careers.google.com"
+            },
+            {
+                "title": "Graduate Developer",
+                "company": "Microsoft",
+                "branch": "cse",
+                "description": "Build features for Azure Cloud platforms, developer toolings, and API interfaces.",
+                "experience": "0-2 Years",
+                "qualification": "B.E / B.Tech (CS, IT, Software Engineering)",
+                "link": "https://careers.microsoft.com"
+            },
+            {
+                "title": "Embedded Systems Engineer Trainee",
+                "company": "Qualcomm",
+                "branch": "ece",
+                "description": "Design firmware drivers, optimize power consumption profiles, and test cellular transceiver hardware.",
+                "experience": "0-1 Years / Freshers",
+                "qualification": "B.Tech / M.Tech in ECE / Electronics / IoT",
+                "link": "https://www.qualcomm.com/company/careers"
+            },
+            {
+                "title": "Hardware Design Engineer",
+                "company": "Intel",
+                "branch": "ece",
+                "description": "Verify semiconductor RTL logic, prototype micro-architectures, and debug test-bench scripts.",
+                "experience": "0-2 Years",
+                "qualification": "B.Tech / M.Tech in ECE / Microelectronics / VLSI",
+                "link": "https://jobs.intel.com"
+            },
+            {
+                "title": "Graduate Engineer Trainee (GET)",
+                "company": "Tata Motors",
+                "branch": "mechanical",
+                "description": "Conduct structural FEA tests, design CAD transmission subsystems, and optimize assembly line output.",
+                "experience": "0-1 Years / Freshers",
+                "qualification": "B.Tech / B.E in Mechanical / Automobile Engineering",
+                "link": "https://www.tatamotors.com/careers/"
+            },
+            {
+                "title": "Robotics Production Lead",
+                "company": "Tesla",
+                "branch": "mechanical",
+                "description": "Manage automated welding robots, optimize manufacturing layouts, and maintain safety standards.",
+                "experience": "0-2 Years",
+                "qualification": "B.Tech / B.E in Mechanical / Mechatronics / Automation",
+                "link": "https://www.tesla.com/careers"
+            },
+            {
+                "title": "Assistant Power Engineer",
+                "company": "Siemens",
+                "branch": "electrical",
+                "description": "Build high-voltage switchgear grids, configure smart meter models, and oversee electrical substation layouts.",
+                "experience": "0-1 Years / Freshers",
+                "qualification": "B.Tech / B.E in Electrical / Power Engineering",
+                "link": "https://jobs.siemens.com"
+            },
+            {
+                "title": "Battery Management Systems Lead",
+                "company": "Ather Energy",
+                "branch": "electrical",
+                "description": "Optimize EV battery cell balancer algorithms, track thermal metrics, and test firmware drivers.",
+                "experience": "0-2 Years",
+                "qualification": "B.Tech / B.E in Electrical & Electronics / Instrumentation",
+                "link": "https://www.atherenergy.com/careers"
+            },
+            {
+                "title": "Junior Structural Designer",
+                "company": "L&T Construction",
+                "branch": "civil",
+                "description": "Perform RCC load analysis, check site safety parameters, and review blueprints in AutoCAD.",
+                "experience": "0-1 Years / Freshers",
+                "qualification": "B.Tech / B.E in Civil / Structural Engineering",
+                "link": "https://www.larsentoubro.com/corporate/careers/"
+            }
+        ]
+        
+    if branch_filter != "all":
+        jobs = [j for j in jobs if j["branch"] == branch_filter]
+        
+    return jsonify({"jobs": jobs})
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)

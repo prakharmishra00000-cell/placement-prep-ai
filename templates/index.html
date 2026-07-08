@@ -103,6 +103,10 @@
                     <span>Offer Negotiation Coach</span>
                 </a>
 
+                <a href="#" class="nav-item" data-tab="jobs">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Job Opportunities</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
                     <span>User Guide (230 Features)</span>
@@ -875,7 +879,39 @@
                 </div>
             </div>
 
-            <!-- Tab Content: API Keys & Setup Settings -->
+            <!-- Tab Content: Job Opportunities -->
+            <div class="tab-content" id="tab-jobs">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-bullhorn text-neon-green-glow"></i> Active Global Job Openings Feed</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">24/7 automated real-time scraper crawling LinkedIn, Indeed, Glassdoor, and top company career portals for all engineering branches.</p>
+                    
+                    <div class="search-inputs" style="margin-bottom: 1.5rem;">
+                        <div class="input-group" style="flex: 1;">
+                            <label for="job-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
+                            <select id="job-branch-filter">
+                                <option value="all">All Branches & Sectors</option>
+                                <option value="cse">Computer Science / Software (CSE/IT)</option>
+                                <option value="ece">Electronics & Communication (ECE/IoT)</option>
+                                <option value="mechanical">Mechanical Engineering (Mech/Automobile)</option>
+                                <option value="electrical">Electrical Engineering (EEE/Power)</option>
+                                <option value="civil">Civil & Structural Engineering</option>
+                            </select>
+                        </div>
+                        <button id="refresh-jobs-btn" class="btn btn-primary" style="align-self: flex-end; height: 42px;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
+                        </button>
+                    </div>
+                    
+                    <div id="jobs-loading" style="display: none; text-align: center; padding: 2rem;">
+                        <i class="fa-solid fa-spinner fa-spin text-neon-cyan" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p class="text-muted" style="font-size: 0.85rem;">Scraping latest job portals...</p>
+                    </div>
+
+                    <div id="jobs-container" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                        <!-- Job cards injected dynamically by JavaScript -->
+                    </div>
+                </div>
+            </div>
 
 
             <!-- Tab Content: User Guide of all 230 Features -->

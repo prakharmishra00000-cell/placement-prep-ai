@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "oa": { title: "Mock Online Assessment (OA) Simulator", sub: "Take simulated tests under strict timings with focus lock proctor diagnostics" },
         "project": { title: "AI Project Evaluation Lab", sub: "Audit code originality, scalability design, database schemas, and architectural flaws" },
         "negotiation": { title: "Offer Negotiation & Compensation Coach", sub: "Structure counter-offers, analyze location indices, and evaluate total CTC components" },
+        "jobs": { title: "Active Job Opportunities Feed", sub: "Browse automatically updated global openings and application links for all branches" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
@@ -1101,6 +1102,82 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+
+    // ----------------------------------------------------
+    // Tab: Job Opportunities Feed
+    // ----------------------------------------------------
+    const jobsContainer = document.getElementById("jobs-container");
+    const jobsLoading = document.getElementById("jobs-loading");
+    const jobBranchFilter = document.getElementById("job-branch-filter");
+    const refreshJobsBtn = document.getElementById("refresh-jobs-btn");
+
+    function fetchJobsFeed() {
+        if (!jobsContainer) return;
+        jobsContainer.innerHTML = "";
+        jobsLoading.style.display = "block";
+
+        const branch = jobBranchFilter.value;
+        fetch(`/api/jobs?branch=${branch}`)
+        .then(res => res.json())
+        .then(data => {
+            jobsLoading.style.display = "none";
+            if (!data.jobs || data.jobs.length === 0) {
+                jobsContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No job vacancies listed for this branch currently.</p>';
+                return;
+            }
+
+            data.jobs.forEach(job => {
+                const card = document.createElement("div");
+                card.className = "docs-card";
+                card.style.display = "flex";
+                card.style.flexDirection = "column";
+                card.style.justifyContent = "space-between";
+                card.style.padding = "1.25rem";
+                card.style.border = "1px solid var(--border-color)";
+                card.style.position = "relative";
+
+                card.innerHTML = `
+                    <div>
+                        <span style="position: absolute; top: 1rem; right: 1rem; font-size: 0.75rem; background: rgba(0, 210, 255, 0.15); color: var(--neon-cyan); padding: 0.25rem 0.5rem; border-radius: 4px; text-transform: uppercase;">${job.branch}</span>
+                        <h4 style="color: var(--neon-cyan); margin-bottom: 0.25rem; padding-right: 3rem;">${job.title}</h4>
+                        <h5 style="color: var(--text-primary); margin-bottom: 0.75rem;"><i class="fa-solid fa-building"></i> ${job.company}</h5>
+                        <p style="font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.5; color: var(--text-muted);">${job.description}</p>
+                        
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                            <strong>💼 Experience:</strong> ${job.experience}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                            <strong>🎓 Qualification:</strong> ${job.qualification}
+                        </div>
+                    </div>
+                    <a href="${job.link}" target="_blank" class="btn btn-primary" style="justify-content: center; font-size: 0.8rem; width: 100%;">
+                        <i class="fa-solid fa-paper-plane"></i> Apply Instantly
+                    </a>
+                `;
+                jobsContainer.appendChild(card);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            jobsLoading.style.display = "none";
+            jobsContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1; color: var(--neon-pink);">Error loading job listings feed.</p>';
+        });
+    }
+
+    if (jobBranchFilter) {
+        jobBranchFilter.addEventListener("change", fetchJobsFeed);
+    }
+    if (refreshJobsBtn) {
+        refreshJobsBtn.addEventListener("click", fetchJobsFeed);
+    }
+
+    navItems.forEach(item => {
+        item.addEventListener("click", () => {
+            if (item.getAttribute("data-tab") === "jobs") {
+                fetchJobsFeed();
+            }
+        });
+    });
 
     // Initialize first load
     fetchCompanyDetails("TCS", "technical");
