@@ -1566,8 +1566,28 @@ def search_telegram_books():
     if not query:
         return jsonify({"books": []})
 
-    telegram_api_id = get_credential("TELEGRAM_API_ID")
-    telegram_api_hash = get_credential("TELEGRAM_API_HASH")
+    os.makedirs(os.path.join("static", "books"), exist_ok=True)
+
+    cached_books = []
+    if os.path.exists("books_cache.json"):
+        try:
+            with open("books_cache.json", "r") as f:
+                cached_books = json.load(f)
+        except:
+            pass
+
+    q_lower = query.lower()
+    matched = []
+    for b in cached_books:
+        if q_lower in b["name"].lower():
+            matched.append({
+                "name": b["name"],
+                "size": b["size"],
+                "download_url": b["download_url"]
+            })
+
+    if matched:
+        return jsonify({"books": matched})
 
     books_db = [
         {
@@ -1602,25 +1622,84 @@ def search_telegram_books():
         }
     ]
 
-    matched = []
-    q_lower = query.lower()
     for book in books_db:
         if q_lower in book["name"].lower() or any(q_lower in kw for kw in book["keywords"]):
-            matched.append({
+            new_entry = {
                 "name": book["name"],
                 "size": book["size"],
                 "download_url": book["download_url"]
-            })
+            }
+            cached_books.append(new_entry)
+            with open("books_cache.json", "w") as f:
+                json.dump(cached_books, f, indent=4)
+            return jsonify({"books": [new_entry]})
 
-    if not matched:
-        matched.append({
-            "name": f"{query.title()} Study Textbook & Solutions",
-            "size": "Estimated: 14.5 MB",
-            "download_url": "https://t.me/ApnaPdfBot",
-            "keywords": []
-        })
+    telegram_api_id = get_credential("TELEGRAM_API_ID")
+    telegram_api_hash = get_credential("TELEGRAM_API_HASH")
+    telegram_phone = get_credential("TELEGRAM_PHONE")
 
-    return jsonify({"books": matched})
+    if telegram_api_id and telegram_api_hash and telegram_phone:
+        try:
+            from telethon import TelegramClient, events
+            import asyncio
+
+            async def run_tg_search():
+                client = TelegramClient('prep_bot_user_session', int(telegram_api_id), telegram_api_hash)
+                await client.start(phone=telegram_phone)
+                
+                await client.send_message('@ApnaPdfBot', query)
+                fut = asyncio.get_event_loop().create_future()
+
+                @client.on(events.NewMessage(chats='@ApnaPdfBot'))
+                async def handler(event):
+                    if event.message.document:
+                        doc = event.message.document
+                        filename = ""
+                        for attr in doc.attributes:
+                            if hasattr(attr, 'file_name'):
+                                filename = attr.file_name
+                        if not filename:
+                            filename = f"book_{doc.id}.pdf"
+                        
+                        save_path = os.path.join("static", "books", filename)
+                        await event.message.download_media(file=save_path)
+                        
+                        size_mb = f"{round(doc.size / (1024 * 1024), 2)} MB"
+                        
+                        new_book = {
+                            "name": filename.replace(".pdf", "").replace("_", " "),
+                            "size": size_mb,
+                            "download_url": f"/static/books/{filename}"
+                        }
+                        fut.set_result(new_book)
+                
+                try:
+                    res_book = await asyncio.wait_for(fut, timeout=15)
+                    await client.disconnect()
+                    return res_book
+                except Exception as ex:
+                    await client.disconnect()
+                    return None
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            tg_book = loop.run_until_complete(run_tg_search())
+
+            if tg_book:
+                cached_books.append(tg_book)
+                with open("books_cache.json", "w") as f:
+                    json.dump(cached_books, f, indent=4)
+                return jsonify({"books": [tg_book]})
+
+        except Exception as e:
+            print("Telegram direct fetch failed, falling back to Telegram link.", e)
+
+    fallback_book = {
+        "name": f"{query.title()} PDF Reference Book",
+        "size": "Estimated: 10.4 MB",
+        "download_url": "https://t.me/ApnaPdfBot"
+    }
+    return jsonify({"books": [fallback_book]})
 
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
