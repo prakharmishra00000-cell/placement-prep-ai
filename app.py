@@ -614,7 +614,7 @@ import google.generativeai as genai
 
 def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     try:
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
         model = genai.GenerativeModel("gemini-1.5-flash")
         prompt = f"""
         Provide a placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
@@ -670,7 +670,7 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
 
 def query_gemini_chat(prompt, company, category, api_key):
     try:
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
         model = genai.GenerativeModel("gemini-1.5-flash")
         sys_instr = f"You are a placement guide helper for {company} under the category {category} round. Answer the candidate's query accurately with facts and details."
         response = model.generate_content(f"{sys_instr}\n\nCandidate Query: {prompt}")
@@ -785,7 +785,7 @@ def analyze_resume():
     api_key = get_backend_gemini_key()
     if api_key and file and not file.filename.endswith(".txt"):
         try:
-            genai.configure(api_key=api_key)
+            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
             filepath = os.path.join("temp_uploads", file.filename)
             uploaded_file = genai.upload_file(path=filepath)
             model = genai.GenerativeModel("gemini-1.5-flash")
@@ -1199,7 +1199,7 @@ def run_career_suite_simulation():
     
     if api_key:
         try:
-            genai.configure(api_key=api_key)
+            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
             model = genai.GenerativeModel("gemini-1.5-flash")
             prompt = f"""
             You are PrepOS AI Career Operating System.
@@ -1799,7 +1799,7 @@ def generate_study_notes():
 
     try:
         os.environ["GOOGLE_API_VERSION"] = "v1"
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
         prompt = f"""
         Generate detailed, comprehensive engineering notes on the topic: "{topic}".
         Structure the notes beautifully using HTML tags:
