@@ -90,6 +90,10 @@
                     <i class="fa-solid fa-globe"></i>
                     <span>Abroad Opportunities</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="exams">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Competitive Exams</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="docs">
                     <i class="fa-solid fa-book-open"></i>
                     <span>User Guide (230 Features)</span>
@@ -792,6 +796,58 @@
 
                     <div id="abroad-container" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
                         <!-- Abroad job cards injected dynamically by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Competitive Exams -->
+            <div class="tab-content" id="tab-exams">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-clipboard-list text-neon-cyan"></i> Active Government & Competitive Exams Feed</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">24/7 automated crawler monitoring national and international competitive exam bulletins (GATE, UPSC, ISRO, IES, GRE, etc.).</p>
+                    
+                    <div class="search-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label for="exam-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
+                            <select id="exam-branch-filter">
+                                <option value="all">All Branches & Sectors</option>
+                                <option value="cse">Computer Science (CSE/IT)</option>
+                                <option value="ece">Electronics (ECE/IoT)</option>
+                                <option value="mechanical">Mechanical Engineering</option>
+                                <option value="electrical">Electrical Engineering</option>
+                                <option value="civil">Civil Engineering</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="exam-exp-filter"><i class="fa-solid fa-user-clock"></i> Eligibility Age/Exp</label>
+                            <select id="exam-exp-filter">
+                                <option value="all">All Eligibility Levels</option>
+                                <option value="fresher">Freshers / Final Year</option>
+                                <option value="1">1 Year Experience</option>
+                                <option value="2">2+ Years Experience</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="exam-qual-filter"><i class="fa-solid fa-graduation-cap"></i> Qualification</label>
+                            <select id="exam-qual-filter">
+                                <option value="all">All Qualifications</option>
+                                <option value="diploma">Diploma</option>
+                                <option value="btech">B.Tech / B.E</option>
+                                <option value="mtech">M.Tech / M.E / MS</option>
+                            </select>
+                        </div>
+                        <button id="refresh-exams-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
+                        </button>
+                    </div>
+                    
+                    <div id="exams-loading" style="display: none; text-align: center; padding: 2rem;">
+                        <i class="fa-solid fa-spinner fa-spin text-neon-cyan" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p class="text-muted" style="font-size: 0.85rem;">Scraping latest exam bulletins...</p>
+                    </div>
+
+                    <div id="exams-container" class="docs-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                        <!-- Exam cards injected dynamically by JavaScript -->
                     </div>
                 </div>
             </div>
