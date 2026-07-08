@@ -237,6 +237,7 @@ def synthesize_company_data(company_name, category, branch="cse"):
     
     # Search internet for company-specific metrics
     scraped_sal_str, scraped_tips_list = scrape_company_meta(company_name, domain)
+    scraped_questions = fetch_real_pyqs_from_search(company_name)
     
     # Override domain if branch parameter is provided
     if branch:
