@@ -1177,7 +1177,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             if (!data.books || data.books.length === 0) {
-                bookResults.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No books matching that title were found in @ApnaPdfBot.</p>';
+                bookResults.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No books matching that title were found in the library database.</p>';
                 return;
             }
 
@@ -1193,7 +1193,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.innerHTML = `
                     <div>
                         <h4 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-solid fa-file-pdf"></i> ${book.name}</h4>
-                        <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--text-muted);">Format: PDF/Document • Source: @ApnaPdfBot archives</p>
+                        <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--text-muted);">Format: PDF/Document • Source: PrepOS Library Archive</p>
                         <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
                             <strong>File Size:</strong> ${book.size || "Unknown"}
                         </div>

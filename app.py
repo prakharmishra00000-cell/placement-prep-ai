@@ -1694,12 +1694,7 @@ def search_telegram_books():
         except Exception as e:
             print("Telegram direct fetch failed, falling back to Telegram link.", e)
 
-    fallback_book = {
-        "name": f"{query.title()} PDF Reference Book",
-        "size": "Estimated: 10.4 MB",
-        "download_url": "https://t.me/ApnaPdfBot"
-    }
-    return jsonify({"books": [fallback_book]})
+    return jsonify({"books": []})
 
 temp_tg_client = {}
 
