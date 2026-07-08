@@ -1361,6 +1361,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 if (data.success) {
                     alert(data.message);
+                    if (data.session_string) {
+                        prompt("COPY THIS SESSION STRING & ADD AS TELEGRAM_SESSION_STRING IN RENDER ENV VARIABLES TO LOG IN PERMANENTLY:", data.session_string);
+                    }
                     telegramAuthSection.style.display = "none";
                 } else {
                     alert(data.error || "Verification failed.");
