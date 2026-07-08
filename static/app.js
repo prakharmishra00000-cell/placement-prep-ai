@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "project": { title: "AI Project Evaluation Lab", sub: "Audit code originality, scalability design, database schemas, and architectural flaws" },
         "negotiation": { title: "Offer Negotiation & Compensation Coach", sub: "Structure counter-offers, analyze location indices, and evaluate total CTC components" },
         "jobs": { title: "Active Job Opportunities Feed", sub: "Browse automatically updated global openings and application links for all branches" },
+        "exams": { title: "Active Competitive & Government Exams Feed", sub: "Track live national/international exam bulletins, syllabus, and registration forms" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
@@ -1254,6 +1255,80 @@ document.addEventListener("DOMContentLoaded", () => {
     if (abroadQualFilter) abroadQualFilter.addEventListener("change", fetchAbroadJobsFeed);
     if (refreshAbroadBtn) refreshAbroadBtn.addEventListener("click", fetchAbroadJobsFeed);
 
+    // ----------------------------------------------------
+    // Tab: Competitive Exams Feed
+    // ----------------------------------------------------
+    const examsContainer = document.getElementById("exams-container");
+    const examsLoading = document.getElementById("exams-loading");
+    const examBranchFilter = document.getElementById("exam-branch-filter");
+    const examExpFilter = document.getElementById("exam-exp-filter");
+    const examQualFilter = document.getElementById("exam-qual-filter");
+    const refreshExamsBtn = document.getElementById("refresh-exams-btn");
+
+    function fetchExamsFeed() {
+        if (!examsContainer) return;
+        examsContainer.innerHTML = "";
+        examsLoading.style.display = "block";
+
+        const branch = examBranchFilter.value;
+        const experience = examExpFilter.value;
+        const qualification = examQualFilter.value;
+
+        fetch(`/api/exams?branch=${branch}&experience=${experience}&qualification=${qualification}`)
+        .then(res => res.json())
+        .then(data => {
+            examsLoading.style.display = "none";
+            if (!data.jobs || data.jobs.length === 0) {
+                examsContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1;">No exams matched your criteria.</p>';
+                return;
+            }
+
+            data.jobs.forEach(exam => {
+                const card = document.createElement("div");
+                card.className = "docs-card";
+                card.style.display = "flex";
+                card.style.flexDirection = "column";
+                card.style.justifyContent = "space-between";
+                card.style.padding = "1.25rem";
+                card.style.border = "1px solid var(--border-color)";
+                card.style.position = "relative";
+
+                card.innerHTML = `
+                    <div>
+                        <span style="position: absolute; top: 1rem; right: 1rem; font-size: 0.75rem; background: rgba(0, 210, 255, 0.15); color: var(--neon-cyan); padding: 0.25rem 0.5rem; border-radius: 4px; text-transform: uppercase;">${exam.branch}</span>
+                        <h4 style="color: var(--neon-cyan); margin-bottom: 0.25rem; padding-right: 4rem;">${exam.title}</h4>
+                        <h5 style="color: var(--text-primary); margin-bottom: 0.75rem;"><i class="fa-solid fa-building-columns"></i> ${exam.company}</h5>
+                        <p style="font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.5; color: var(--text-muted);">${exam.description}</p>
+                        
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+                            <strong>💼 Age/Exp:</strong> ${exam.experience}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+                            <strong>🎓 Qualification:</strong> ${exam.qualification}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--neon-cyan); margin-bottom: 1.25rem;">
+                            <strong>📅 Last Updated:</strong> ${exam.posted_date}
+                        </div>
+                    </div>
+                    <a href="${exam.link}" target="_blank" class="btn btn-primary" style="justify-content: center; font-size: 0.8rem; width: 100%;">
+                        <i class="fa-solid fa-graduation-cap"></i> Register / View Portal
+                    </a>
+                `;
+                examsContainer.appendChild(card);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            examsLoading.style.display = "none";
+            examsContainer.innerHTML = '<p class="text-muted" style="text-align: center; grid-column: 1/-1; color: var(--neon-pink);">Error loading exam listings.</p>';
+        });
+    }
+
+    if (examBranchFilter) examBranchFilter.addEventListener("change", fetchExamsFeed);
+    if (examExpFilter) examExpFilter.addEventListener("change", fetchExamsFeed);
+    if (examQualFilter) examQualFilter.addEventListener("change", fetchExamsFeed);
+    if (refreshExamsBtn) refreshExamsBtn.addEventListener("click", fetchExamsFeed);
+
     navItems.forEach(item => {
         item.addEventListener("click", () => {
             const tab = item.getAttribute("data-tab");
@@ -1261,6 +1336,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 fetchJobsFeed();
             } else if (tab === "abroad") {
                 fetchAbroadJobsFeed();
+            } else if (tab === "exams") {
+                fetchExamsFeed();
             }
         });
     });

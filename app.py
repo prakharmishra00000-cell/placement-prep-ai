@@ -1485,5 +1485,80 @@ def get_abroad_jobs_feed():
         
     return jsonify({"jobs": jobs})
 
+@app.route("/api/exams", methods=["GET"])
+def get_exams_feed():
+    branch_filter = request.args.get("branch", "all").lower().strip()
+    exp_filter = request.args.get("experience", "all").lower().strip()
+    qual_filter = request.args.get("qualification", "all").lower().strip()
+    
+    if os.path.exists("exams_cache.json"):
+        try:
+            with open("exams_cache.json", "r") as f:
+                exams = json.load(f)
+        except:
+            exams = []
+    else:
+        exams = [
+            {
+                "title": "GATE 2027 Entrance Exam",
+                "company": "IIT Roorkee / GATE Committee",
+                "branch": "cse",
+                "description": "National level post-graduate entrance test for M.Tech admissions and PSU recruitment.",
+                "experience": "Fresher",
+                "qualification": "B.Tech",
+                "link": "https://gate.iitr.ac.in",
+                "posted_date": "July 8, 2026"
+            },
+            {
+                "title": "ISRO Scientist/Engineer Entrance Exam",
+                "company": "Indian Space Research Organisation (ISRO)",
+                "branch": "ece",
+                "description": "Direct recruitment for Scientist posts (SC grade) across electrical, electronics, and mechanical fields.",
+                "experience": "Fresher",
+                "qualification": "B.Tech",
+                "link": "https://www.isro.gov.in/Careers.html",
+                "posted_date": "July 7, 2026"
+            },
+            {
+                "title": "UPSC Engineering Services Exam (IES)",
+                "company": "Union Public Service Commission",
+                "branch": "civil",
+                "description": "Recruitment for top-tier structural engineering cadre services in Railways, CPWD, and MES.",
+                "experience": "Fresher",
+                "qualification": "B.Tech",
+                "link": "https://www.upsc.gov.in",
+                "posted_date": "July 6, 2026"
+            },
+            {
+                "title": "BARC OCES/DGFS Scientific Officer Program",
+                "company": "Bhabha Atomic Research Centre (BARC)",
+                "branch": "electrical",
+                "description": "Direct entry test for post-graduate nuclear research and executive scientific grades.",
+                "experience": "Fresher",
+                "qualification": "M.Tech",
+                "link": "https://barconlineexam.com",
+                "posted_date": "July 5, 2026"
+            },
+            {
+                "title": "GRE (Graduate Record Examinations) for Abroad Studies",
+                "company": "Educational Testing Service (ETS)",
+                "branch": "cse",
+                "description": "Standardized admissions exam for graduate programs and MBA studies worldwide.",
+                "experience": "Fresher",
+                "qualification": "B.Tech",
+                "link": "https://www.ets.org/gre.html",
+                "posted_date": "July 4, 2026"
+            }
+        ]
+        
+    if branch_filter != "all":
+        exams = [e for e in exams if e["branch"] == branch_filter]
+    if exp_filter != "all":
+        exams = [e for e in exams if exp_filter in e["experience"].lower()]
+    if qual_filter != "all":
+        exams = [e for e in exams if qual_filter in e["qualification"].lower()]
+        
+    return jsonify({"jobs": exams})
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)

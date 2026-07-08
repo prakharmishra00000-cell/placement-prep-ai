@@ -224,6 +224,66 @@ def scrape_abroad_jobs():
         json.dump(abroad_jobs, f, indent=4)
     print(f"Scraped {len(abroad_jobs)} abroad jobs successfully.")
 
+def scrape_competitive_exams():
+    current_date = datetime.now().strftime("%B %d, %Y")
+    exams = [
+        {
+            "title": "GATE 2027 Entrance Exam",
+            "company": "IIT Roorkee / GATE Committee",
+            "branch": "cse",
+            "description": "National level post-graduate entrance test for M.Tech admissions and PSU recruitment.",
+            "experience": "Fresher",
+            "qualification": "B.Tech",
+            "link": "https://gate.iitr.ac.in",
+            "posted_date": current_date
+        },
+        {
+            "title": "ISRO Scientist/Engineer Entrance Exam",
+            "company": "Indian Space Research Organisation (ISRO)",
+            "branch": "ece",
+            "description": "Direct recruitment for Scientist posts (SC grade) across electrical, electronics, and mechanical fields.",
+            "experience": "Fresher",
+            "qualification": "B.Tech",
+            "link": "https://www.isro.gov.in/Careers.html",
+            "posted_date": current_date
+        },
+        {
+            "title": "UPSC Engineering Services Exam (IES)",
+            "company": "Union Public Service Commission",
+            "branch": "civil",
+            "description": "Recruitment for top-tier structural engineering cadre services in Railways, CPWD, and MES.",
+            "experience": "Fresher",
+            "qualification": "B.Tech",
+            "link": "https://www.upsc.gov.in",
+            "posted_date": current_date
+        },
+        {
+            "title": "BARC OCES/DGFS Scientific Officer Program",
+            "company": "Bhabha Atomic Research Centre (BARC)",
+            "branch": "electrical",
+            "description": "Direct entry test for post-graduate nuclear research and executive scientific grades.",
+            "experience": "Fresher",
+            "qualification": "M.Tech",
+            "link": "https://barconlineexam.com",
+            "posted_date": current_date
+        },
+        {
+            "title": "GRE (Graduate Record Examinations) for Abroad Studies",
+            "company": "Educational Testing Service (ETS)",
+            "branch": "cse",
+            "description": "Standardized admissions exam for graduate programs and MBA studies worldwide.",
+            "experience": "Fresher",
+            "qualification": "B.Tech",
+            "link": "https://www.ets.org/gre.html",
+            "posted_date": current_date
+        }
+    ]
+
+    with open("exams_cache.json", "w") as f:
+        json.dump(exams, f, indent=4)
+    print(f"Scraped {len(exams)} competitive exams successfully.")
+
 if __name__ == "__main__":
     scrape_local_jobs()
     scrape_abroad_jobs()
+    scrape_competitive_exams()
