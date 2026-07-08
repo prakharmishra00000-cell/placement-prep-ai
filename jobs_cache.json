@@ -1,0 +1,72 @@
+[
+    {
+        "title": "Software Engineer Intern",
+        "company": "Google",
+        "branch": "cse",
+        "description": "Develop next-gen search features, optimize web latency, and build scalable microservices.",
+        "experience": "Fresher",
+        "qualification": "B.Tech",
+        "link": "https://careers.google.com",
+        "posted_date": "July 08, 2026"
+    },
+    {
+        "title": "Graduate Developer",
+        "company": "Microsoft",
+        "branch": "cse",
+        "description": "Build features for Azure Cloud platforms, developer toolings, and API interfaces.",
+        "experience": "1 Year",
+        "qualification": "B.Tech",
+        "link": "https://careers.microsoft.com",
+        "posted_date": "July 08, 2026"
+    },
+    {
+        "title": "Embedded Systems Engineer Trainee",
+        "company": "Qualcomm",
+        "branch": "ece",
+        "description": "Design firmware drivers, optimize power consumption profiles, and test transceivers.",
+        "experience": "Fresher",
+        "qualification": "M.Tech",
+        "link": "https://www.qualcomm.com/company/careers",
+        "posted_date": "July 08, 2026"
+    },
+    {
+        "title": "Hardware Design Engineer",
+        "company": "Intel",
+        "branch": "ece",
+        "description": "Verify semiconductor RTL logic, prototype micro-architectures, and debug test-benches.",
+        "experience": "2 Years",
+        "qualification": "B.Tech",
+        "link": "https://jobs.intel.com",
+        "posted_date": "July 08, 2026"
+    },
+    {
+        "title": "Graduate Engineer Trainee (GET)",
+        "company": "Tata Motors",
+        "branch": "mechanical",
+        "description": "Conduct structural FEA tests, design CAD transmission subsystems, and optimize assembly line.",
+        "experience": "Fresher",
+        "qualification": "Diploma",
+        "link": "https://www.tatamotors.com/careers/",
+        "posted_date": "July 08, 2026"
+    },
+    {
+        "title": "Assistant Power Engineer",
+        "company": "Siemens",
+        "branch": "electrical",
+        "description": "Build high-voltage switchgear grids, configure smart meter models, and oversee electrical substation.",
+        "experience": "1 Year",
+        "qualification": "B.Tech",
+        "link": "https://jobs.siemens.com",
+        "posted_date": "July 08, 2026"
+    },
+    {
+        "title": "Junior Structural Designer",
+        "company": "L&T Construction",
+        "branch": "civil",
+        "description": "Perform RCC load analysis, check site safety parameters, and review blueprints in AutoCAD.",
+        "experience": "Fresher",
+        "qualification": "Diploma",
+        "link": "https://www.larsentoubro.com/corporate/careers/",
+        "posted_date": "July 08, 2026"
+    }
+]
