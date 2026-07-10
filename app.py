@@ -851,61 +851,62 @@ def analyze_resume():
     if not jd_text:
         return jsonify({"error": "Kindly enter a Job Description (JD) to run the analysis."})
         
+    temp_filepath = None
     if file:
         temp_dir = "temp_uploads"
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
-        filepath = os.path.join(temp_dir, file.filename)
-        file.save(filepath)
+        temp_filepath = os.path.join(temp_dir, file.filename)
+        file.save(temp_filepath)
         
         # Read text if plain text
         if file.filename.endswith(".txt"):
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(temp_filepath, "r", encoding="utf-8") as f:
                     resume_text = f.read()
             except:
                 pass
-        else:
-            # Fallback text representation to avoid crash if offline
-            resume_text = file.filename + " " + jd_text
-            
-    # Basic validation: does it look like a resume or CV?
-    resume_keywords = ["education", "experience", "skills", "projects", "contact", "achievements", 
-                       "resume", "cv", "work", "employment", "profile", "objective", "qualification",
-                       "internship", "extracurricular", "certifications"]
-    matched_keywords = [kw for kw in resume_keywords if kw in resume_text.lower()]
-    
-    if len(matched_keywords) < 2 and not (file and file.filename.endswith((".pdf", ".docx"))):
-        return jsonify({"error": "Kindly upload your resume or CV"})
-        
+
     api_key = get_backend_gemini_key()
-    if api_key and file and not file.filename.endswith(".txt"):
+    if api_key:
         try:
             genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
-            filepath = os.path.join("temp_uploads", file.filename)
-            uploaded_file = genai.upload_file(path=filepath)
             model = genai.GenerativeModel("gemini-1.5-flash")
+            
             prompt = f"""
             You are a professional ATS resume auditor.
             
-            First, analyze if the uploaded document is a valid resume or CV. 
-            If the document is NOT a resume or CV (e.g. if it is a book chapter, random essay, image, or unrelated text), you MUST return EXACTLY this JSON and nothing else:
+            Analyze the input document/text carefully.
+            
+            CRITICAL RULES:
+            1. First, check if the input document/text is really a resume or CV.
+            If the content is NOT a resume or CV (e.g. if it is a book chapter, random essay, image, list of instructions, or any unrelated text), you MUST return EXACTLY this JSON and nothing else:
             {{"error": "Kindly upload your resume or CV"}}
             
-            If it IS a valid resume or CV, evaluate it against the following Job Description (JD):
+            2. If it IS a valid resume or CV, evaluate it against the following Job Description (JD):
             ---
             {jd_text}
             ---
-            Evaluate the match:
-            1. If the Job Description is completely mismatched with the resume (e.g., a Mechanical Engineer resume applied to a Front-End Developer JD), calculate the match score (which will be low, e.g. < 40) and list the primary skills the candidate needs to acquire to pivot or qualify for this role in the "suggestions" list.
-            2. If the Job Description matches the resume's role, but some skills are missing, calculate the ATS score and list the exact missing keywords and suggestions to improve the resume to get a perfect 100% score in the "suggestions" list.
             
-            You must return a raw JSON object (and nothing else, no backticks, no markdown wrappers) containing:
-            1. "score": An integer ATS match score out of 100.
-            2. "missing_keywords": A list of critical skills or technologies mentioned in the JD but missing in the resume.
-            3. "suggestions": A list of specific optimization suggestions. If there's a mismatch, specify what skills to learn to match the JD.
+            3. Conduct a strict ATS analysis:
+               - Calculate a realistic "score" (integer out of 100) indicating how well the resume matches the JD. If there is a complete mismatch (e.g. Mechanical Engineer applying for Front-End Developer), the score should be low (e.g. < 40).
+               - List critical keywords (skills, tools, or concepts) mentioned in the JD that are missing from the resume in the "missing_keywords" list.
+               - List specific optimization suggestions in the "suggestions" list. If mismatched, specify the main skills to acquire to bridge the gap.
+            
+            You must return a raw JSON object (and nothing else, no markdown wrappers, no backticks) with this structure:
+            {{
+                "score": 85,
+                "missing_keywords": ["Keyword1", "Keyword2"],
+                "suggestions": ["Suggestion 1", "Suggestion 2"]
+            }}
             """
-            response = model.generate_content([uploaded_file, prompt])
+            
+            if temp_filepath and not file.filename.endswith(".txt"):
+                uploaded_file = genai.upload_file(path=temp_filepath)
+                response = model.generate_content([uploaded_file, prompt])
+            else:
+                response = model.generate_content([resume_text, prompt])
+                
             text = response.text.strip()
             if text.startswith("```json"):
                 text = text[7:]
@@ -914,8 +915,8 @@ def analyze_resume():
             text = text.strip()
             return jsonify(json.loads(text))
         except Exception as e:
-            print("Gemini file upload analysis error:", e)
-            
+            print("Gemini resume analysis error:", e)
+
     # Fallback/Offline JD Match Calculator
     score = 75
     missing = ["System Design Metrics", "Docker Containerization"]
@@ -924,13 +925,22 @@ def analyze_resume():
         "Add a dedicated Skills Matrix section for automated screeners."
     ]
     
+    # Check if pasted text is really a resume or CV
+    resume_keywords = ["education", "experience", "skills", "projects", "contact", "achievements", 
+                       "resume", "cv", "work", "employment", "profile", "objective", "qualification",
+                       "internship", "extracurricular", "certifications"]
+    matched_keywords = [kw for kw in resume_keywords if kw in resume_text.lower()]
+    
+    if len(matched_keywords) < 2 and not (file and file.filename.endswith((".pdf", ".docx"))):
+        return jsonify({"error": "Kindly upload your resume or CV"})
+
     if jd_text and resume_text:
         jd_words = set(re.findall(r"\b\w{3,}\b", jd_text.lower()))
         res_words = set(re.findall(r"\b\w{3,}\b", resume_text.lower()))
         overlap = jd_words.intersection(res_words)
         if len(jd_words) > 0:
             match_ratio = len(overlap) / len(jd_words)
-            score = int(30 + (match_ratio * 60)) # Scale between 30 and 90
+            score = int(30 + (match_ratio * 60))
             if score > 98:
                 score = 98
                 
@@ -938,7 +948,6 @@ def analyze_resume():
             if missing_candidates:
                 missing = [m.title() for m in missing_candidates[:4]]
                 
-            # Mismatch detection: if overlap ratio is less than 15%
             if match_ratio < 0.15:
                 score = int(15 + (match_ratio * 100))
                 suggestions = [
