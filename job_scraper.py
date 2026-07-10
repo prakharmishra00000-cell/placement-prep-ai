@@ -17,6 +17,46 @@ def get_scraper_credential(key_name):
             pass
     return ""
 
+def merge_and_save_cache(cache_file, new_items, unique_keys):
+    existing_items = []
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r") as f:
+                existing_items = json.load(f)
+        except Exception as e:
+            print(f"Error loading existing cache {cache_file}: {e}")
+            
+    # Merge items preventing duplicates based on unique_keys
+    seen = set()
+    merged = []
+    
+    # Process new items first so they take precedence
+    for item in new_items + existing_items:
+        key_tuple = tuple(str(item.get(k, "")).lower().strip() for k in unique_keys)
+        if key_tuple not in seen:
+            seen.add(key_tuple)
+            merged.append(item)
+            
+    # Sort merged items by posted_date descending
+    def get_sort_key(x):
+        date_str = x.get("posted_date", "")
+        try:
+            return datetime.strptime(date_str, "%B %d, %Y")
+        except:
+            return datetime.min
+            
+    merged.sort(key=get_sort_key, reverse=True)
+    
+    # Cap size at 100 items to prevent cache bloating
+    merged = merged[:100]
+    
+    try:
+        with open(cache_file, "w") as f:
+            json.dump(merged, f, indent=4)
+        print(f"Saved {len(merged)} items to {cache_file} successfully.")
+    except Exception as e:
+        print(f"Error saving cache {cache_file}: {e}")
+
 def scrape_local_jobs():
     search_key = get_scraper_credential("SEARCH_API_KEY")
     current_date = datetime.now().strftime("%B %d, %Y")
@@ -119,9 +159,7 @@ def scrape_local_jobs():
         except Exception as e:
             print("SerpAPI Local Job Fetch error:", e)
 
-    with open("jobs_cache.json", "w") as f:
-        json.dump(jobs, f, indent=4)
-    print(f"Scraped {len(jobs)} local jobs successfully.")
+    merge_and_save_cache("jobs_cache.json", jobs, ["title", "company", "branch"])
 
 def scrape_abroad_jobs():
     search_key = get_scraper_credential("SEARCH_API_KEY")
@@ -220,9 +258,7 @@ def scrape_abroad_jobs():
         except Exception as e:
             print("SerpAPI Abroad Job Fetch error:", e)
 
-    with open("abroad_cache.json", "w") as f:
-        json.dump(abroad_jobs, f, indent=4)
-    print(f"Scraped {len(abroad_jobs)} abroad jobs successfully.")
+    merge_and_save_cache("abroad_cache.json", abroad_jobs, ["title", "company", "branch", "country"])
 
 def scrape_competitive_exams():
     current_date = datetime.now().strftime("%B %d, %Y")
@@ -279,9 +315,7 @@ def scrape_competitive_exams():
         }
     ]
 
-    with open("exams_cache.json", "w") as f:
-        json.dump(exams, f, indent=4)
-    print(f"Scraped {len(exams)} competitive exams successfully.")
+    merge_and_save_cache("exams_cache.json", exams, ["title", "company"])
 
 if __name__ == "__main__":
     scrape_local_jobs()
