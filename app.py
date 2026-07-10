@@ -521,8 +521,24 @@ def synthesize_company_data(company_name, category, branch="cse"):
         if len(scraped_tips_list) > 1:
             tips["assessment"] = f"Selection Stage Details: {scraped_tips_list[1]}\n\n{tips['assessment']}"
 
+    # Fallback hiring pattern data
+    rate = rng.randint(8, 23)
+    diff_stars = ["★★☆☆☆ (Easy)", "★★★☆☆ (Medium)", "★★★★☆ (Hard)"]
+    difficulty = diff_stars[rate % 3]
+    duration = f"{rng.randint(30, 60)} mins"
+    
+    flow_steps = [
+        {"num": 1, "name": "Online Assessment", "details": f"Aptitude (30%), Technical MCQs (35%), Basic Coding (35%) based on {branch.upper()} syllabus"},
+        {"num": 2, "name": "Technical Interview", "details": "Coding algos, core theoretical principles, academic projects presentation"},
+        {"num": 3, "name": "HR & Managerial Round", "details": "Rotational shift comfort, communication skill checks, behavioral scenario mapping"}
+    ]
+
     return {
         "name": company_name.title(),
+        "selection_rate": f"{rate}%",
+        "difficulty": difficulty,
+        "duration": duration,
+        "flow_steps": flow_steps,
         "skills": skills,
         "topics": topics,
         "salary": salary,
@@ -709,6 +725,14 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
     The structure must be exactly:
     {{
       "name": "Full Company Name",
+      "selection_rate": "18%",
+      "difficulty": "★★★☆☆ (Medium)",
+      "duration": "45 mins",
+      "flow_steps": [
+         {{"num": 1, "name": "Online Assessment", "details": "Aptitude (35%), DSA (25%), SQL (15%), MCQs (15%)"}},
+         {{"num": 2, "name": "Technical Interview", "details": "Project Discussion, Coding Algorithms, SQL writing"}},
+         {{"num": 3, "name": "HR & Managerial Round", "details": "Behavioral Scenarios, Relocation checks, Teamwork questions"}}
+      ],
       "skills": [
          {{"name": "Skill Name", "level": 85}}
       ],
@@ -2042,6 +2066,65 @@ def generate_portfolio():
         
     portfolio_id = str(uuid.uuid4())[:8]
     
+    # 1. Fetch real-time project ideas from Google Search based on skills
+    search_query = f"trending GitHub project ideas for {skills or 'software developer'} resume"
+    search_results = fetch_google_search_snippets(search_query)
+    web_context = "\n".join(search_results) if search_results else "No live web results retrieved."
+    
+    # 2. Polishing with Gemini
+    api_key = get_backend_gemini_key()
+    projects = []
+    
+    if api_key:
+        prompt = f"""
+        Analyze the student's background:
+        Name: {name}
+        Skills: {skills}
+        Bio: {bio}
+        Resume: {resume_text}
+        
+        Using the following real-time Google search context of trending project ideas for these skills:
+        ---
+        {web_context}
+        ---
+        
+        Synthesize:
+        1. An optimized, professional profile bio/summary (polishing their input).
+        2. Three highly authentic, specific, and impressive project recommendations tailored to their skillset (React, Python, etc.) that they can build. For each project, provide:
+           - "title": A realistic, impressive project name
+           - "desc": A detailed, professional description of what it does and the impact/metrics
+           - "tags": Tech stack tags used (e.g. ["React", "MongoDB"])
+        
+        Return the result in strict JSON format. Do not use markdown backticks. Just return a raw JSON object with these keys:
+        {{
+            "polished_bio": "Polished biography text...",
+            "projects": [
+                {{"title": "Project Title 1", "desc": "Project description...", "tags": ["React", "Python"]}}
+            ]
+        }}
+        """
+        try:
+            resp = call_gemini_api(prompt, api_key)
+            if resp:
+                cleaned = resp.strip()
+                if cleaned.startswith("```json"):
+                    cleaned = cleaned[7:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                parsed = json.loads(cleaned)
+                bio = parsed.get("polished_bio", bio)
+                projects = parsed.get("projects", [])
+        except Exception as e:
+            print("Gemini portfolio enhancement error:", e)
+            
+    # If no projects generated, use standard fallbacks
+    if not projects:
+        projects = [
+            {"title": "Automated Cloud Scaler", "desc": "Design and build an automated cloud orchestrator that monitors CPU loads and boots replica servers in real-time.", "tags": ["Python", "AWS", "Docker"]},
+            {"title": "Real-time Chat Engine", "desc": "Construct an instantaneous messaging app implementing WebSockets for zero latency updates and full end-to-end encryption.", "tags": ["Node.js", "WebSockets", "React"]}
+        ]
+
     # Render template HTML
     github_username = ""
     if "github.com/" in github:
@@ -2049,6 +2132,17 @@ def generate_portfolio():
         
     skills_list = [s.strip() for s in skills.split(",") if s.strip()]
     skills_html = "".join([f'<span class="skill-tag">{s}</span>' for s in skills_list])
+    
+    projects_html = ""
+    for proj in projects:
+        tags_html = "".join([f'<span class="skill-tag" style="background: rgba(0, 240, 255, 0.08); color: #00f0ff; border-color: rgba(0, 240, 255, 0.25);">{t}</span>' for t in proj.get("tags", [])])
+        projects_html += f"""
+        <div class="project-card" style="margin-bottom: 1.25rem; padding: 1.25rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px;">
+            <h4 style="color: #fff; margin-bottom: 0.5rem; font-size: 0.95rem;">{proj.get('title')}</h4>
+            <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--text-muted);">{proj.get('desc')}</p>
+            <div class="skill-list">{tags_html}</div>
+        </div>
+        """
     
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -2254,6 +2348,13 @@ def generate_portfolio():
             <h2><i class="fa-solid fa-code text-neon-blue"></i> Key Expertise & Skills</h2>
             <div class="skill-list">
                 {skills_html}
+            </div>
+        </section>
+
+        <section class="card" id="ai-projects-section">
+            <h2><i class="fa-solid fa-wand-magic-sparkles text-neon-blue"></i> AI Showcase Project Recommendations</h2>
+            <div class="project-grid" style="grid-template-columns: 1fr; gap: 1rem;">
+                {projects_html}
             </div>
         </section>
 

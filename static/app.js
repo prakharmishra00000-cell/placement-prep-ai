@@ -444,150 +444,199 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (hiringBranchSelect) {
+        hiringBranchSelect.addEventListener("change", () => {
+            const currentCompanyName = document.getElementById("hiring-company-name").textContent || "TCS";
+            const categorySelect = document.getElementById("category-select");
+            const category = categorySelect ? categorySelect.value : "technical";
+            fetch(`/api/search?company=${encodeURIComponent(currentCompanyName)}&category=${category}&branch=${hiringBranchSelect.value}`)
+                .then(res => res.json())
+                .then(data => {
+                    updateHiringAnalyzer(data);
+                })
+                .catch(err => console.error("Error updating hiring analyzer branch:", err));
+        });
+    }
+
     function updateHiringAnalyzer(data) {
-        document.getElementById("hiring-company-name").textContent = data.name;
+        if (!data) return;
+        document.getElementById("hiring-company-name").textContent = data.name || "TCS";
         
-        const rate = Math.floor(Math.random() * 15) + 8; // 8% - 23%
-        document.getElementById("hiring-selection-rate").textContent = `${rate}%`;
+        if (data.selection_rate) {
+            document.getElementById("hiring-selection-rate").textContent = data.selection_rate;
+        } else {
+            const rate = Math.floor(Math.random() * 15) + 8;
+            document.getElementById("hiring-selection-rate").textContent = `${rate}%`;
+        }
         
-        const diffStars = ["★★☆☆☆ (Easy)", "★★★☆☆ (Medium)", "★★★★☆ (Hard)"];
-        document.getElementById("hiring-difficulty").textContent = diffStars[rate % 3];
-
-        const branchVal = hiringBranchSelect ? hiringBranchSelect.value : "cse";
-
-        // Dynamic hiring step data by branch
-        const flowSteps = document.querySelectorAll("#tab-hiring .flow-step");
-        const distContainer = document.querySelector("#tab-hiring .hiring-distribution");
+        if (data.difficulty) {
+            document.getElementById("hiring-difficulty").textContent = data.difficulty;
+        } else {
+            document.getElementById("hiring-difficulty").textContent = "★★★☆☆ (Medium)";
+        }
         
-        const branchFlows = {
-            cse: {
-                steps: [
-                    "Aptitude (30%), DSA (40%), Core CS Concepts (30%)",
-                    "Dynamic Programming, System Design, Live coding IDE check",
-                    "Teamwork, behavioral metrics, SDE career objectives"
-                ],
-                topics: [
-                    { name: "Problem Solving / Algorithms", weight: "40%", bg: "var(--neon-pink)" },
-                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-blue)" },
-                    { name: "DBMS & SQL", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "OS & Computer Networks", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            },
-            it: {
-                steps: [
-                    "Aptitude (30%), Basic Coding (35%), OOPs (35%)",
-                    "Web Technologies, Databases, System Debugging",
-                    "Customer interaction, agile processes, tech stack growth"
-                ],
-                topics: [
-                    { name: "Coding / Scripting", weight: "35%", bg: "var(--neon-pink)" },
-                    { name: "Aptitude & Reasoning", weight: "25%", bg: "var(--neon-blue)" },
-                    { name: "Database Design", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "OS & Cloud Concepts", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            },
-            ece: {
-                steps: [
-                    "Digital Circuits (35%), Analog VLSI (35%), Quant Aptitude (30%)",
-                    "Hardware description languages (Verilog), circuit layout debugging",
-                    "Interfacing team collaboration, micro-architecture projects"
-                ],
-                topics: [
-                    { name: "Digital Circuits & VLSI", weight: "35%", bg: "var(--neon-pink)" },
-                    { name: "Quantitative Aptitude", weight: "25%", bg: "var(--neon-blue)" },
-                    { name: "Signal Processing & Comm", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "Microcontrollers", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            },
-            mechanical: {
-                steps: [
-                    "Thermodynamics (30%), Fluids (30%), Materials (20%), Aptitude (20%)",
-                    "Engine components, CAD layout designs, manufacturing cycles",
-                    "Rotational shifts, industrial workplace safety standards"
-                ],
-                topics: [
-                    { name: "Thermal & Fluids Engineering", weight: "35%", bg: "var(--neon-pink)" },
-                    { name: "CAD / CAM & Design", weight: "25%", bg: "var(--neon-blue)" },
-                    { name: "Industrial & Production", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            },
-            electrical: {
-                steps: [
-                    "Power Systems (30%), AC/DC Machines (30%), Networks (20%), Aptitude (20%)",
-                    "Grid calculations, transformer configurations, electronics interfacing",
-                    "Substation safety, multi-disciplinary engineering projects"
-                ],
-                topics: [
-                    { name: "Electrical Machines & Grid", weight: "35%", bg: "var(--neon-pink)" },
-                    { name: "Analog Electronics", weight: "25%", bg: "var(--neon-blue)" },
-                    { name: "Control Systems", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            },
-            civil: {
-                steps: [
-                    "Structural Mechanics (30%), Concrete Design (30%), Surveying (20%), Aptitude (20%)",
-                    "AutoCAD blueprinting, RCC material parameters, soil testing analysis",
-                    "Site supervision, vendor communication, environmental compliance"
-                ],
-                topics: [
-                    { name: "Structural Analysis & RCC", weight: "35%", bg: "var(--neon-pink)" },
-                    { name: "Concrete & Surveying", weight: "25%", bg: "var(--neon-blue)" },
-                    { name: "Soil Mechanics", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            },
-            chemical: {
-                steps: [
-                    "Mass & Heat Transfer (35%), Reaction kinetics (35%), Aptitude (30%)",
-                    "Distillation design, reactor temperature controllers, safety valves",
-                    "Refinery operations, plant environmental standards"
-                ],
-                topics: [
-                    { name: "Reaction Kinetics & Thermo", weight: "35%", bg: "var(--neon-pink)" },
-                    { name: "Transport Phenomena", weight: "25%", bg: "var(--neon-blue)" },
-                    { name: "Process Calculations", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            },
-            ece_iot: {
-                steps: [
-                    "Sensors & Actuators (30%), Embedded C (30%), Network protocols (20%), Aptitude (20%)",
-                    "ESP32/Arduino microcontroller configurations, MQTT client setup",
-                    "Hardware debugging, smart city application architectures"
-                ],
-                topics: [
-                    { name: "IoT Protocols & Systems", weight: "35%", bg: "var(--neon-pink)" },
-                    { name: "Embedded C & RTOS", weight: "25%", bg: "var(--neon-blue)" },
-                    { name: "Microcontrollers", weight: "20%", bg: "var(--neon-cyan)" },
-                    { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
-                ]
-            }
-        };
-
-        const flow = branchFlows[branchVal] || branchFlows.cse;
-
-        // Populate steps description
-        if (flowSteps.length >= 3) {
-            flowSteps[0].querySelector(".step-details").textContent = flow.steps[0];
-            flowSteps[1].querySelector(".step-details").textContent = flow.steps[1];
-            flowSteps[2].querySelector(".step-details").textContent = flow.steps[2];
+        if (data.duration) {
+            document.getElementById("hiring-duration").textContent = data.duration;
+        } else {
+            document.getElementById("hiring-duration").textContent = "45 mins";
         }
 
-        // Populate weightages charts
+        const flowStepsContainer = document.querySelector("#tab-hiring .hiring-flow");
+        if (data.flow_steps && Array.isArray(data.flow_steps) && data.flow_steps.length > 0) {
+            if (flowStepsContainer) {
+                flowStepsContainer.innerHTML = "";
+                data.flow_steps.forEach(step => {
+                    const stepDiv = document.createElement("div");
+                    stepDiv.className = "flow-step";
+                    stepDiv.innerHTML = `
+                        <div class="step-num">${step.num || 1}</div>
+                        <div class="step-name">${step.name || "Assessment Stage"}</div>
+                        <div class="step-details">${step.details || ""}</div>
+                    `;
+                    flowStepsContainer.appendChild(stepDiv);
+                });
+            }
+        } else {
+            const branchVal = hiringBranchSelect ? hiringBranchSelect.value : "cse";
+            const branchFlows = {
+                cse: {
+                    steps: [
+                        "Aptitude (30%), DSA (40%), Core CS Concepts (30%)",
+                        "Dynamic Programming, System Design, Live coding IDE check",
+                        "Teamwork, behavioral metrics, SDE career objectives"
+                    ],
+                    topics: [
+                        { name: "Problem Solving / Algorithms", weight: "40%", bg: "var(--neon-pink)" },
+                        { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-blue)" },
+                        { name: "DBMS & SQL", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "OS & Computer Networks", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                },
+                it: {
+                    steps: [
+                        "Aptitude (30%), Basic Coding (35%), OOPs (35%)",
+                        "Web Technologies, Databases, System Debugging",
+                        "Customer interaction, agile processes, tech stack growth"
+                    ],
+                    topics: [
+                        { name: "Coding / Scripting", weight: "35%", bg: "var(--neon-pink)" },
+                        { name: "Aptitude & Reasoning", weight: "25%", bg: "var(--neon-blue)" },
+                        { name: "Database Design", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "OS & Cloud Concepts", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                },
+                ece: {
+                    steps: [
+                        "Digital Circuits (35%), Analog VLSI (35%), Quant Aptitude (30%)",
+                        "Hardware description languages (Verilog), circuit layout debugging",
+                        "Interfacing team collaboration, micro-architecture projects"
+                    ],
+                    topics: [
+                        { name: "Digital Circuits & VLSI", weight: "35%", bg: "var(--neon-pink)" },
+                        { name: "Quantitative Aptitude", weight: "25%", bg: "var(--neon-blue)" },
+                        { name: "Signal Processing & Comm", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "Microcontrollers", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                },
+                mechanical: {
+                    steps: [
+                        "Thermodynamics (30%), Fluids (30%), Materials (20%), Aptitude (20%)",
+                        "Engine components, CAD layout designs, manufacturing cycles",
+                        "Rotational shifts, industrial workplace safety standards"
+                    ],
+                    topics: [
+                        { name: "Thermal & Fluids Engineering", weight: "35%", bg: "var(--neon-pink)" },
+                        { name: "CAD / CAM & Design", weight: "25%", bg: "var(--neon-blue)" },
+                        { name: "Industrial & Production", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                },
+                electrical: {
+                    steps: [
+                        "Power Systems (30%), AC/DC Machines (30%), Networks (20%), Aptitude (20%)",
+                        "Grid calculations, transformer configurations, electronics interfacing",
+                        "Substation safety, multi-disciplinary engineering projects"
+                    ],
+                    topics: [
+                        { name: "Electrical Machines & Grid", weight: "35%", bg: "var(--neon-pink)" },
+                        { name: "Analog Electronics", weight: "25%", bg: "var(--neon-blue)" },
+                        { name: "Control Systems", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                },
+                civil: {
+                    steps: [
+                        "Structural Mechanics (30%), Concrete Design (30%), Surveying (20%), Aptitude (20%)",
+                        "AutoCAD blueprinting, RCC material parameters, soil testing analysis",
+                        "Site supervision, vendor communication, environmental compliance"
+                    ],
+                    topics: [
+                        { name: "Structural Analysis & RCC", weight: "35%", bg: "var(--neon-pink)" },
+                        { name: "Concrete & Surveying", weight: "25%", bg: "var(--neon-blue)" },
+                        { name: "Soil Mechanics", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                },
+                chemical: {
+                    steps: [
+                        "Mass & Heat Transfer (35%), Reaction kinetics (35%), Aptitude (30%)",
+                        "Distillation design, reactor temperature controllers, safety valves",
+                        "Refinery operations, plant environmental standards"
+                    ],
+                    topics: [
+                        { name: "Reaction Kinetics & Thermo", weight: "35%", bg: "var(--neon-pink)" },
+                        { name: "Transport Phenomena", weight: "25%", bg: "var(--neon-blue)" },
+                        { name: "Process Calculations", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                },
+                ece_iot: {
+                    steps: [
+                        "Sensors & Actuators (30%), Embedded C (30%), Network protocols (20%), Aptitude (20%)",
+                        "ESP32/Arduino microcontroller configurations, MQTT client setup",
+                        "Hardware debugging, smart city application architectures"
+                    ],
+                    topics: [
+                        { name: "IoT Protocols & Systems", weight: "35%", bg: "var(--neon-pink)" },
+                        { name: "Embedded C & RTOS", weight: "25%", bg: "var(--neon-blue)" },
+                        { name: "Microcontrollers", weight: "20%", bg: "var(--neon-cyan)" },
+                        { name: "Quantitative Aptitude", weight: "20%", bg: "var(--neon-purple)" }
+                    ]
+                }
+            };
+            const flow = branchFlows[branchVal] || branchFlows.cse;
+            if (flowStepsContainer) {
+                flowStepsContainer.innerHTML = "";
+                flow.steps.forEach((step, idx) => {
+                    const stepDiv = document.createElement("div");
+                    stepDiv.className = "flow-step";
+                    stepDiv.innerHTML = `
+                        <div class="step-num">${idx + 1}</div>
+                        <div class="step-name">${idx === 0 ? 'Online Assessment' : idx === 1 ? 'Technical Interview' : 'HR & Managerial Round'}</div>
+                        <div class="step-details">${step}</div>
+                    `;
+                    flowStepsContainer.appendChild(stepDiv);
+                });
+            }
+        }
+
+        const distContainer = document.querySelector("#tab-hiring .hiring-distribution");
         if (distContainer) {
             distContainer.innerHTML = "";
-            flow.topics.forEach(t => {
-                const item = document.createElement("div");
-                item.className = "distribution-item";
-                item.innerHTML = `
-                    <span>${t.name}</span>
-                    <div class="distribution-bar"><span style="width: ${t.weight}; background: ${t.bg}"></span></div>
-                    <span>${t.weight}</span>
-                `;
-                distContainer.appendChild(item);
-            });
+            if (data.topics && Array.isArray(data.topics)) {
+                const colors = ["var(--neon-pink)", "var(--neon-blue)", "var(--neon-cyan)", "var(--neon-purple)", "var(--neon-yellow)"];
+                data.topics.forEach((topic, idx) => {
+                    const wStr = typeof topic.weight === 'number' ? `${topic.weight}%` : (topic.weight || "20%");
+                    const item = document.createElement("div");
+                    item.className = "distribution-item";
+                    item.innerHTML = `
+                        <span>${topic.name}</span>
+                        <div class="distribution-bar"><span style="width: ${wStr}; background: ${colors[idx % colors.length]}"></span></div>
+                        <span>${wStr}</span>
+                    `;
+                    distContainer.appendChild(item);
+                });
+            }
         }
     }
 
