@@ -1175,19 +1175,50 @@
                                     <input type="number" id="tax-deductions" value="0" placeholder="e.g. 25000">
                                 </div>
                             </div>
-                            
-                            <!-- Static Live Outputs Card inside form -->
-                            <div class="glass-card" style="padding: 1rem; border: 1px solid rgba(0, 240, 255, 0.15); background: rgba(0, 240, 255, 0.01); border-radius: 8px; font-size: 0.8rem;">
-                                <h5 style="color: var(--neon-blue); margin-bottom: 0.5rem; font-weight: 700;">Live Estimate (Standard Deductions Applied):</h5>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
-                                    <span>Old Regime Tax:</span>
-                                    <strong id="calc-old-tax" style="color: #fff;">Calculated on query...</strong>
+                                            <!-- Detailed Side-by-Side Breakdown Grid -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                <!-- Old Regime Card -->
+                                <div class="glass-card" style="padding: 0.75rem 1rem; border: 1px solid rgba(157, 78, 221, 0.2); background: rgba(157, 78, 221, 0.01); border-radius: 8px; font-size: 0.75rem;">
+                                    <h5 style="color: var(--neon-purple); margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Old Tax Regime</h5>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
+                                        <span>Monthly Gross:</span>
+                                        <span id="breakdown-old-gross">₹0</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
+                                        <span>PF Deductions:</span>
+                                        <span id="breakdown-old-pf" style="color: #ef4444;">- ₹0</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: var(--text-muted);">
+                                        <span>Income Tax/mo:</span>
+                                        <span id="breakdown-old-tax" style="color: #ef4444;">- ₹0</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
+                                        <strong style="color: #fff;">In-Hand Salary:</strong>
+                                        <strong id="breakdown-old-inhand" style="color: #fff;">₹0/mo</strong>
+                                    </div>
                                 </div>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span>New Regime Tax:</span>
-                                    <strong id="calc-new-tax" style="color: var(--neon-cyan);">Calculated on query...</strong>
+                                
+                                <!-- New Regime Card -->
+                                <div class="glass-card" style="padding: 0.75rem 1rem; border: 1px solid rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.01); border-radius: 8px; font-size: 0.75rem;">
+                                    <h5 style="color: var(--neon-blue); margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">New Tax Regime</h5>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
+                                        <span>Monthly Gross:</span>
+                                        <span id="breakdown-new-gross">₹0</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
+                                        <span>PF Deductions:</span>
+                                        <span id="breakdown-new-pf" style="color: #ef4444;">- ₹0</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: var(--text-muted);">
+                                        <span>Income Tax/mo:</span>
+                                        <span id="breakdown-new-tax" style="color: #ef4444;">- ₹0</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
+                                        <strong style="color: var(--neon-cyan);">In-Hand Salary:</strong>
+                                        <strong id="breakdown-new-inhand" style="color: var(--neon-cyan);">₹0/mo</strong>
+                                    </div>
                                 </div>
-                            </div>
+                            </div>       </div>
                         </div>
                         
                         <!-- Right Panel: Advisor AI Chatbot -->

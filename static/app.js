@@ -1512,8 +1512,84 @@ document.addEventListener("DOMContentLoaded", () => {
     const taxRent = document.getElementById("tax-rent");
     const taxCar = document.getElementById("tax-car");
     const taxDeductions = document.getElementById("tax-deductions");
-    const calcOldTaxText = document.getElementById("calc-old-tax");
-    const calcNewTaxText = document.getElementById("calc-new-tax");
+
+    function updateLiveTaxCalculations() {
+        if (!taxCtc) return;
+        const ctc = parseFloat(taxCtc.value) || 0;
+        const basicPct = parseFloat(taxBasic.value) || 0;
+        const vpfPct = parseFloat(taxVpf.value) || 0;
+        const rentPaid = parseFloat(taxRent.value) || 0;
+        const carPerk = parseFloat(taxCar.value) || 0;
+        const otherDeductions = parseFloat(taxDeductions.value) || 0;
+
+        const basic = ctc * (basicPct / 100);
+        const pfEmployee = Math.min(basic * 0.12, 180000);
+        const vpf = basic * (vpfPct / 100);
+
+        // Old Regime Tax
+        const stdDeductionOld = 50000;
+        const hraExemption = Math.max(0, Math.min(Math.max(0, rentPaid - (basic * 0.10)), basic * 0.40));
+        const sec80c = Math.min(pfEmployee + vpf + 150000, 150000);
+        const taxableOld = Math.max(0, ctc - stdDeductionOld - hraExemption - sec80c - otherDeductions);
+
+        let taxOld = 0;
+        if (taxableOld > 500000) {
+            if (taxableOld > 250000) taxOld += Math.min(taxableOld - 250000, 250000) * 0.05;
+            if (taxableOld > 500000) taxOld += Math.min(taxableOld - 500000, 500000) * 0.20;
+            if (taxableOld > 1000000) taxOld += (taxableOld - 1000000) * 0.30;
+        }
+        taxOld = Math.round(taxOld * 1.04);
+
+        // New Regime Tax
+        const stdDeductionNew = 75000;
+        const taxableNew = Math.max(0, ctc - stdDeductionNew - carPerk);
+        let taxNew = 0;
+        if (taxableNew > 700000) {
+            if (taxableNew > 300000) taxNew += Math.min(taxableNew - 300000, 300000) * 0.05;
+            if (taxableNew > 600000) taxNew += Math.min(taxableNew - 600000, 300000) * 0.10;
+            if (taxableNew > 900000) taxNew += Math.min(taxableNew - 900000, 300000) * 0.15;
+            if (taxableNew > 1200000) taxNew += Math.min(taxableNew - 1200000, 300000) * 0.20;
+            if (taxableNew > 1500000) taxNew += (taxableNew - 1500000) * 0.30;
+        }
+        taxNew = Math.round(taxNew * 1.04);
+
+        const monthlyGross = Math.round(ctc / 12);
+        const monthlyPf = Math.round(pfEmployee / 12);
+        const monthlyVpf = Math.round(vpf / 12);
+        const monthlyTaxOld = Math.round(taxOld / 12);
+        const monthlyTaxNew = Math.round(taxNew / 12);
+
+        const inhandOld = Math.max(0, monthlyGross - monthlyPf - monthlyVpf - monthlyTaxOld);
+        const inhandNew = Math.max(0, monthlyGross - monthlyPf - monthlyVpf - monthlyTaxNew);
+
+        const oldGrossEl = document.getElementById("breakdown-old-gross");
+        const oldPfEl = document.getElementById("breakdown-old-pf");
+        const oldTaxEl = document.getElementById("breakdown-old-tax");
+        const oldInhandEl = document.getElementById("breakdown-old-inhand");
+
+        const newGrossEl = document.getElementById("breakdown-new-gross");
+        const newPfEl = document.getElementById("breakdown-new-pf");
+        const newTaxEl = document.getElementById("breakdown-new-tax");
+        const newInhandEl = document.getElementById("breakdown-new-inhand");
+
+        if (oldGrossEl) oldGrossEl.textContent = "₹" + monthlyGross.toLocaleString("en-IN");
+        if (oldPfEl) oldPfEl.textContent = "- ₹" + (monthlyPf + monthlyVpf).toLocaleString("en-IN");
+        if (oldTaxEl) oldTaxEl.textContent = "- ₹" + monthlyTaxOld.toLocaleString("en-IN");
+        if (oldInhandEl) oldInhandEl.textContent = "₹" + inhandOld.toLocaleString("en-IN") + "/mo";
+
+        if (newGrossEl) newGrossEl.textContent = "₹" + monthlyGross.toLocaleString("en-IN");
+        if (newPfEl) newPfEl.textContent = "- ₹" + (monthlyPf + monthlyVpf).toLocaleString("en-IN");
+        if (newTaxEl) newTaxEl.textContent = "- ₹" + monthlyTaxNew.toLocaleString("en-IN");
+        if (newInhandEl) newInhandEl.textContent = "₹" + inhandNew.toLocaleString("en-IN") + "/mo";
+    }
+
+    if (taxCtc) {
+        [taxCtc, taxBasic, taxVpf, taxRent, taxCar, taxDeductions].forEach(input => {
+            if (input) input.addEventListener("input", updateLiveTaxCalculations);
+        });
+        // Initial run
+        updateLiveTaxCalculations();
+    }
 
     if (sendTaxBtn && taxPrompt) {
         const handleTaxQuery = () => {
@@ -1561,8 +1637,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.success) {
                     // Update Calculator display numbers
                     if (data.calculations) {
-                        calcOldTaxText.textContent = "₹" + data.calculations.old.tax_payable.toLocaleString("en-IN") + " (₹" + data.calculations.old.monthly_takehome.toLocaleString("en-IN") + "/mo in-hand)";
-                        calcNewTaxText.textContent = "₹" + data.calculations.new.tax_payable.toLocaleString("en-IN") + " (₹" + data.calculations.new.monthly_takehome.toLocaleString("en-IN") + "/mo in-hand)";
+                        updateLiveTaxCalculations();
                     }
 
                     // Format advice
