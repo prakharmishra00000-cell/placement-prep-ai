@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "abroad": { title: "Active Abroad Opportunities Feed", sub: "Explore visa sponsored positions and international job boards for all branches" },
         "exams": { title: "Active Competitive & Government Exams Feed", sub: "Track live national/international exam bulletins, syllabus, and registration forms" },
         "books": { title: "AI Book Store & Placement Library (Only Competitive Exam Books)", sub: "Search, fetch, and download reference engineering textbooks and guides instantly" },
+        "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
