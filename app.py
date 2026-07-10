@@ -2429,5 +2429,181 @@ We analyzed your salary parameters locally. Here are the exact tax calculations:
 """
     return jsonify({"success": True, "advice": offline_advice, "calculations": calcs})
 
+def get_serpapi_key():
+    val = os.environ.get("SEARCH_API_KEY", "").strip()
+    if val:
+        return val
+    if os.path.exists("config.json"):
+        try:
+            with open("config.json", "r") as f:
+                cfg = json.load(f)
+                return cfg.get("SEARCH_API_KEY", "").strip()
+        except:
+            pass
+    return ""
+
+def fetch_google_search_snippets(query):
+    key = get_serpapi_key()
+    if not key:
+        return []
+    url = "https://serpapi.com/search.json"
+    params = {
+        "q": query,
+        "api_key": key,
+        "hl": "en",
+        "gl": "in"
+    }
+    try:
+        r = requests.get(url, params=params, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            snippets = []
+            for result in data.get("organic_results", [])[:5]:
+                snippets.append(result.get("title", "") + ": " + result.get("snippet", ""))
+            return snippets
+    except Exception as e:
+        print("SerpAPI search error:", e)
+    return []
+
+def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
+    import os
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+
+    os.makedirs(os.path.join("static", "sheets"), exist_ok=True)
+    filename = f"{company_name.lower().replace(' ', '_')}_placement_sheet.pdf"
+    file_path = os.path.join("static", "sheets", filename)
+
+    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        textColor=colors.HexColor('#4c1d95'),
+        spaceAfter=15
+    )
+    
+    h2_style = ParagraphStyle(
+        'H2Style',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=12,
+        textColor=colors.HexColor('#0284c7'),
+        spaceBefore=12,
+        spaceAfter=6
+    )
+    
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9.5,
+        leading=14,
+        textColor=colors.HexColor('#374151')
+    )
+
+    story = []
+
+    story.append(Paragraph(f"{company_name} - Placement Prep Sheet", title_style))
+    story.append(Spacer(1, 8))
+
+    # Divider line
+    divider = Table([['']], colWidths=[530], rowHeights=[2])
+    divider.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#4c1d95')),
+        ('TOPPADDING', (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+    ]))
+    story.append(divider)
+    story.append(Spacer(1, 12))
+
+    sections = [
+        ("1. Company Overview", overview),
+        ("2. Selection Process", process),
+        ("3. CTC (Compensation Details)", ctc),
+        ("4. Eligibility Criteria", eligibility)
+    ]
+
+    for title, content in sections:
+        story.append(Paragraph(title, h2_style))
+        formatted_content = content.replace('\n', '<br/>')
+        story.append(Paragraph(formatted_content, body_style))
+        story.append(Spacer(1, 8))
+
+    story.append(Spacer(1, 15))
+    footer_text = Paragraph("<font color='#9ca3af'>Generated dynamically by PrepOS AI Placement Bot on " + datetime.now().strftime("%B %d, %Y") + "</font>", body_style)
+    story.append(footer_text)
+
+    doc.build(story)
+    return f"/static/sheets/{filename}"
+
+@app.route("/api/sheets/generate", methods=["POST"])
+def generate_company_sheet():
+    data = request.get_json() or {}
+    company_name = data.get("company", "").strip()
+    if not company_name:
+        return jsonify({"error": "Company name is required!"}), 400
+        
+    # 1. Fetch real-time web context from Google Search
+    search_query = f"{company_name} placement selection process eligibility CTC India"
+    search_results = fetch_google_search_snippets(search_query)
+    web_context = "\n".join(search_results) if search_results else "No live web results retrieved."
+    
+    # 2. Query Gemini to synthesize parameters
+    api_key = get_backend_gemini_key()
+    
+    overview = f"{company_name} is a global corporation. It is widely recognized for engineering and development operations globally."
+    process = "1. Online Aptitude & Coding Test\n2. Technical Interview Round 1\n3. Technical Interview Round 2\n4. HR Discussion"
+    ctc = "INR 6.5 LPA - 12.0 LPA (Base pay: 85%, Variable component: 15%)"
+    eligibility = "B.Tech / M.Tech (CSE, ECE, EEE, Mechanical, Civil branches), CGPA 6.0+ minimum, no active backlogs."
+
+    if api_key:
+        prompt = f"""
+        Analyze and compile placement information for: "{company_name}".
+        Use the following real-time Google search context as reference to make sure details are highly authentic and real:
+        ---
+        {web_context}
+        ---
+        
+        Provide the output in strict JSON format. Do not add markdown backticks. Just return a raw JSON object with these exact keys:
+        {{
+            "overview": "Detailed overview of what the company does, its main product/service lines, and scale in India.",
+            "process": "Step by step details of the recruitment rounds (e.g. aptitude test sections, coding rounds, tech interview expectations, HR).",
+            "ctc": "Authentic salary structures (e.g. range of packages, average pay for B.Tech grads, base salary component details).",
+            "eligibility": "Minimum CGPA, branch eligibility (CSE/ECE/Core mechanical), backlog restrictions, and other criteria."
+        }}
+        """
+        try:
+            resp = call_gemini_api(prompt, api_key)
+            if resp:
+                # Cleanup potential backtick wraps
+                cleaned = resp.strip()
+                if cleaned.startswith("```json"):
+                    cleaned = cleaned[7:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                
+                parsed = json.loads(cleaned)
+                overview = parsed.get("overview", overview)
+                process = parsed.get("process", process)
+                ctc = parsed.get("ctc", ctc)
+                eligibility = parsed.get("eligibility", eligibility)
+        except Exception as e:
+            print("Gemini sheet synthesis error:", e)
+            
+    # 3. Create PDF
+    try:
+        pdf_url = generate_pdf_sheet(company_name, overview, process, ctc, eligibility)
+        return jsonify({"success": True, "pdf_url": pdf_url})
+    except Exception as e:
+        return jsonify({"error": f"Failed to compile PDF sheet: {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
+

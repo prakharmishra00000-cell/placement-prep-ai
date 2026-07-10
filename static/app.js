@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "exams": { title: "Active Competitive & Government Exams Feed", sub: "Track live national/international exam bulletins, syllabus, and registration forms" },
         "books": { title: "AI Book Store & Placement Library (Only Competitive Exam Books)", sub: "Search, fetch, and download reference engineering textbooks and guides instantly" },
         "portfolio": { title: "AI Portfolio Generator", sub: "Build a beautiful, modern, shareable developer portfolio website from your links and resume instantly" },
+        "sheet-generator": { title: "Company Sheet PDF Generator", sub: "Generate comprehensive and authentic placement preparation sheets in PDF format using real-time search context" },
         "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
@@ -1602,6 +1603,56 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.key === "Enter") {
                 handleTaxQuery();
             }
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Company Sheet PDF Generator
+    // ----------------------------------------------------
+    const generateSheetBtn = document.getElementById("generate-pdf-sheet-btn");
+    const sheetCompanyInput = document.getElementById("sheet-company-name");
+    const sheetLoading = document.getElementById("sheet-loading");
+    const sheetResult = document.getElementById("sheet-result");
+    const sheetDownloadLink = document.getElementById("sheet-download-link");
+
+    if (generateSheetBtn) {
+        generateSheetBtn.addEventListener("click", () => {
+            const companyName = sheetCompanyInput.value.trim();
+            if (!companyName) {
+                alert("Please enter a target company name!");
+                return;
+            }
+
+            sheetResult.style.display = "none";
+            sheetLoading.style.display = "block";
+            generateSheetBtn.disabled = true;
+            generateSheetBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Researching & Generating PDF...';
+
+            fetch("/api/sheets/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ company: companyName })
+            })
+            .then(res => res.json())
+            .then(data => {
+                sheetLoading.style.display = "none";
+                generateSheetBtn.disabled = false;
+                generateSheetBtn.innerHTML = '<i class="fa-solid fa-file-export"></i> Compile & Generate PDF Sheet';
+
+                if (data.success && data.pdf_url) {
+                    sheetDownloadLink.href = data.pdf_url;
+                    sheetResult.style.display = "block";
+                } else {
+                    alert(data.error || "Failed to generate PDF sheet.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Failed to build PDF sheet due to network error.");
+                sheetLoading.style.display = "none";
+                generateSheetBtn.disabled = false;
+                generateSheetBtn.innerHTML = '<i class="fa-solid fa-file-export"></i> Compile & Generate PDF Sheet';
+            });
         });
     }
 
