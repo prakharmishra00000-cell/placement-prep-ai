@@ -2605,5 +2605,6 @@ def generate_company_sheet():
         return jsonify({"error": f"Failed to compile PDF sheet: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=9876)
+    port = int(os.environ.get("PORT", 9876))
+    app.run(host="0.0.0.0", port=port)
 
