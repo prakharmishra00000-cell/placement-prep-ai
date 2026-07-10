@@ -1503,183 +1503,726 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----------------------------------------------------
     // Tab: Indian Tax & Salary Advisor AI Bot
     // ----------------------------------------------------
-    const sendTaxBtn = document.getElementById("send-tax-advisor-query-btn");
-    const taxPrompt = document.getElementById("tax-advisor-prompt-input");
-    const taxChatHistory = document.getElementById("tax-advisor-chat-history");
-    const taxCtc = document.getElementById("tax-ctc");
-    const taxBasic = document.getElementById("tax-basic");
-    const taxVpf = document.getElementById("tax-vpf");
-    const taxRent = document.getElementById("tax-rent");
-    const taxCar = document.getElementById("tax-car");
-    const taxDeductions = document.getElementById("tax-deductions");
+    const inputCtc = document.getElementById('input-ctc');
+    const sliderCtc = document.getElementById('slider-ctc');
+    const selectPf = document.getElementById('select-pf');
+    const selectRegime = document.getElementById('select-regime');
+    const inputBasicPct = document.getElementById('input-basic-pct');
+    const selectState = document.getElementById('select-state');
+    const inputRent = document.getElementById('input-rent');
+    const selectCityType = document.getElementById('select-city-type');
+    const inputDed80c = document.getElementById('input-ded-80c');
+    const inputDed80d = document.getElementById('input-ded-80d');
+    const inputDedNps = document.getElementById('input-ded-nps');
+    const inputDed24b = document.getElementById('input-ded-24b');
+    
+    const inputCorpNps = document.getElementById('input-corp-nps');
+    const inputHraPct = document.getElementById('input-hra-pct');
+    const inputVpfPct = document.getElementById('input-vpf-pct');
+    const selectCarEngine = document.getElementById('select-car-engine');
+    const checkDriver = document.getElementById('check-driver');
+    const inputHouseRent = document.getElementById('input-house-rent');
+    const inputHouseTaxes = document.getElementById('input-house-taxes');
+    const optTipsContainer = document.getElementById('opt-tips-container');
 
-    function updateLiveTaxCalculations() {
-        if (!taxCtc) return;
-        const ctc = parseFloat(taxCtc.value) || 0;
-        const basicPct = parseFloat(taxBasic.value) || 0;
-        const vpfPct = parseFloat(taxVpf.value) || 0;
-        const rentPaid = parseFloat(taxRent.value) || 0;
-        const carPerk = parseFloat(taxCar.value) || 0;
-        const otherDeductions = parseFloat(taxDeductions.value) || 0;
+    const checkGratuity = document.getElementById('check-gratuity');
+    
+    const ctcValText = document.getElementById('ctc-val-text');
+    const monthlyInhandValue = document.getElementById('monthly-inhand-value');
+    const recommendedRegimeBadge = document.getElementById('recommended-regime-badge');
+    const inhandPctDisplay = document.getElementById('inhand-pct-display');
+    const inhandProgressRing = document.getElementById('inhand-progress-ring');
+    
+    const breakdownCtc = document.getElementById('breakdown-ctc');
+    const breakdownEpf = document.getElementById('breakdown-epf');
+    const breakdownGratuity = document.getElementById('breakdown-gratuity');
+    const breakdownPt = document.getElementById('breakdown-pt');
+    const breakdownPf = document.getElementById('breakdown-pf');
+    const breakdownTax = document.getElementById('breakdown-tax');
+    const breakdownInhand = document.getElementById('breakdown-inhand');
+    
+    const comparisonTaxNew = document.getElementById('comparison-tax-new');
+    const comparisonInhandNew = document.getElementById('comparison-inhand-new');
+    const comparisonTaxOld = document.getElementById('comparison-tax-old');
+    const comparisonInhandOld = document.getElementById('comparison-inhand-old');
+    const badgeBestNew = document.getElementById('badge-best-new');
+    const badgeBestOld = document.getElementById('badge-best-old');
+    const regimeComparisonAdvice = document.getElementById('regime-comparison-advice');
+    
+    const btnShowMonthly = document.getElementById('btn-show-monthly');
+    const btnShowAnnually = document.getElementById('btn-show-annually');
+    const advSettingsTrigger = document.getElementById('adv-settings-trigger');
+    const btnExportPdf = document.getElementById('btn-export-pdf');
+    
+    const chatMessages = document.getElementById('chat-messages');
+    const chatChips = document.getElementById('chat-chips');
+    const chatInput = document.getElementById('chat-input');
+    const btnChatSend = document.getElementById('btn-chat-send');
+    const btnSaveScenario = document.getElementById('btn-save-scenario');
+    const compareScenariosGrid = document.getElementById('compare-scenarios-grid');
+    
+    let displayMode = 'monthly';
+    let myChart = null;
+    
+    let currentCalcState = {
+        ctc: 0,
+        basicSalary: 0,
+        annualEmployerPf: 0,
+        annualEmployeePf: 0,
+        annualGratuity: 0,
+        annualPT: 0,
+        newTax: 0,
+        oldTax: 0,
+        newInHand: 0,
+        oldInHand: 0,
+        recommendedRegime: 'New Regime'
+    };
 
-        const basic = ctc * (basicPct / 100);
-        const pfEmployee = Math.min(basic * 0.12, 180000);
-        const vpf = basic * (vpfPct / 100);
-
-        // Old Regime Tax
-        const stdDeductionOld = 50000;
-        const hraExemption = Math.max(0, Math.min(Math.max(0, rentPaid - (basic * 0.10)), basic * 0.40));
-        const sec80c = Math.min(pfEmployee + vpf + 150000, 150000);
-        const taxableOld = Math.max(0, ctc - stdDeductionOld - hraExemption - sec80c - otherDeductions);
-
-        let taxOld = 0;
-        if (taxableOld > 500000) {
-            if (taxableOld > 250000) taxOld += Math.min(taxableOld - 250000, 250000) * 0.05;
-            if (taxableOld > 500000) taxOld += Math.min(taxableOld - 500000, 500000) * 0.20;
-            if (taxableOld > 1000000) taxOld += (taxableOld - 1000000) * 0.30;
-        }
-        taxOld = Math.round(taxOld * 1.04);
-
-        // New Regime Tax
-        const stdDeductionNew = 75000;
-        const taxableNew = Math.max(0, ctc - stdDeductionNew - carPerk);
-        let taxNew = 0;
-        if (taxableNew > 700000) {
-            if (taxableNew > 300000) taxNew += Math.min(taxableNew - 300000, 300000) * 0.05;
-            if (taxableNew > 600000) taxNew += Math.min(taxableNew - 600000, 300000) * 0.10;
-            if (taxableNew > 900000) taxNew += Math.min(taxableNew - 900000, 300000) * 0.15;
-            if (taxableNew > 1200000) taxNew += Math.min(taxableNew - 1200000, 300000) * 0.20;
-            if (taxableNew > 1500000) taxNew += (taxableNew - 1500000) * 0.30;
-        }
-        taxNew = Math.round(taxNew * 1.04);
-
-        const monthlyGross = Math.round(ctc / 12);
-        const monthlyPf = Math.round(pfEmployee / 12);
-        const monthlyVpf = Math.round(vpf / 12);
-        const monthlyTaxOld = Math.round(taxOld / 12);
-        const monthlyTaxNew = Math.round(taxNew / 12);
-
-        const inhandOld = Math.max(0, monthlyGross - monthlyPf - monthlyVpf - monthlyTaxOld);
-        const inhandNew = Math.max(0, monthlyGross - monthlyPf - monthlyVpf - monthlyTaxNew);
-
-        const oldGrossEl = document.getElementById("breakdown-old-gross");
-        const oldPfEl = document.getElementById("breakdown-old-pf");
-        const oldTaxEl = document.getElementById("breakdown-old-tax");
-        const oldInhandEl = document.getElementById("breakdown-old-inhand");
-
-        const newGrossEl = document.getElementById("breakdown-new-gross");
-        const newPfEl = document.getElementById("breakdown-new-pf");
-        const newTaxEl = document.getElementById("breakdown-new-tax");
-        const newInhandEl = document.getElementById("breakdown-new-inhand");
-
-        if (oldGrossEl) oldGrossEl.textContent = "₹" + monthlyGross.toLocaleString("en-IN");
-        if (oldPfEl) oldPfEl.textContent = "- ₹" + (monthlyPf + monthlyVpf).toLocaleString("en-IN");
-        if (oldTaxEl) oldTaxEl.textContent = "- ₹" + monthlyTaxOld.toLocaleString("en-IN");
-        if (oldInhandEl) oldInhandEl.textContent = "₹" + inhandOld.toLocaleString("en-IN") + "/mo";
-
-        if (newGrossEl) newGrossEl.textContent = "₹" + monthlyGross.toLocaleString("en-IN");
-        if (newPfEl) newPfEl.textContent = "- ₹" + (monthlyPf + monthlyVpf).toLocaleString("en-IN");
-        if (newTaxEl) newTaxEl.textContent = "- ₹" + monthlyTaxNew.toLocaleString("en-IN");
-        if (newInhandEl) newInhandEl.textContent = "₹" + inhandNew.toLocaleString("en-IN") + "/mo";
-    }
-
-    if (taxCtc) {
-        [taxCtc, taxBasic, taxVpf, taxRent, taxCar, taxDeductions].forEach(input => {
-            if (input) input.addEventListener("input", updateLiveTaxCalculations);
+    if (advSettingsTrigger) {
+        advSettingsTrigger.addEventListener('click', () => {
+            const item = advSettingsTrigger.closest('.accordion-item');
+            if (item) item.classList.toggle('active');
         });
-        // Initial run
-        updateLiveTaxCalculations();
     }
 
-    if (sendTaxBtn && taxPrompt) {
-        const handleTaxQuery = () => {
-            const promptVal = taxPrompt.value.trim();
-            if (!promptVal) return;
+    if (btnShowMonthly) {
+        btnShowMonthly.addEventListener('click', () => {
+            displayMode = 'monthly';
+            btnShowMonthly.classList.add('active');
+            btnShowAnnually.classList.remove('active');
+            calculateAndDisplay();
+        });
+    }
 
-            // Append user prompt to chat
-            const userMsg = document.createElement("div");
-            userMsg.style.marginBottom = "0.75rem";
-            userMsg.style.color = "#fff";
-            userMsg.innerHTML = `<strong>You:</strong> ${promptVal}`;
-            taxChatHistory.appendChild(userMsg);
-            taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
+    if (btnShowAnnually) {
+        btnShowAnnually.addEventListener('click', () => {
+            displayMode = 'annually';
+            btnShowAnnually.classList.add('active');
+            btnShowMonthly.classList.remove('active');
+            calculateAndDisplay();
+        });
+    }
 
-            taxPrompt.value = "";
-            sendTaxBtn.disabled = true;
-            sendTaxBtn.textContent = "...";
+    if (inputCtc && sliderCtc) {
+        inputCtc.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value) || 0;
+            if (val > 100000000) val = 100000000;
+            sliderCtc.value = val;
+            calculateAndDisplay();
+        });
 
-            // Append bot waiting loader
-            const botLoadingMsg = document.createElement("div");
-            botLoadingMsg.id = "bot-tax-loading-placeholder";
-            botLoadingMsg.style.color = "var(--neon-purple)";
-            botLoadingMsg.innerHTML = '<strong>Bot:</strong> Analyzing regimes and compiling compliance structures... <i class="fa-solid fa-spinner fa-spin"></i>';
-            taxChatHistory.appendChild(botLoadingMsg);
-            taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
+        sliderCtc.addEventListener('input', (e) => {
+            inputCtc.value = e.target.value;
+            calculateAndDisplay();
+        });
+    }
 
-            fetch("/api/tax/advise", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ctc: parseFloat(taxCtc.value) || 0,
-                    basic_pct: parseFloat(taxBasic.value) || 0,
-                    vpf_pct: parseFloat(taxVpf.value) || 0,
-                    rent_paid: parseFloat(taxRent.value) || 0,
-                    car_perk: parseFloat(taxCar.value) || 0,
-                    other_deductions: parseFloat(taxDeductions.value) || 0,
-                    question: promptVal
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const loader = document.getElementById("bot-tax-loading-placeholder");
-                if (loader) loader.remove();
+    const presets = document.querySelectorAll('#tab-tax-advisor .btn-preset');
+    presets.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const val = btn.getAttribute('data-val');
+            if (inputCtc && sliderCtc) {
+                inputCtc.value = val;
+                sliderCtc.value = val;
+                calculateAndDisplay();
+            }
+        });
+    });
 
-                if (data.success) {
-                    // Update Calculator display numbers
-                    if (data.calculations) {
-                        updateLiveTaxCalculations();
-                    }
+    const formElements = [
+        selectPf, selectRegime, inputBasicPct, selectState, inputRent, selectCityType, 
+        inputDed80c, inputDed80d, inputDedNps, inputDed24b, checkGratuity,
+        inputCorpNps, inputHraPct, inputVpfPct, selectCarEngine, checkDriver, inputHouseRent, inputHouseTaxes
+    ];
+    formElements.forEach(el => {
+        if (el) {
+            el.addEventListener('change', calculateAndDisplay);
+            el.addEventListener('input', calculateAndDisplay);
+        }
+    });
 
-                    // Format advice
-                    const botReply = document.createElement("div");
-                    botReply.style.marginBottom = "0.75rem";
-                    botReply.style.color = "var(--neon-cyan)";
-                    botReply.innerHTML = `<strong>Bot:</strong><div style="margin-top: 0.25rem; white-space: pre-wrap;">${data.advice}</div>`;
-                    taxChatHistory.appendChild(botReply);
-                } else {
-                    const botReply = document.createElement("div");
-                    botReply.style.marginBottom = "0.75rem";
-                    botReply.style.color = "red";
-                    botReply.innerHTML = `<strong>Bot:</strong> Error: ${data.error || "Failed to process query."}`;
-                    taxChatHistory.appendChild(botReply);
-                }
-                taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
-                sendTaxBtn.disabled = false;
-                sendTaxBtn.textContent = "Ask Advisor";
-            })
-            .catch(err => {
-                console.error(err);
-                const loader = document.getElementById("bot-tax-loading-placeholder");
-                if (loader) loader.remove();
+    if (btnExportPdf) {
+        btnExportPdf.addEventListener('click', () => {
+            window.print();
+        });
+    }
 
-                const botReply = document.createElement("div");
-                botReply.style.marginBottom = "0.75rem";
-                botReply.style.color = "red";
-                botReply.innerHTML = `<strong>Bot:</strong> Error: Connection failed.`;
-                taxChatHistory.appendChild(botReply);
-                taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
-                sendTaxBtn.disabled = false;
-                sendTaxBtn.textContent = "Ask Advisor";
-            });
+    function formatINR(amount) {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+        }).format(amount);
+    }
+
+    function calculateNewRegimeTaxWithoutSurcharge(taxableIncome) {
+        if (taxableIncome <= 0) return 0;
+        let tax = 0;
+        if (taxableIncome <= 400000) {
+            tax = 0;
+        } else if (taxableIncome <= 800000) {
+            tax = (taxableIncome - 400000) * 0.05;
+        } else if (taxableIncome <= 1200000) {
+            tax = (400000 * 0.05) + (taxableIncome - 800000) * 0.10;
+        } else if (taxableIncome <= 1600000) {
+            tax = (400000 * 0.05) + (400000 * 0.10) + (taxableIncome - 1200000) * 0.15;
+        } else if (taxableIncome <= 2400000) {
+            tax = (400000 * 0.05) + (400000 * 0.10) + (400000 * 0.15) + (taxableIncome - 1600000) * 0.20;
+        } else {
+            tax = (400000 * 0.05) + (400000 * 0.10) + (400000 * 0.15) + (800000 * 0.20) + (taxableIncome - 2400000) * 0.30;
+        }
+        if (taxableIncome <= 1200000) tax = 0;
+        return tax;
+    }
+
+    function calculateOldRegimeTaxWithoutSurcharge(taxableIncome) {
+        if (taxableIncome <= 0) return 0;
+        let tax = 0;
+        if (taxableIncome <= 250000) {
+            tax = 0;
+        } else if (taxableIncome <= 500000) {
+            tax = (taxableIncome - 250000) * 0.05;
+        } else if (taxableIncome <= 1000000) {
+            tax = (250000 * 0.05) + (taxableIncome - 500000) * 0.20;
+        } else {
+            tax = (250000 * 0.05) + (500000 * 0.20) + (taxableIncome - 1000000) * 0.30;
+        }
+        if (taxableIncome <= 500000) tax = 0;
+        return tax;
+    }
+
+    function calculateSurchargeAndRelief(taxableIncome, baseTax, regime) {
+        if (baseTax <= 0) return 0;
+        let surchargeRate = 0;
+        let threshold = 0;
+        if (regime === 'new') {
+            if (taxableIncome > 20000000) {
+                surchargeRate = 0.25;
+                threshold = 20000000;
+            } else if (taxableIncome > 10000000) {
+                surchargeRate = 0.15;
+                threshold = 10000000;
+            } else if (taxableIncome > 5000000) {
+                surchargeRate = 0.10;
+                threshold = 5000000;
+            }
+        } else {
+            if (taxableIncome > 50000000) {
+                surchargeRate = 0.37;
+                threshold = 50000000;
+            } else if (taxableIncome > 20000000) {
+                surchargeRate = 0.25;
+                threshold = 20000000;
+            } else if (taxableIncome > 10000000) {
+                surchargeRate = 0.15;
+                threshold = 10000000;
+            } else if (taxableIncome > 5000000) {
+                surchargeRate = 0.10;
+                threshold = 5000000;
+            }
+        }
+        if (surchargeRate === 0) return 0;
+        const rawSurcharge = baseTax * surchargeRate;
+        const totalTaxWithSurcharge = baseTax + rawSurcharge;
+        let baseTaxAtThreshold = regime === 'new' ? calculateNewRegimeTaxWithoutSurcharge(threshold) : calculateOldRegimeTaxWithoutSurcharge(threshold);
+        let surchargeRateAtThreshold = threshold === 20000000 ? 0.15 : (threshold === 10000000 ? 0.10 : 0);
+        const surchargeAtThreshold = baseTaxAtThreshold * surchargeRateAtThreshold;
+        const totalTaxAtThreshold = baseTaxAtThreshold + surchargeAtThreshold;
+        const excessIncome = taxableIncome - threshold;
+        const maxAllowedTax = totalTaxAtThreshold + excessIncome;
+        if (totalTaxWithSurcharge > maxAllowedTax) {
+            return Math.max(0, maxAllowedTax - baseTax);
+        }
+        return rawSurcharge;
+    }
+
+    function calculateNewRegimeTax(taxableIncome) {
+        if (taxableIncome <= 0) return 0;
+        const baseTax = calculateNewRegimeTaxWithoutSurcharge(taxableIncome);
+        const surcharge = calculateSurchargeAndRelief(taxableIncome, baseTax, 'new');
+        let totalTax = baseTax + surcharge;
+        if (totalTax > 0) totalTax += totalTax * 0.04;
+        return totalTax;
+    }
+
+    function calculateOldRegimeTax(taxableIncome) {
+        if (taxableIncome <= 0) return 0;
+        const baseTax = calculateOldRegimeTaxWithoutSurcharge(taxableIncome);
+        const surcharge = calculateSurchargeAndRelief(taxableIncome, baseTax, 'old');
+        let totalTax = baseTax + surcharge;
+        if (totalTax > 0) totalTax += totalTax * 0.04;
+        return totalTax;
+    }
+
+    function calculateAndDisplay() {
+        if (!inputCtc) return;
+        const ctc = parseFloat(inputCtc.value) || 0;
+        if (ctcValText) ctcValText.innerText = ctc.toLocaleString('en-IN');
+        
+        const basicPct = (parseFloat(inputBasicPct.value) || 50) / 100;
+        const basicSalary = ctc * basicPct;
+        
+        const hasGratuity = checkGratuity ? checkGratuity.checked : true;
+        const annualGratuity = hasGratuity ? (basicSalary * 0.0481) : 0;
+        
+        const pfMode = selectPf ? selectPf.value : '12basic';
+        let annualEmployerPf = 0;
+        let annualEmployeePf = 0;
+        if (pfMode === '12basic') {
+            annualEmployerPf = basicSalary * 0.12;
+            annualEmployeePf = basicSalary * 0.12;
+        } else if (pfMode === 'capped') {
+            annualEmployerPf = Math.min(21600, basicSalary * 0.12);
+            annualEmployeePf = Math.min(21600, basicSalary * 0.12);
+        }
+        
+        const annualGrossSalary = Math.max(0, ctc - annualEmployerPf - annualGratuity);
+        const stateCode = selectState ? selectState.value : 'kar';
+        const monthlyGrossLimit = annualGrossSalary / 12;
+        let annualPT = 0;
+        if (stateCode === 'kar') {
+            annualPT = (monthlyGrossLimit > 25000) ? 2400 : 0;
+        } else if (stateCode === 'mah') {
+            annualPT = (monthlyGrossLimit > 10000) ? 2500 : (monthlyGrossLimit > 7500 ? 2100 : 0);
+        } else if (stateCode === 'tam') {
+            const halfYearlyGross = monthlyGrossLimit * 6;
+            let halfYearlyPT = halfYearlyGross <= 21000 ? 0 : (halfYearlyGross <= 30000 ? 135 : (halfYearlyGross <= 45000 ? 315 : (halfYearlyGross <= 60000 ? 690 : (halfYearlyGross <= 75000 ? 1025 : 1250))));
+            annualPT = halfYearlyPT * 2;
+        } else if (stateCode === 'tel') {
+            annualPT = (monthlyGrossLimit > 20000) ? 2400 : (monthlyGrossLimit > 15000 ? 1800 : 0);
+        } else if (stateCode === 'wbe') {
+            annualPT = (monthlyGrossLimit > 40000) ? 2400 : (monthlyGrossLimit > 25000 ? 1800 : (monthlyGrossLimit > 15000 ? 1560 : (monthlyGrossLimit > 10000 ? 1320 : 0)));
+        } else if (stateCode === 'guj') {
+            annualPT = (monthlyGrossLimit > 12000) ? 2400 : 0;
+        } else {
+            annualPT = (annualGrossSalary > 150000) ? 2500 : 0;
+        }
+        
+        const vpfPct = (parseFloat(inputVpfPct ? inputVpfPct.value : 0) || 0) / 100;
+        const annualVPF = basicSalary * vpfPct;
+
+        const monthlyRent = parseFloat(inputRent ? inputRent.value : 0) || 0;
+        const annualRent = monthlyRent * 12;
+        const cityType = selectCityType ? selectCityType.value : 'nonmetro';
+        const hraPct = (parseFloat(inputHraPct ? inputHraPct.value : 40) || 40) / 100;
+        const hraComponent = basicSalary * hraPct;
+        let annualHraExemption = 0;
+        if (annualRent > 0) {
+            const rentMinusTenBasic = Math.max(0, annualRent - (basicSalary * 0.1));
+            annualHraExemption = Math.min(hraComponent, rentMinusTenBasic, basicSalary * (cityType === 'metro' ? 0.5 : 0.4));
+        }
+
+        const corpNpsPct = (parseFloat(inputCorpNps ? inputCorpNps.value : 0) || 0) / 100;
+        const annualCorpNpsDeduction = basicSalary * corpNpsPct;
+
+        const carEngine = selectCarEngine ? selectCarEngine.value : 'none';
+        const hasDriver = checkDriver ? checkDriver.checked : false;
+        let annualCarPerq = 0;
+        if (carEngine === 'small') annualCarPerq += 1800 * 12;
+        else if (carEngine === 'large') annualCarPerq += 2400 * 12;
+        if (carEngine !== 'none' && hasDriver) annualCarPerq += 900 * 12;
+
+        const houseRent = parseFloat(inputHouseRent ? inputHouseRent.value : 0) || 0;
+        const houseTaxes = parseFloat(inputHouseTaxes ? inputHouseTaxes.value : 0) || 0;
+        const manual24b = parseFloat(inputDed24b ? inputDed24b.value : 0) || 0;
+        const netRentalIncome = Math.max(0, (houseRent - houseTaxes) * 0.70);
+        const oldHouseOffset = Math.max(-200000, netRentalIncome - manual24b);
+        const newHouseOffset = Math.max(0, netRentalIncome - manual24b);
+
+        const manual80C = parseFloat(inputDed80c ? inputDed80c.value : 150000) || 0;
+        const manual80D = parseFloat(inputDed80d ? inputDed80d.value : 25000) || 0;
+        const manualNps = parseFloat(inputDedNps ? inputDedNps.value : 0) || 0;
+        const total80C = Math.min(150000, manual80C + annualEmployeePf + annualVPF);
+        const total80D = Math.min(75000, manual80D);
+        const totalNps = Math.min(50000, manualNps);
+        
+        const oldDeductions = total80C + total80D + totalNps + annualHraExemption + 50000;
+        const oldTaxableIncome = Math.max(0, annualGrossSalary - oldDeductions - annualCorpNpsDeduction + annualCarPerq + oldHouseOffset);
+        const oldTax = calculateOldRegimeTax(oldTaxableIncome);
+        const oldInHand = Math.max(0, annualGrossSalary - annualEmployeePf - annualVPF - annualPT - oldTax);
+        
+        const newDeductions = 75000;
+        const newTaxableIncome = Math.max(0, annualGrossSalary - newDeductions - annualCorpNpsDeduction + annualCarPerq + newHouseOffset);
+        const newTax = calculateNewRegimeTax(newTaxableIncome);
+        const newInHand = Math.max(0, annualGrossSalary - annualEmployeePf - annualVPF - annualPT - newTax);
+        
+        const selectedMode = selectRegime ? selectRegime.value : 'compare';
+        let recommendedRegime = 'New Regime';
+        let finalTax = newTax;
+        let finalInHand = newInHand;
+        
+        if (selectedMode === 'compare') {
+            if (newInHand >= oldInHand) {
+                recommendedRegime = 'New Regime';
+                finalTax = newTax;
+                finalInHand = newInHand;
+            } else {
+                recommendedRegime = 'Old Regime';
+                finalTax = oldTax;
+                finalInHand = oldInHand;
+            }
+        } else if (selectedMode === 'new') {
+            recommendedRegime = 'New Regime';
+            finalTax = newTax;
+            finalInHand = newInHand;
+        } else if (selectedMode === 'old') {
+            recommendedRegime = 'Old Regime';
+            finalTax = oldTax;
+            finalInHand = oldInHand;
+        }
+        
+        currentCalcState = {
+            ctc, basicSalary, annualEmployerPf, annualEmployeePf, annualGratuity, annualPT,
+            newTax, oldTax, newInHand, oldInHand, recommendedRegime, oldDeductions,
+            annualHraExemption, annualCorpNpsDeduction, annualVPF, annualCarPerq, oldHouseOffset, newHouseOffset
         };
+        
+        const mult = displayMode === 'monthly' ? (1/12) : 1;
+        if (monthlyInhandValue) monthlyInhandValue.innerText = formatINR(finalInHand / 12);
+        if (recommendedRegimeBadge) {
+            recommendedRegimeBadge.innerText = recommendedRegime;
+            recommendedRegimeBadge.className = `best-badge text-success`;
+        }
+        
+        const pctInHand = Math.round((finalInHand / ctc) * 100) || 0;
+        if (inhandPctDisplay) inhandPctDisplay.innerText = pctInHand;
+        if (inhandProgressRing) {
+            const circumference = 2 * Math.PI * 38;
+            inhandProgressRing.style.strokeDashoffset = circumference - (pctInHand / 100) * circumference;
+        }
+        
+        if (breakdownCtc) breakdownCtc.innerText = formatINR(ctc * mult);
+        if (breakdownEpf) breakdownEpf.innerText = `- ` + formatINR(annualEmployerPf * mult);
+        if (breakdownGratuity) breakdownGratuity.innerText = `- ` + formatINR(annualGratuity * mult);
+        if (breakdownPt) breakdownPt.innerText = `- ` + formatINR(annualPT * mult);
+        if (breakdownPf) breakdownPf.innerText = `- ` + formatINR((annualEmployeePf + annualVPF) * mult);
+        if (breakdownTax) breakdownTax.innerText = `- ` + formatINR(finalTax * mult);
+        if (breakdownInhand) breakdownInhand.innerText = formatINR(finalInHand * mult);
+        
+        if (comparisonTaxNew) comparisonTaxNew.innerText = formatINR(newTax);
+        if (comparisonInhandNew) comparisonInhandNew.innerText = formatINR(newInHand / 12) + '/mo';
+        if (comparisonTaxOld) comparisonTaxOld.innerText = formatINR(oldTax);
+        if (comparisonInhandOld) comparisonInhandOld.innerText = formatINR(oldInHand / 12) + '/mo';
+        
+        if (badgeBestNew && badgeBestOld && regimeComparisonAdvice) {
+            if (newInHand >= oldInHand) {
+                badgeBestNew.style.display = 'inline-block';
+                badgeBestOld.style.display = 'none';
+                const diff = newInHand - oldInHand;
+                regimeComparisonAdvice.innerText = diff > 0 ? `Saving ${formatINR(diff)} annually by choosing the New Tax Regime.` : `Both regimes offer identical take-home pay.`;
+            } else {
+                badgeBestNew.style.display = 'none';
+                badgeBestOld.style.display = 'inline-block';
+                const diff = oldInHand - newInHand;
+                regimeComparisonAdvice.innerText = `Saving ${formatINR(diff)} annually by choosing the Old Tax Regime.`;
+            }
+        }
+        
+        renderChart(finalInHand, finalTax, annualEmployeePf + annualEmployerPf + annualVPF, annualGratuity, annualPT);
+        updateOptimizationTips();
+    }
 
-        sendTaxBtn.addEventListener("click", handleTaxQuery);
-        taxPrompt.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                handleTaxQuery();
+    function updateOptimizationTips() {
+        if (!optTipsContainer) return;
+        optTipsContainer.innerHTML = '';
+        const tips = [];
+        const state = currentCalcState;
+        
+        const manual80C = parseFloat(inputDed80c ? inputDed80c.value : 0) || 0;
+        const total80C = Math.min(150000, manual80C + state.annualEmployeePf + state.annualVPF);
+        const remaining80C = 150000 - total80C;
+        if (remaining80C > 2000 && state.recommendedRegime === 'Old Regime' && state.oldTax > 0) {
+            tips.push({
+                title: "Maximize Section 80C",
+                desc: `You have ₹${remaining80C.toLocaleString('en-IN')} remaining limit. Invest in ELSS, PPF, or raise VPF to save tax.`,
+                saving: `Save up to ${formatINR(remaining80C * 0.312)}`
+            });
+        }
+        
+        const currentCorpNpsPct = (parseFloat(inputCorpNps ? inputCorpNps.value : 0) || 0) / 100;
+        if (currentCorpNpsPct < 0.10) {
+            const extraEligible = state.basicSalary * (0.10 - currentCorpNpsPct);
+            if (extraEligible > 2000 && (state.newTax > 0 || state.oldTax > 0)) {
+                tips.push({
+                    title: "Opt for Corporate NPS (Sec 80CCD(2))",
+                    desc: "Ask your employer to contribute 10% of basic salary to NPS. It is fully tax-exempt under both regimes!",
+                    saving: "Save 10% to 30%"
+                });
+            }
+        }
+
+        const manual80D = parseFloat(inputDed80d ? inputDed80d.value : 0) || 0;
+        if (manual80D < 75000 && state.recommendedRegime === 'Old Regime' && state.oldTax > 0) {
+            tips.push({
+                title: "Claim Health Insurance (Sec 80D)",
+                desc: "Purchase health insurance premiums for self and senior citizen parents to lower old regime taxable salary.",
+                saving: "Highly Tax Deductible"
+            });
+        }
+
+        if (tips.length === 0) {
+            tips.push({
+                title: "Your Tax is Optimized!",
+                desc: "Great job! You have fully utilized your tax deductions or fall under a zero-tax slab bracket.",
+                saving: "Maximized"
+            });
+        }
+        
+        tips.slice(0, 3).forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'opt-tip-card';
+            div.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 0.25rem; max-width: 75%;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: #fff;">${tip.title}</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">${tip.desc}</span>
+                </div>
+                <div class="opt-tip-saving">${tip.saving}</div>
+            `;
+            optTipsContainer.appendChild(div);
+        });
+    }
+
+    function renderChart(inhand, tax, pf, gratuity, pt) {
+        if (!document.getElementById('ctc-pie-chart')) return;
+        const dataVals = [inhand, tax, pf, gratuity, pt];
+        const labels = ['In-Hand', 'Income Tax (TDS)', 'Provident Fund (PF)', 'Gratuity Deduction', 'Professional Tax'];
+        
+        const activeIndexes = dataVals.map((val, idx) => val > 0 ? idx : -1).filter(idx => idx !== -1);
+        const filteredData = activeIndexes.map(idx => dataVals[idx]);
+        const filteredLabels = activeIndexes.map(idx => labels[idx]);
+        const baseColors = ['#3b82f6', '#ef4444', '#a855f7', '#f59e0b', '#6b7280'];
+        const filteredColors = activeIndexes.map(idx => baseColors[idx]);
+        
+        if (myChart) {
+            myChart.data.labels = filteredLabels;
+            myChart.data.datasets[0].data = filteredData;
+            myChart.data.datasets[0].backgroundColor = filteredColors;
+            myChart.update();
+        } else {
+            const ctx = document.getElementById('ctc-pie-chart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        data: filteredData,
+                        backgroundColor: filteredColors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return (context.label || '') + ': ' + formatINR(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    let savedScenarios = JSON.parse(localStorage.getItem('saved_salary_scenarios')) || [];
+    renderScenarios();
+
+    if (btnSaveScenario) {
+        btnSaveScenario.addEventListener('click', () => {
+            const state = currentCalcState;
+            const scenarioName = prompt("Enter a label for this offer scenario (e.g. 'Company A Offer', 'Standard Capped PF'):");
+            if (scenarioName) {
+                const newScenario = {
+                    id: Date.now(),
+                    name: scenarioName,
+                    ctc: state.ctc,
+                    monthlyInhand: (state.recommendedRegime === 'New Regime' ? state.newInHand : state.oldInHand) / 12,
+                    regime: state.recommendedRegime,
+                    annualTax: state.recommendedRegime === 'New Regime' ? state.newTax : state.oldTax,
+                    pf: state.annualEmployeePf + state.annualEmployerPf + state.annualVPF,
+                    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                };
+                savedScenarios.push(newScenario);
+                localStorage.setItem('saved_salary_scenarios', JSON.stringify(savedScenarios));
+                renderScenarios();
             }
         });
     }
+
+    function renderScenarios() {
+        if (!compareScenariosGrid) return;
+        if (savedScenarios.length === 0) {
+            compareScenariosGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 0.75rem; margin: 1rem 0;">No saved scenarios. Set your numbers and click "Save Current Setup" to compare offers side-by-side!</p>`;
+            return;
+        }
+        
+        compareScenariosGrid.innerHTML = '';
+        const baseInhand = savedScenarios[0].monthlyInhand;
+        
+        savedScenarios.forEach((sc, index) => {
+            const card = document.createElement('div');
+            card.className = 'scenario-card';
+            
+            const delta = sc.monthlyInhand - baseInhand;
+            let deltaBadge = '';
+            if (index > 0) {
+                if (delta > 0) {
+                    deltaBadge = `<span class="scenario-delta plus">+${formatINR(delta)}/mo vs base</span>`;
+                } else if (delta < 0) {
+                    deltaBadge = `<span class="scenario-delta minus">-${formatINR(Math.abs(delta))}/mo vs base</span>`;
+                } else {
+                    deltaBadge = `<span class="scenario-delta" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">Flat</span>`;
+                }
+            } else {
+                deltaBadge = `<span class="scenario-delta plus" style="background: rgba(59,130,246,0.1); color: var(--primary);">Base Offer</span>`;
+            }
+            
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:0.4rem;">
+                    <span style="font-size:0.8rem; font-weight:700; color:var(--primary);">${sc.name}</span>
+                    <button class="btn-delete-scenario" data-id="${sc.id}" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;" title="Delete Offer">
+                        <i class="fa-solid fa-trash-can" style="font-size:0.75rem;"></i>
+                    </button>
+                </div>
+                <div style="font-family:'Outfit',sans-serif; font-size:1.15rem; font-weight:800; color:#fff;">${formatINR(sc.monthlyInhand)}<span style="font-size: 0.7rem; font-weight: 500; color: var(--text-muted);">/mo</span></div>
+                ${deltaBadge}
+                <div style="margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.2rem; font-size:0.72rem; color:var(--text-muted);">
+                    <div style="display:flex; justify-content:space-between;"><span>CTC:</span><span style="color:#fff;">${formatINR(sc.ctc)}</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Regime:</span><span style="color:#fff;">${sc.regime}</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>TDS (Tax):</span><span style="color:#fff;">${formatINR(sc.annualTax)}/yr</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Total PF:</span><span style="color:#fff;">${formatINR(sc.pf)}/yr</span></div>
+                </div>
+            `;
+            
+            compareScenariosGrid.appendChild(card);
+        });
+        
+        compareScenariosGrid.querySelectorAll('.btn-delete-scenario').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idToDelete = parseInt(btn.getAttribute('data-id'));
+                savedScenarios = savedScenarios.filter(sc => sc.id !== idToDelete);
+                localStorage.setItem('saved_salary_scenarios', JSON.stringify(savedScenarios));
+                renderScenarios();
+            });
+        });
+    }
+
+    // Instant Chatbot Terminal Handlers
+    function appendMessage(text, sender) {
+        if (!chatMessages) return;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-msg ${sender}`;
+        msgDiv.style.padding = '0.5rem 0.75rem';
+        msgDiv.style.borderRadius = '8px';
+        msgDiv.style.fontSize = '0.8rem';
+        msgDiv.style.lineHeight = '1.4';
+        msgDiv.style.marginBottom = '0.5rem';
+        if (sender === 'user') {
+            msgDiv.style.alignSelf = 'flex-end';
+            msgDiv.style.background = 'rgba(59, 130, 246, 0.15)';
+            msgDiv.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+            msgDiv.style.color = '#fff';
+        } else {
+            msgDiv.style.alignSelf = 'flex-start';
+            msgDiv.style.background = 'rgba(255, 255, 255, 0.03)';
+            msgDiv.style.border = '1px solid var(--border-color)';
+            msgDiv.style.color = '#fff';
+        }
+        msgDiv.innerHTML = `<p style="margin:0;">${text}</p>`;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function processQuery(query) {
+        appendMessage(query, 'user');
+        
+        // Show typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-msg system';
+        typingDiv.style.alignSelf = 'flex-start';
+        typingDiv.style.background = 'rgba(255, 255, 255, 0.03)';
+        typingDiv.style.border = '1px solid var(--border-color)';
+        typingDiv.style.color = '#fff';
+        typingDiv.style.padding = '0.5rem 0.75rem';
+        typingDiv.style.borderRadius = '8px';
+        typingDiv.style.fontSize = '0.8rem';
+        typingDiv.style.marginBottom = '0.5rem';
+        typingDiv.innerHTML = '<p style="margin:0;">Thinking...</p>';
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const state = currentCalcState;
+        fetch("/api/tax/advise", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                ctc: state.ctc,
+                basic_pct: parseFloat(inputBasicPct ? inputBasicPct.value : 50) || 50,
+                vpf_pct: parseFloat(inputVpfPct ? inputVpfPct.value : 0) || 0,
+                rent_paid: parseFloat(inputRent ? inputRent.value : 0) * 12, // Annual
+                car_perk: state.annualCarPerq,
+                other_deductions: state.oldDeductions - 50000,
+                question: query
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            typingDiv.remove();
+            if (data.success && data.advice) {
+                let text = data.advice;
+                text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                text = text.replace(/\n/g, '<br>');
+                appendMessage(text, 'system');
+            } else {
+                appendMessage(data.error || "Could not process response.", 'system');
+            }
+        })
+        .catch(err => {
+            typingDiv.remove();
+            console.error(err);
+            appendMessage("Connection error while requesting advice from the server.", 'system');
+        });
+    }
+
+    if (btnChatSend && chatInput) {
+        btnChatSend.addEventListener('click', () => {
+            const txt = chatInput.value.trim();
+            if (txt) {
+                processQuery(txt);
+                chatInput.value = '';
+            }
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const txt = chatInput.value.trim();
+                if (txt) {
+                    processQuery(txt);
+                    chatInput.value = '';
+                }
+            }
+        });
+    }
+
+    if (chatChips) {
+        chatChips.addEventListener('click', (e) => {
+            const btn = e.target.closest('.chip-btn');
+            if (btn) {
+                const query = btn.getAttribute('data-query');
+                processQuery(query);
+            }
+        });
+    }
+
+    // Trigger initial run
+    calculateAndDisplay();
 
     // ----------------------------------------------------
     // Tab: Company Sheet PDF Generator

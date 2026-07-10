@@ -32,6 +32,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -1134,111 +1135,628 @@
 
             <!-- Tab Content: Indian Tax & Salary Advisor -->
             <div class="tab-content" id="tab-tax-advisor">
+                <style>
+                    #tab-tax-advisor {
+                        --primary: #3b82f6;
+                        --primary-glow: rgba(59, 130, 246, 0.15);
+                        --accent: #a855f7;
+                        --accent-glow: rgba(168, 85, 247, 0.15);
+                        --success: #22c55e;
+                        --success-bg: rgba(34, 197, 94, 0.1);
+                        --danger: #ef4444;
+                        --danger-bg: rgba(239, 68, 68, 0.1);
+                    }
+                    #tab-tax-advisor .grid-layout {
+                        display: grid;
+                        grid-template-columns: 420px 1fr;
+                        gap: 1.5rem;
+                    }
+                    @media (max-width: 900px) {
+                        #tab-tax-advisor .grid-layout {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+                    #tab-tax-advisor .val-display {
+                        font-family: 'Outfit', sans-serif;
+                        font-weight: 700;
+                        font-size: 1.15rem;
+                        color: var(--primary);
+                    }
+                    #tab-tax-advisor .numeric-input-wrapper {
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                    }
+                    #tab-tax-advisor .currency-symbol {
+                        position: absolute;
+                        left: 12px;
+                        color: var(--text-muted);
+                        font-weight: 600;
+                    }
+                    #tab-tax-advisor .numeric-input-wrapper input {
+                        width: 100%;
+                        background: rgba(0,0,0,0.3);
+                        border: 1px solid var(--border-color);
+                        color: var(--text-primary);
+                        padding: 0.75rem 1rem 0.75rem 2.2rem;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        font-size: 1.05rem;
+                        outline: none;
+                    }
+                    #tab-tax-advisor .custom-slider {
+                        -webkit-appearance: none;
+                        width: 100%;
+                        height: 6px;
+                        border-radius: 3px;
+                        background: var(--border-color);
+                        outline: none;
+                        margin: 0.5rem 0;
+                    }
+                    #tab-tax-advisor .custom-slider::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        appearance: none;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+                        cursor: pointer;
+                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                        transition: transform 0.1s;
+                    }
+                    #tab-tax-advisor .btn-preset {
+                        background: rgba(255,255,255,0.03);
+                        border: 1px solid var(--border-color);
+                        color: var(--text-muted);
+                        padding: 0.4rem;
+                        font-family: 'Outfit', sans-serif;
+                        font-weight: 600;
+                        font-size: 0.8rem;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                    }
+                    #tab-tax-advisor .btn-preset:hover {
+                        border-color: var(--primary);
+                        color: #fff;
+                    }
+                    #tab-tax-advisor select {
+                        width: 100%;
+                        background: rgba(0,0,0,0.3);
+                        border: 1px solid var(--border-color);
+                        color: #fff;
+                        padding: 0.75rem 1rem;
+                        border-radius: 8px;
+                        font-size: 0.9rem;
+                        outline: none;
+                        cursor: pointer;
+                    }
+                    #tab-tax-advisor .accordion-item {
+                        border-top: 1px solid var(--border-color);
+                        padding-top: 1rem;
+                        margin-top: 1.5rem;
+                    }
+                    #tab-tax-advisor .accordion-trigger {
+                        width: 100%;
+                        background: none;
+                        border: none;
+                        color: var(--text-muted);
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        font-weight: 600;
+                        font-size: 0.85rem;
+                        cursor: pointer;
+                    }
+                    #tab-tax-advisor .accordion-content {
+                        display: none;
+                        margin-top: 1rem;
+                    }
+                    #tab-tax-advisor .accordion-item.active .accordion-content {
+                        display: block;
+                    }
+                    #tab-tax-advisor .adv-grid {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1rem;
+                    }
+                    #tab-tax-advisor .adv-input-group {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        gap: 1rem;
+                        font-size: 0.8rem;
+                    }
+                    #tab-tax-advisor .adv-input-group input[type="number"] {
+                        background: rgba(0,0,0,0.3);
+                        border: 1px solid var(--border-color);
+                        color: #fff;
+                        padding: 0.4rem;
+                        border-radius: 6px;
+                        width: 70px;
+                        font-weight: 600;
+                        text-align: center;
+                        outline: none;
+                    }
+                    #tab-tax-advisor .numeric-input-wrapper.small input {
+                        padding: 0.4rem 0.4rem 0.4rem 1.6rem;
+                        font-size: 0.85rem;
+                        width: 120px;
+                    }
+                    #tab-tax-advisor .numeric-input-wrapper.small .currency-symbol {
+                        left: 6px;
+                        font-size: 0.8rem;
+                    }
+                    #tab-tax-advisor .checkbox-label {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        font-size: 0.8rem;
+                        color: var(--text-muted);
+                        cursor: pointer;
+                    }
+                    #tab-tax-advisor .hero-card {
+                        background: linear-gradient(135deg, rgba(18, 5, 30, 0.65) 0%, rgba(30, 14, 50, 0.4) 100%);
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 1.5rem;
+                        border-radius: 16px;
+                        border: 1px solid var(--border-color);
+                    }
+                    #tab-tax-advisor .kpi-label {
+                        font-size: 0.8rem;
+                        color: var(--text-muted);
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    #tab-tax-advisor .kpi-value {
+                        font-family: 'Outfit', sans-serif;
+                        font-weight: 800;
+                        font-size: 2.5rem;
+                        margin: 0.25rem 0 0.5rem 0;
+                        background: linear-gradient(90deg, #fff 50%, var(--primary) 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                    }
+                    #tab-tax-advisor .progress-ring-wrapper {
+                        position: relative;
+                        width: 90px;
+                        height: 90px;
+                    }
+                    #tab-tax-advisor .progress-text {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-family: 'Outfit', sans-serif;
+                        font-weight: 700;
+                        font-size: 1.3rem;
+                    }
+                    #tab-tax-advisor .split-view {
+                        display: grid;
+                        grid-template-columns: 1fr 1.2fr;
+                        gap: 1.5rem;
+                    }
+                    @media (max-width: 768px) {
+                        #tab-tax-advisor .split-view {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+                    #tab-tax-advisor .breakdown-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0.35rem 0;
+                        font-size: 0.85rem;
+                    }
+                    #tab-tax-advisor .breakdown-row.highlight {
+                        background: rgba(59, 130, 246, 0.08);
+                        padding: 0.6rem 0.75rem;
+                        border-radius: 8px;
+                        font-weight: 700;
+                    }
+                    #tab-tax-advisor .text-red { color: var(--danger); }
+                    #tab-tax-advisor .text-green { color: var(--success); }
+                    #tab-tax-advisor .comparison-grid {
+                        display: grid;
+                        grid-template-columns: 1fr auto 1fr;
+                        gap: 1rem;
+                        margin-top: 0.5rem;
+                    }
+                    #tab-tax-advisor .comparison-divider-line {
+                        width: 1px;
+                        background: var(--border-color);
+                    }
+                    #tab-tax-advisor .regime-name {
+                        font-family: 'Outfit', sans-serif;
+                        font-weight: 700;
+                        font-size: 0.95rem;
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    }
+                    #tab-tax-advisor .best-badge {
+                        background: var(--success);
+                        color: #000;
+                        font-size: 0.6rem;
+                        font-weight: 800;
+                        padding: 0.15rem 0.4rem;
+                        border-radius: 4px;
+                        text-transform: uppercase;
+                    }
+                    #tab-tax-advisor .opt-tip-card {
+                        background: rgba(255, 255, 255, 0.02);
+                        border: 1px solid var(--border-color);
+                        border-radius: 10px;
+                        padding: 0.75rem;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    #tab-tax-advisor .opt-tip-saving {
+                        background: var(--success-bg);
+                        border: 1px solid rgba(34, 197, 94, 0.2);
+                        color: #4ade80;
+                        font-size: 0.75rem;
+                        font-weight: 700;
+                        padding: 0.3rem 0.5rem;
+                        border-radius: 6px;
+                    }
+                    #tab-tax-advisor .scenarios-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                        gap: 1rem;
+                    }
+                    #tab-tax-advisor .scenario-card {
+                        background: rgba(255, 255, 255, 0.02);
+                        border: 1px solid var(--border-color);
+                        border-radius: 12px;
+                        padding: 1rem;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.4rem;
+                    }
+                    #tab-tax-advisor .scenario-delta {
+                        display: inline-flex;
+                        font-size: 0.65rem;
+                        font-weight: 700;
+                        padding: 0.15rem 0.4rem;
+                        border-radius: 4px;
+                        width: max-content;
+                    }
+                    #tab-tax-advisor .scenario-delta.plus {
+                        background: var(--success-bg);
+                        color: #4ade80;
+                    }
+                    #tab-tax-advisor .scenario-delta.minus {
+                        background: var(--danger-bg);
+                        color: #f87171;
+                    }
+                    #tab-tax-advisor .chip-btn {
+                        background: rgba(255,255,255,0.03);
+                        border: 1px solid var(--border-color);
+                        color: var(--text-muted);
+                        font-size: 0.75rem;
+                        padding: 0.3rem 0.6rem;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        white-space: nowrap;
+                    }
+                    #tab-tax-advisor .chip-btn:hover {
+                        border-color: var(--accent);
+                        color: #fff;
+                    }
+                </style>
+
                 <div class="glass-card panel-card">
-                    <h3 class="panel-title"><i class="fa-solid fa-calculator text-neon-blue"></i> Indian Tax & Salary Advisor AI Bot</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 2rem;">Configure your annual compensation details on the left, and chat with the AI Advisor on the right to receive precise tax optimization strategies and regime comparisons.</p>
+                    <h3 class="panel-title"><i class="fa-solid fa-calculator text-neon-blue"></i> In-Hand Salary & Tax Predictor (FY 2026-27)</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 2rem;">A fully contextualized salary break-up estimator aligning with latest Indian Income Tax provisions (Assessment Year 2027-28).</p>
                     
-                    <div style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 2rem;">
-                        <!-- Left Panel: Calculator Inputs -->
-                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color);">
-                            <h4 style="color: #fff; margin-bottom: 1.25rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-gears text-neon-purple"></i> Compensation Configurator</h4>
+                    <div class="grid-layout">
+                        <!-- Left Panel: Calculator Configurator -->
+                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color); height: max-content;">
+                            <h4 style="color: #fff; margin-bottom: 1.25rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-sliders"></i> Salary Parameters</h4>
                             
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-                                <div class="input-group">
-                                    <label for="tax-ctc"><i class="fa-solid fa-indian-rupee-sign"></i> Annual CTC (INR)</label>
-                                    <input type="number" id="tax-ctc" value="1000000" placeholder="e.g. 1000000">
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <label for="input-ctc">Annual CTC (Cost to Company)</label>
+                                    <div class="val-display">₹ <span id="ctc-val-text">12,00,000</span></div>
                                 </div>
-                                <div class="input-group">
-                                    <label for="tax-basic"><i class="fa-solid fa-percent"></i> Basic Salary %</label>
-                                    <input type="number" id="tax-basic" value="50" placeholder="e.g. 50">
+                                <div class="numeric-input-wrapper">
+                                    <span class="currency-symbol">₹</span>
+                                    <input type="number" id="input-ctc" value="1200000" min="100000" max="100000000" step="50000">
+                                </div>
+                                <input type="range" id="slider-ctc" min="300000" max="5000000" step="50000" value="1200000" class="custom-slider">
+                                <div class="presets" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.25rem;">
+                                    <button class="btn-preset" data-val="600000">6L</button>
+                                    <button class="btn-preset" data-val="1200000">12L</button>
+                                    <button class="btn-preset" data-val="2500000">25L</button>
+                                    <button class="btn-preset" data-val="5000000">50L</button>
                                 </div>
                             </div>
                             
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-                                <div class="input-group">
-                                    <label for="tax-vpf"><i class="fa-solid fa-piggy-bank"></i> VPF Percentage</label>
-                                    <input type="number" id="tax-vpf" value="0" placeholder="e.g. 12">
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <label for="select-pf">Provident Fund (PF) Settings</label>
+                                <select id="select-pf">
+                                    <option value="12basic">12% of Basic Salary (Standard)</option>
+                                    <option value="capped">Capped at ₹1,800/month</option>
+                                    <option value="none">No PF Deduction</option>
+                                </select>
+                            </div>
+                            
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <label for="select-regime">Tax Regime Comparison</label>
+                                <select id="select-regime">
+                                    <option value="compare">Compare & Suggest Best Regime</option>
+                                    <option value="new">New Tax Regime Only (FY 2026-27)</option>
+                                    <option value="old">Old Tax Regime Only</option>
+                                </select>
+                            </div>
+                            
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <label for="select-state">State for Professional Tax (PT)</label>
+                                <select id="select-state">
+                                    <option value="kar" selected>Karnataka</option>
+                                    <option value="mah">Maharashtra</option>
+                                    <option value="tam">Tamil Nadu</option>
+                                    <option value="tel">Telangana / Andhra Pradesh</option>
+                                    <option value="wbe">West Bengal</option>
+                                    <option value="guj">Gujarat</option>
+                                    <option value="other">Other State (Flat ₹2,500/yr)</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Advanced parameters accordion -->
+                            <div class="accordion-item" id="adv-accordion-group">
+                                <button class="accordion-trigger" id="adv-settings-trigger">
+                                    <span><i class="fa-solid fa-circle-info"></i> Advanced Parameters & HRA</span>
+                                    <i class="fa-solid fa-chevron-down chevron"></i>
+                                </button>
+                                <div class="accordion-content" id="adv-settings-content">
+                                    <div class="adv-grid" style="margin-top: 1rem;">
+                                        <div class="adv-input-group">
+                                            <label for="input-basic-pct">Basic Salary (% of CTC)</label>
+                                            <input type="number" id="input-basic-pct" value="50" min="30" max="70" step="5">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="input-hra-pct">HRA Component (% of Basic)</label>
+                                            <input type="number" id="input-hra-pct" value="40" min="10" max="50" step="10">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="input-corp-nps">Corporate NPS (Sec 80CCD(2)) (% of Basic)</label>
+                                            <input type="number" id="input-corp-nps" value="0" min="0" max="10" step="1">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="input-vpf-pct">Voluntary PF (VPF) (% of Basic)</label>
+                                            <input type="number" id="input-vpf-pct" value="0" min="0" max="88" step="5">
+                                        </div>
+                                        <div class="adv-input-group" style="justify-content: flex-start;">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="check-gratuity" checked>
+                                                Include Gratuity (4.81% of Basic)
+                                            </label>
+                                        </div>
+                                        
+                                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+                                        <span class="sub-section-title">HRA Exemption Parameters</span>
+                                        
+                                        <div class="adv-input-group">
+                                            <label for="input-rent">Monthly Rent Paid (₹)</label>
+                                            <input type="number" id="input-rent" value="0" min="0" max="500000" step="1000">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="select-city-type">City Type for HRA</label>
+                                            <select id="select-city-type" style="padding: 0.4rem; width: 140px;">
+                                                <option value="metro">Metro (50%)</option>
+                                                <option value="nonmetro" selected>Non-Metro (40%)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+                                        <span class="sub-section-title">Company Provided Car (Sec 17(2))</span>
+                                        <div class="adv-input-group">
+                                            <label for="select-car-engine">Car Engine Capacity</label>
+                                            <select id="select-car-engine" style="padding: 0.4rem; width: 140px;">
+                                                <option value="none" selected>No Car</option>
+                                                <option value="small">Engine <= 1.6L</option>
+                                                <option value="large">Engine > 1.6L</option>
+                                            </select>
+                                        </div>
+                                        <div class="adv-input-group" style="justify-content: flex-start;">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="check-driver">
+                                                Driver Provided (₹900/mo)
+                                            </label>
+                                        </div>
+                                        
+                                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+                                        <span class="sub-section-title">Rental Property Income (Sec 24)</span>
+                                        <div class="adv-input-group">
+                                            <label for="input-house-rent">Annual Rent Received (₹)</label>
+                                            <input type="number" id="input-house-rent" value="0">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="input-house-taxes">Municipal Taxes Paid (₹)</label>
+                                            <input type="number" id="input-house-taxes" value="0">
+                                        </div>
+                                        
+                                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+                                        <span class="sub-section-title">Old Regime Deductions</span>
+                                        <div class="adv-input-group">
+                                            <label for="input-ded-80c">Sec 80C (PPF, ELSS)</label>
+                                            <input type="number" id="input-ded-80c" value="150000" min="0" max="150000">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="input-ded-80d">Sec 80D (Health Insurance)</label>
+                                            <input type="number" id="input-ded-80d" value="25000">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="input-ded-nps">Sec 80CCD(1B) (NPS Self)</label>
+                                            <input type="number" id="input-ded-nps" value="0">
+                                        </div>
+                                        <div class="adv-input-group">
+                                            <label for="input-ded-24b">Sec 24(b) (Home Loan Int)</label>
+                                            <input type="number" id="input-ded-24b" value="0">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-group">
-                                    <label for="tax-rent"><i class="fa-solid fa-house-chimney"></i> Annual Rent Paid (HRA)</label>
-                                    <input type="number" id="tax-rent" value="0" placeholder="e.g. 120000">
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel: Results Dashboard -->
+                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <!-- Hero KPI Card -->
+                            <div class="hero-card">
+                                <div>
+                                    <span class="kpi-label">Estimated Monthly Take-Home (In-Hand)</span>
+                                    <div class="kpi-value" id="monthly-inhand-value">₹ 82,450</div>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">
+                                        Based on recommended <strong id="recommended-regime-badge" class="best-badge text-success">New Regime</strong>
+                                    </p>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div class="progress-ring-wrapper">
+                                        <svg width="90" height="90" style="transform: rotate(-90deg);">
+                                            <circle cx="45" cy="45" r="38" stroke="rgba(255,255,255,0.05)" stroke-width="6" fill="transparent"/>
+                                            <circle id="inhand-progress-ring" cx="45" cy="45" r="38" stroke="var(--primary)" stroke-width="6" stroke-dasharray="238.76" stroke-dashoffset="0" fill="transparent" style="transition: stroke-dashoffset 0.35s;"/>
+                                        </svg>
+                                        <div class="progress-text" style="color: #fff;"><span id="inhand-pct-display">82</span>%</div>
+                                    </div>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">of CTC is In-Hand</span>
                                 </div>
                             </div>
                             
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                                <div class="input-group">
-                                    <label for="tax-car"><i class="fa-solid fa-car"></i> Car Perquisites (Sec 17)</label>
-                                    <input type="number" id="tax-car" value="0" placeholder="e.g. 21600">
-                                </div>
-                                <div class="input-group">
-                                    <label for="tax-deductions"><i class="fa-solid fa-receipt"></i> Other Deductions (e.g. 80D)</label>
-                                    <input type="number" id="tax-deductions" value="0" placeholder="e.g. 25000">
+                            <!-- AI Optimization Tips -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h5 style="color: #fff; font-size: 0.85rem; margin-bottom: 0.75rem; font-weight: 600;"><i class="fa-solid fa-sparkles text-neon-purple"></i> AI Tax Optimization Recommendations</h5>
+                                <div class="opt-tips-container" id="opt-tips-container">
+                                    <!-- Dynamic Tips -->
                                 </div>
                             </div>
-                                            <!-- Detailed Side-by-Side Breakdown Grid -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                                <!-- Old Regime Card -->
-                                <div class="glass-card" style="padding: 0.75rem 1rem; border: 1px solid rgba(157, 78, 221, 0.2); background: rgba(157, 78, 221, 0.01); border-radius: 8px; font-size: 0.75rem;">
-                                    <h5 style="color: var(--neon-purple); margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">Old Tax Regime</h5>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
-                                        <span>Monthly Gross:</span>
-                                        <span id="breakdown-old-gross">₹0</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
-                                        <span>PF Deductions:</span>
-                                        <span id="breakdown-old-pf" style="color: #ef4444;">- ₹0</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: var(--text-muted);">
-                                        <span>Income Tax/mo:</span>
-                                        <span id="breakdown-old-tax" style="color: #ef4444;">- ₹0</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
-                                        <strong style="color: #fff;">In-Hand Salary:</strong>
-                                        <strong id="breakdown-old-inhand" style="color: #fff;">₹0/mo</strong>
+                            
+                            <!-- Split View: Chart & Table Breakdown -->
+                            <div class="split-view">
+                                <!-- Chart -->
+                                <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 180px; height: 180px;">
+                                        <canvas id="ctc-pie-chart"></canvas>
                                     </div>
                                 </div>
                                 
-                                <!-- New Regime Card -->
-                                <div class="glass-card" style="padding: 0.75rem 1rem; border: 1px solid rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.01); border-radius: 8px; font-size: 0.75rem;">
-                                    <h5 style="color: var(--neon-blue); margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px;">New Tax Regime</h5>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
-                                        <span>Monthly Gross:</span>
-                                        <span id="breakdown-new-gross">₹0</span>
+                                <!-- Breakdown Table -->
+                                <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                        <h5 style="color: #fff; font-size: 0.85rem; font-weight: 600; margin: 0;">Breakdown Summary</h5>
+                                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                            <div style="display: flex; background: rgba(0,0,0,0.3); padding: 2px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                                <button class="toggle-btn active" id="btn-show-monthly" style="background: transparent; color: #fff; border: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer;">Monthly</button>
+                                                <button class="toggle-btn" id="btn-show-annually" style="background: transparent; color: var(--text-muted); border: none; padding: 0.2rem 0.5rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer;">Annual</button>
+                                            </div>
+                                            <button id="btn-export-pdf" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: #fff; padding: 0.3rem; border-radius: 6px; cursor: pointer;" title="Print Report">
+                                                <i class="fa-solid fa-print"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: var(--text-muted);">
-                                        <span>PF Deductions:</span>
-                                        <span id="breakdown-new-pf" style="color: #ef4444;">- ₹0</span>
+                                    
+                                    <div class="breakdown-list">
+                                        <div class="breakdown-row highlight">
+                                            <span class="row-label">Gross CTC</span>
+                                            <span class="row-val" id="breakdown-ctc">₹0</span>
+                                        </div>
+                                        <div class="breakdown-row">
+                                            <span class="row-label">Employer PF Contribution</span>
+                                            <span class="row-val text-red" id="breakdown-epf">- ₹0</span>
+                                        </div>
+                                        <div class="breakdown-row">
+                                            <span class="row-label">Gratuity Component</span>
+                                            <span class="row-val text-red" id="breakdown-gratuity">- ₹0</span>
+                                        </div>
+                                        <div class="breakdown-row">
+                                            <span class="row-label">Professional Tax (PT)</span>
+                                            <span class="row-val text-red" id="breakdown-pt">- ₹0</span>
+                                        </div>
+                                        <div class="breakdown-row">
+                                            <span class="row-label">Employee PF Deduction</span>
+                                            <span class="row-val text-red" id="breakdown-pf">- ₹0</span>
+                                        </div>
+                                        <div class="breakdown-row">
+                                            <span class="row-label">Income Tax (TDS)</span>
+                                            <span class="row-val text-red" id="breakdown-tax">- ₹0</span>
+                                        </div>
+                                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.4rem 0;">
+                                        <div class="breakdown-row total">
+                                            <span class="row-label" style="font-weight: 700;">Net In-Hand Salary</span>
+                                            <span class="row-val text-green" id="breakdown-inhand" style="font-weight: 700; font-size: 1rem;">₹0</span>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: var(--text-muted);">
-                                        <span>Income Tax/mo:</span>
-                                        <span id="breakdown-new-tax" style="color: #ef4444;">- ₹0</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
-                                        <strong style="color: var(--neon-cyan);">In-Hand Salary:</strong>
-                                        <strong id="breakdown-new-inhand" style="color: var(--neon-cyan);">₹0/mo</strong>
-                                    </div>
-                                </div>
-                            </div>       </div>
-                        </div>
-                        
-                        <!-- Right Panel: Advisor AI Chatbot -->
-                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 460px;">
-                            <h4 style="color: #fff; margin-bottom: 1rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-robot text-neon-blue"></i> Advisor Consultation Terminal</h4>
-                            
-                            <!-- Chat Box -->
-                            <div id="tax-advisor-chat-history" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem; line-height: 1.5;">
-                                <div style="color: var(--neon-cyan); margin-bottom: 0.75rem;">
-                                    <strong>Bot:</strong> Hello! I am your Indian Tax & Salary Advisor. Ask me anything about Old vs New Regime comparisons, HRA exemptions, VPF take-home impact, or why your slab might calculate to zero!
                                 </div>
                             </div>
                             
-                            <!-- Prompt Input -->
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="tax-advisor-prompt-input" placeholder="Ask e.g. Compare Old vs New, or HRA exemption rules..." style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; border-radius: 4px; padding: 0.6rem; font-size: 0.85rem; outline: none;">
-                                <button id="send-tax-advisor-query-btn" class="glow-btn" style="padding: 0 1.25rem; font-size: 0.8rem; height: 38px; justify-content: center; align-self: center;">
-                                    Ask Advisor
-                                </button>
+                            <!-- Side-by-Side Regime Comparison -->
+                            <div class="glass-card" id="regime-comparison-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h5 style="color: #fff; font-size: 0.85rem; margin-bottom: 0.75rem; font-weight: 600;"><i class="fa-solid fa-scale-balanced text-neon-blue"></i> Regime Comparison (Annual)</h5>
+                                <div class="comparison-grid">
+                                    <div class="regime-col">
+                                        <div class="regime-name" style="color: var(--neon-cyan);">New Regime <span class="best-badge" id="badge-best-new">Best</span></div>
+                                        <div class="regime-stat"><span>Tax Payable:</span><strong id="comparison-tax-new">₹0</strong></div>
+                                        <div class="regime-stat"><span>In-Hand/mo:</span><strong id="comparison-inhand-new" style="color: var(--neon-cyan);">₹0</strong></div>
+                                    </div>
+                                    <div class="comparison-divider-line"></div>
+                                    <div class="regime-col">
+                                        <div class="regime-name" style="color: var(--neon-purple);">Old Regime <span class="best-badge" id="badge-best-old" style="display:none">Best</span></div>
+                                        <div class="regime-stat"><span>Tax Payable:</span><strong id="comparison-tax-old">₹0</strong></div>
+                                        <div class="regime-stat"><span>In-Hand/mo:</span><strong id="comparison-inhand-old" style="color: var(--neon-purple);">₹0</strong></div>
+                                    </div>
+                                </div>
+                                <div class="comparison-footer" id="regime-comparison-advice" style="margin-top: 1rem; color: #4ade80;">
+                                    Calculations loaded successfully.
+                                </div>
                             </div>
+                            
+                            <!-- Advisor Consultation Terminal -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 350px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <h5 style="color: #fff; font-size: 0.85rem; font-weight: 600; margin:0;"><i class="fa-solid fa-robot text-neon-blue"></i> AI Tax & Salary Assistant</h5>
+                                    <span class="best-badge" id="ai-status-badge" style="background: rgba(59,130,246,0.15); color: var(--primary);">Standard</span>
+                                </div>
+                                
+                                <div id="chat-messages" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <div class="chat-msg system">
+                                        <p>Hello! Ask me any question about your current salary configurations, HRA exemptions, or Old vs New regimes.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="chat-chips-scroll" style="margin-bottom: 0.5rem;">
+                                    <div class="chat-chips" id="chat-chips">
+                                        <button class="chip-btn" data-query="Why is my tax zero?">Why is my tax zero?</button>
+                                        <button class="chip-btn" data-query="How is Gratuity calculated?">How is Gratuity calculated?</button>
+                                        <button class="chip-btn" data-query="How is PF calculated?">How is PF calculated?</button>
+                                        <button class="chip-btn" data-query="Old vs New differences?">Old vs New differences?</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="chat-input-wrapper" style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="chat-input" placeholder="Ask a query (e.g. 'What is standard deduction?')..." style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:6px; color:#fff; padding:0.5rem; font-size:0.8rem; outline:none;">
+                                    <button id="btn-chat-send" class="glow-btn" style="padding:0 0.85rem; font-size:0.75rem; height:34px; justify-content:center;">Send</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Job Offer Evaluator -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <h5 style="color: #fff; font-size: 0.85rem; font-weight: 600; margin:0;"><i class="fa-solid fa-copy text-neon-purple"></i> Job Offer Evaluator</h5>
+                                    <button id="btn-save-scenario" class="glow-btn" style="padding: 0.2rem 0.6rem; font-size: 0.7rem; height: 28px; justify-content:center;">
+                                        Save Current Setup
+                                    </button>
+                                </div>
+                                <div id="compare-scenarios-grid" class="scenarios-grid">
+                                    <!-- Dynamic Scenario Cards -->
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
