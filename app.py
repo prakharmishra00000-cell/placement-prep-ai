@@ -2478,14 +2478,17 @@ def fetch_google_search_snippets(query):
 
 def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
     import os
+    import html
     from reportlab.lib.pagesizes import letter
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib import colors
 
-    os.makedirs(os.path.join("static", "sheets"), exist_ok=True)
+    static_folder = app.static_folder if app.static_folder else "static"
+    sheets_dir = os.path.join(static_folder, "sheets")
+    os.makedirs(sheets_dir, exist_ok=True)
     filename = f"{company_name.lower().replace(' ', '_')}_placement_sheet.pdf"
-    file_path = os.path.join("static", "sheets", filename)
+    file_path = os.path.join(sheets_dir, filename)
 
     doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
     styles = getSampleStyleSheet()
@@ -2520,7 +2523,7 @@ def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
 
     story = []
 
-    story.append(Paragraph(f"{company_name} - Placement Prep Sheet", title_style))
+    story.append(Paragraph(html.escape(f"{company_name} - Placement Prep Sheet"), title_style))
     story.append(Spacer(1, 8))
 
     # Divider line
@@ -2541,8 +2544,9 @@ def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
     ]
 
     for title, content in sections:
-        story.append(Paragraph(title, h2_style))
-        formatted_content = content.replace('\n', '<br/>')
+        story.append(Paragraph(html.escape(title), h2_style))
+        escaped_content = html.escape(content)
+        formatted_content = escaped_content.replace('\n', '<br/>')
         story.append(Paragraph(formatted_content, body_style))
         story.append(Spacer(1, 8))
 
