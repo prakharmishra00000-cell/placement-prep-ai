@@ -74,6 +74,10 @@
                     <i class="fa-solid fa-globe"></i>
                     <span>AI Portfolio Generator</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="tax-advisor">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>Tax & Salary Advisor</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="roadmap">
                     <i class="fa-solid fa-route"></i>
                     <span>Roadmap Generator</span>
@@ -1106,6 +1110,87 @@
                                 <div style="flex: 1; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: #000; height: 260px;">
                                     <iframe id="portfolio-preview-frame" style="width: 100%; height: 100%; border: none;"></iframe>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Indian Tax & Salary Advisor -->
+            <div class="tab-content" id="tab-tax-advisor">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-calculator text-neon-blue"></i> Indian Tax & Salary Advisor AI Bot</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 2rem;">Configure your annual compensation details on the left, and chat with the AI Advisor on the right to receive precise tax optimization strategies and regime comparisons.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 2rem;">
+                        <!-- Left Panel: Calculator Inputs -->
+                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color);">
+                            <h4 style="color: #fff; margin-bottom: 1.25rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-gears text-neon-purple"></i> Compensation Configurator</h4>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                                <div class="input-group">
+                                    <label for="tax-ctc"><i class="fa-solid fa-indian-rupee-sign"></i> Annual CTC (INR)</label>
+                                    <input type="number" id="tax-ctc" value="1000000" placeholder="e.g. 1000000">
+                                </div>
+                                <div class="input-group">
+                                    <label for="tax-basic"><i class="fa-solid fa-percent"></i> Basic Salary %</label>
+                                    <input type="number" id="tax-basic" value="50" placeholder="e.g. 50">
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                                <div class="input-group">
+                                    <label for="tax-vpf"><i class="fa-solid fa-piggy-bank"></i> VPF Percentage</label>
+                                    <input type="number" id="tax-vpf" value="0" placeholder="e.g. 12">
+                                </div>
+                                <div class="input-group">
+                                    <label for="tax-rent"><i class="fa-solid fa-house-chimney"></i> Annual Rent Paid (HRA)</label>
+                                    <input type="number" id="tax-rent" value="0" placeholder="e.g. 120000">
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div class="input-group">
+                                    <label for="tax-car"><i class="fa-solid fa-car"></i> Car Perquisites (Sec 17)</label>
+                                    <input type="number" id="tax-car" value="0" placeholder="e.g. 21600">
+                                </div>
+                                <div class="input-group">
+                                    <label for="tax-deductions"><i class="fa-solid fa-receipt"></i> Other Deductions (e.g. 80D)</label>
+                                    <input type="number" id="tax-deductions" value="0" placeholder="e.g. 25000">
+                                </div>
+                            </div>
+                            
+                            <!-- Static Live Outputs Card inside form -->
+                            <div class="glass-card" style="padding: 1rem; border: 1px solid rgba(0, 240, 255, 0.15); background: rgba(0, 240, 255, 0.01); border-radius: 8px; font-size: 0.8rem;">
+                                <h5 style="color: var(--neon-blue); margin-bottom: 0.5rem; font-weight: 700;">Live Estimate (Standard Deductions Applied):</h5>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                                    <span>Old Regime Tax:</span>
+                                    <strong id="calc-old-tax" style="color: #fff;">Calculated on query...</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>New Regime Tax:</span>
+                                    <strong id="calc-new-tax" style="color: var(--neon-cyan);">Calculated on query...</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel: Advisor AI Chatbot -->
+                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; height: 460px;">
+                            <h4 style="color: #fff; margin-bottom: 1rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-robot text-neon-blue"></i> Advisor Consultation Terminal</h4>
+                            
+                            <!-- Chat Box -->
+                            <div id="tax-advisor-chat-history" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem; line-height: 1.5;">
+                                <div style="color: var(--neon-cyan); margin-bottom: 0.75rem;">
+                                    <strong>Bot:</strong> Hello! I am your Indian Tax & Salary Advisor. Ask me anything about Old vs New Regime comparisons, HRA exemptions, VPF take-home impact, or why your slab might calculate to zero!
+                                </div>
+                            </div>
+                            
+                            <!-- Prompt Input -->
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="tax-advisor-prompt-input" placeholder="Ask e.g. Compare Old vs New, or HRA exemption rules..." style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; border-radius: 4px; padding: 0.6rem; font-size: 0.85rem; outline: none;">
+                                <button id="send-tax-advisor-query-btn" class="glow-btn" style="padding: 0 1.25rem; font-size: 0.8rem; height: 38px; justify-content: center; align-self: center;">
+                                    Ask Advisor
+                                </button>
                             </div>
                         </div>
                     </div>

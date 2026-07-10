@@ -1499,6 +1499,112 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ----------------------------------------------------
+    // Tab: Indian Tax & Salary Advisor AI Bot
+    // ----------------------------------------------------
+    const sendTaxBtn = document.getElementById("send-tax-advisor-query-btn");
+    const taxPrompt = document.getElementById("tax-advisor-prompt-input");
+    const taxChatHistory = document.getElementById("tax-advisor-chat-history");
+    const taxCtc = document.getElementById("tax-ctc");
+    const taxBasic = document.getElementById("tax-basic");
+    const taxVpf = document.getElementById("tax-vpf");
+    const taxRent = document.getElementById("tax-rent");
+    const taxCar = document.getElementById("tax-car");
+    const taxDeductions = document.getElementById("tax-deductions");
+    const calcOldTaxText = document.getElementById("calc-old-tax");
+    const calcNewTaxText = document.getElementById("calc-new-tax");
+
+    if (sendTaxBtn && taxPrompt) {
+        const handleTaxQuery = () => {
+            const promptVal = taxPrompt.value.trim();
+            if (!promptVal) return;
+
+            // Append user prompt to chat
+            const userMsg = document.createElement("div");
+            userMsg.style.marginBottom = "0.75rem";
+            userMsg.style.color = "#fff";
+            userMsg.innerHTML = `<strong>You:</strong> ${promptVal}`;
+            taxChatHistory.appendChild(userMsg);
+            taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
+
+            taxPrompt.value = "";
+            sendTaxBtn.disabled = true;
+            sendTaxBtn.textContent = "...";
+
+            // Append bot waiting loader
+            const botLoadingMsg = document.createElement("div");
+            botLoadingMsg.id = "bot-tax-loading-placeholder";
+            botLoadingMsg.style.color = "var(--neon-purple)";
+            botLoadingMsg.innerHTML = '<strong>Bot:</strong> Analyzing regimes and compiling compliance structures... <i class="fa-solid fa-spinner fa-spin"></i>';
+            taxChatHistory.appendChild(botLoadingMsg);
+            taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
+
+            fetch("/api/tax/advise", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ctc: parseFloat(taxCtc.value) || 0,
+                    basic_pct: parseFloat(taxBasic.value) || 0,
+                    vpf_pct: parseFloat(taxVpf.value) || 0,
+                    rent_paid: parseFloat(taxRent.value) || 0,
+                    car_perk: parseFloat(taxCar.value) || 0,
+                    other_deductions: parseFloat(taxDeductions.value) || 0,
+                    question: promptVal
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const loader = document.getElementById("bot-tax-loading-placeholder");
+                if (loader) loader.remove();
+
+                if (data.success) {
+                    // Update Calculator display numbers
+                    if (data.calculations) {
+                        calcOldTaxText.textContent = "₹" + data.calculations.old.tax_payable.toLocaleString("en-IN") + " (₹" + data.calculations.old.monthly_takehome.toLocaleString("en-IN") + "/mo in-hand)";
+                        calcNewTaxText.textContent = "₹" + data.calculations.new.tax_payable.toLocaleString("en-IN") + " (₹" + data.calculations.new.monthly_takehome.toLocaleString("en-IN") + "/mo in-hand)";
+                    }
+
+                    // Format advice
+                    const botReply = document.createElement("div");
+                    botReply.style.marginBottom = "0.75rem";
+                    botReply.style.color = "var(--neon-cyan)";
+                    botReply.innerHTML = `<strong>Bot:</strong><div style="margin-top: 0.25rem; white-space: pre-wrap;">${data.advice}</div>`;
+                    taxChatHistory.appendChild(botReply);
+                } else {
+                    const botReply = document.createElement("div");
+                    botReply.style.marginBottom = "0.75rem";
+                    botReply.style.color = "red";
+                    botReply.innerHTML = `<strong>Bot:</strong> Error: ${data.error || "Failed to process query."}`;
+                    taxChatHistory.appendChild(botReply);
+                }
+                taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
+                sendTaxBtn.disabled = false;
+                sendTaxBtn.textContent = "Ask Advisor";
+            })
+            .catch(err => {
+                console.error(err);
+                const loader = document.getElementById("bot-tax-loading-placeholder");
+                if (loader) loader.remove();
+
+                const botReply = document.createElement("div");
+                botReply.style.marginBottom = "0.75rem";
+                botReply.style.color = "red";
+                botReply.innerHTML = `<strong>Bot:</strong> Error: Connection failed.`;
+                taxChatHistory.appendChild(botReply);
+                taxChatHistory.scrollTop = taxChatHistory.scrollHeight;
+                sendTaxBtn.disabled = false;
+                sendTaxBtn.textContent = "Ask Advisor";
+            });
+        };
+
+        sendTaxBtn.addEventListener("click", handleTaxQuery);
+        taxPrompt.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                handleTaxQuery();
+            }
+        });
+    }
+
     navItems.forEach(item => {
         item.addEventListener("click", () => {
             const tab = item.getAttribute("data-tab");

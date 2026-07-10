@@ -2291,5 +2291,143 @@ def generate_portfolio():
     except Exception as e:
         return jsonify({"error": f"Failed to save portfolio website: {str(e)}"}), 500
 
+def calculate_indian_tax(ctc, basic_pct, vpf_pct, rent_paid, car_perk, other_deductions):
+    basic = ctc * (basic_pct / 100)
+    pf_employee = min(basic * 0.12, 180000)
+    vpf = basic * (vpf_pct / 100)
+    
+    # Old Regime Deductions
+    std_deduction_old = 50000
+    hra_exemption = max(0, min(max(0, rent_paid - (basic * 0.10)), basic * 0.40))
+    sec_80c = min(pf_employee + vpf + 150000, 150000)
+    
+    taxable_old = max(0, ctc - std_deduction_old - hra_exemption - sec_80c - other_deductions)
+    
+    # Old Slabs
+    tax_old = 0
+    if taxable_old <= 500000:
+        tax_old = 0
+    else:
+        if taxable_old > 250000:
+            tax_old += min(taxable_old - 250000, 250000) * 0.05
+        if taxable_old > 500000:
+            tax_old += min(taxable_old - 500000, 500000) * 0.20
+        if taxable_old > 1000000:
+            tax_old += (taxable_old - 1000000) * 0.30
+            
+    # New Regime Deductions
+    std_deduction_new = 75000
+    taxable_new = max(0, ctc - std_deduction_new - car_perk)
+    
+    # New Slabs
+    tax_new = 0
+    if taxable_new <= 700000:
+        tax_new = 0
+    else:
+        if taxable_new > 300000:
+            tax_new += min(taxable_new - 300000, 300000) * 0.05
+        if taxable_new > 600000:
+            tax_new += min(taxable_new - 600000, 300000) * 0.10
+        if taxable_new > 900000:
+            tax_new += min(taxable_new - 900000, 300000) * 0.15
+        if taxable_new > 1200000:
+            tax_new += min(taxable_new - 1200000, 300000) * 0.20
+        if taxable_new > 1500000:
+            tax_new += (taxable_new - 1500000) * 0.30
+
+    tax_old = round(tax_old * 1.04)
+    tax_new = round(tax_new * 1.04)
+    
+    deductions_old = pf_employee + vpf + (tax_old / 12)
+    inhand_old = round((ctc - deductions_old) / 12)
+    
+    deductions_new = pf_employee + vpf + (tax_new / 12)
+    inhand_new = round((ctc - deductions_new) / 12)
+    
+    return {
+        "old": {
+            "taxable_income": round(taxable_old),
+            "tax_payable": round(tax_old),
+            "monthly_takehome": round(inhand_old),
+            "pf": round(pf_employee)
+        },
+        "new": {
+            "taxable_income": round(taxable_new),
+            "tax_payable": round(tax_new),
+            "monthly_takehome": round(inhand_new),
+            "pf": round(pf_employee)
+        }
+    }
+
+@app.route("/api/tax/advise", methods=["POST"])
+def get_tax_advice():
+    data = request.get_json() or {}
+    try:
+        ctc = float(data.get("ctc", 1000000))
+        basic_pct = float(data.get("basic_pct", 50))
+        vpf_pct = float(data.get("vpf_pct", 0))
+        rent_paid = float(data.get("rent_paid", 0))
+        car_perk = float(data.get("car_perk", 0))
+        other_deductions = float(data.get("other_deductions", 0))
+    except:
+        return jsonify({"error": "Invalid numerical parameters provided!"}), 400
+        
+    question = data.get("question", "").strip()
+    if not question:
+        return jsonify({"error": "Please provide a query for the Tax Advisor!"}), 400
+        
+    calcs = calculate_indian_tax(ctc, basic_pct, vpf_pct, rent_paid, car_perk, other_deductions)
+    
+    api_key = get_backend_gemini_key()
+    if api_key:
+        prompt = f"""
+        You are the Indian Tax & Salary Advisor AI Bot.
+        
+        Calculated User Salary Parameters:
+        - CTC: INR {ctc:,.2f}
+        - Basic Salary Percentage: {basic_pct}%
+        - VPF Percentage: {vpf_pct}%
+        - HRA Annual Rent Paid: INR {rent_paid:,.2f}
+        - Car Perquisites: INR {car_perk:,.2f}
+        - Other Deductions (e.g. 80C, 80D): INR {other_deductions:,.2f}
+        
+        Calculated Tax & Take-Home Outcomes:
+        - OLD REGIME: Taxable Income = INR {calcs['old']['taxable_income']:,.2f}, Tax Payable = INR {calcs['old']['tax_payable']:,.2f}, Est. Take-Home/mo = INR {calcs['old']['monthly_takehome']:,.2f}
+        - NEW REGIME: Taxable Income = INR {calcs['new']['taxable_income']:,.2f}, Tax Payable = INR {calcs['new']['tax_payable']:,.2f}, Est. Take-Home/mo = INR {calcs['new']['monthly_takehome']:,.2f}
+        
+        USER QUERY: "{question}"
+        
+        CRITICAL COMPLIANCE RULES:
+        1. Read and refer to the user's configurations (CTC, PF, Regime choice).
+        2. Perform regime comparison: contrast Old vs New regime outcomes and highlight the net monthly/annual savings.
+        3. Explain deductions or exemption calculations when asked (HRA rent rules, Gratuity, PF, corporate NPS, Sec 17/24).
+        4. Zero-Tax Slabs: Explains rebate rules under Section 87A (Nil tax if Net Taxable Income <= 7L in New Regime, <= 5L in Old Regime).
+        5. Zero Hallucination: If the user states incorrect metrics (e.g., "Why is my take-home only 30k?" when calculations say INR {calcs['new']['monthly_takehome']:,.2f}), correct them politely.
+        
+        Provide your advice formatted in beautiful, readable markdown.
+        """
+        try:
+            advice = call_gemini_api(prompt, api_key)
+            if advice:
+                return jsonify({"success": True, "advice": advice, "calculations": calcs})
+        except Exception as e:
+            print("Gemini Tax Advisor query failed:", e)
+            
+    # Offline FAQ Fallback Mode
+    recomm = "New Regime is highly beneficial for you!" if calcs['new']['tax_payable'] < calcs['old']['tax_payable'] else "Old Regime is more beneficial due to HRA & 80C deductions!"
+    offline_advice = f"""
+### 📊 Indian Tax & Salary Advisor (Smart Fallback Mode)
+We analyzed your salary parameters locally. Here are the exact tax calculations:
+
+* **Old Tax Regime**: Taxable Income = **INR {calcs['old']['taxable_income']:,}** | Tax = **INR {calcs['old']['tax_payable']:,}** | Est. Take-Home = **INR {calcs['old']['monthly_takehome']:,}/mo**
+* **New Tax Regime**: Taxable Income = **INR {calcs['new']['taxable_income']:,}** | Tax = **INR {calcs['new']['tax_payable']:,}** | Est. Take-Home = **INR {calcs['new']['monthly_takehome']:,}/mo**
+
+**💡 Advisor Recommendation**:
+* **{recomm}**
+* Standard Deduction of **₹75,000** (New Regime) or **₹50,000** (Old Regime) has been applied.
+* Section 87A Rebate limits: nil tax up to ₹7L (New) or ₹5L (Old) Net Taxable Income.
+"""
+    return jsonify({"success": True, "advice": offline_advice, "calculations": calcs})
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
