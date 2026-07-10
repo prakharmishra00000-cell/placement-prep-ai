@@ -1360,8 +1360,36 @@ def save_backend_credentials():
     except Exception as e:
         return jsonify({"success": False, "message": f"Failed to save credentials: {str(e)}"}), 500
 
+def trigger_cache_update_if_old(cache_file):
+    import time
+    import threading
+    cache_duration_seconds = 14400  # 4 hours
+    needs_update = True
+    if os.path.exists(cache_file):
+        try:
+            mtime = os.path.getmtime(cache_file)
+            if time.time() - mtime < cache_duration_seconds:
+                needs_update = False
+        except:
+            pass
+            
+    if needs_update:
+        def update_task():
+            try:
+                from job_scraper import scrape_local_jobs, scrape_abroad_jobs, scrape_competitive_exams
+                if cache_file == "jobs_cache.json":
+                    scrape_local_jobs()
+                elif cache_file == "abroad_cache.json":
+                    scrape_abroad_jobs()
+                elif cache_file == "exams_cache.json":
+                    scrape_competitive_exams()
+            except Exception as e:
+                print(f"Background scraper update failed for {cache_file}: {e}")
+        threading.Thread(target=update_task).start()
+
 @app.route("/api/jobs", methods=["GET"])
 def get_jobs_feed():
+    trigger_cache_update_if_old("jobs_cache.json")
     branch_filter = request.args.get("branch", "all").lower().strip()
     exp_filter = request.args.get("experience", "all").lower().strip()
     qual_filter = request.args.get("qualification", "all").lower().strip()
@@ -1479,6 +1507,7 @@ def get_jobs_feed():
 
 @app.route("/api/abroad", methods=["GET"])
 def get_abroad_jobs_feed():
+    trigger_cache_update_if_old("abroad_cache.json")
     branch_filter = request.args.get("branch", "all").lower().strip()
     country_filter = request.args.get("country", "all").lower().strip()
     exp_filter = request.args.get("experience", "all").lower().strip()
@@ -1574,6 +1603,7 @@ def get_abroad_jobs_feed():
 
 @app.route("/api/exams", methods=["GET"])
 def get_exams_feed():
+    trigger_cache_update_if_old("exams_cache.json")
     branch_filter = request.args.get("branch", "all").lower().strip()
     exp_filter = request.args.get("experience", "all").lower().strip()
     qual_filter = request.args.get("qualification", "all").lower().strip()
