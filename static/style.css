@@ -55,7 +55,6 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
-    animation: theme-cycle 50s infinite linear;
 }
 
 /* Floating Ambient Background Balls */
@@ -76,6 +75,7 @@ body {
     filter: blur(140px);
     opacity: 0.15;
     animation: float 25s infinite alternate ease-in-out;
+    will-change: transform;
 }
 
 .ball1 {
