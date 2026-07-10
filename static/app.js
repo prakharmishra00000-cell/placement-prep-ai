@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "abroad": { title: "Active Abroad Opportunities Feed", sub: "Explore visa sponsored positions and international job boards for all branches" },
         "exams": { title: "Active Competitive & Government Exams Feed", sub: "Track live national/international exam bulletins, syllabus, and registration forms" },
         "books": { title: "AI Book Store & Placement Library (Only Competitive Exam Books)", sub: "Search, fetch, and download reference engineering textbooks and guides instantly" },
+        "portfolio": { title: "AI Portfolio Generator", sub: "Build a beautiful, modern, shareable developer portfolio website from your links and resume instantly" },
         "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
@@ -1401,6 +1402,102 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     checkTelegramStatus();
+
+    // ----------------------------------------------------
+    // Tab: AI Portfolio Website Generator
+    // ----------------------------------------------------
+    const generatePortBtn = document.getElementById("generate-portfolio-btn");
+    const portName = document.getElementById("port-name");
+    const portBio = document.getElementById("port-bio");
+    const portSkills = document.getElementById("port-skills");
+    const portResume = document.getElementById("port-resume");
+    const portGithub = document.getElementById("port-github");
+    const portLinkedin = document.getElementById("port-linkedin");
+
+    const portEmptyState = document.getElementById("port-empty-state");
+    const portLoading = document.getElementById("port-loading");
+    const portResultState = document.getElementById("port-result-state");
+    const shareUrlBox = document.getElementById("share-url-box");
+    const copyUrlBtn = document.getElementById("copy-url-btn");
+    const portPreviewFrame = document.getElementById("portfolio-preview-frame");
+
+    if (generatePortBtn) {
+        generatePortBtn.addEventListener("click", () => {
+            const nameVal = portName.value.trim();
+            const bioVal = portBio.value.trim();
+            const skillsVal = portSkills.value.trim();
+            const resumeVal = portResume.value.trim();
+            const githubVal = portGithub.value.trim();
+            const linkedinVal = portLinkedin.value.trim();
+
+            if (!nameVal) {
+                alert("Please enter your Full Name to generate the portfolio website!");
+                return;
+            }
+
+            // Switch states to loading
+            portEmptyState.style.display = "none";
+            portResultState.style.display = "none";
+            portLoading.style.display = "block";
+            generatePortBtn.disabled = true;
+            generatePortBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Assembling Site...';
+
+            fetch("/api/portfolio/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: nameVal,
+                    bio: bioVal,
+                    skills: skillsVal,
+                    resume: resumeVal,
+                    github: githubVal,
+                    linkedin: linkedinVal
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.shareable_url) {
+                    const fullUrl = window.location.origin + data.shareable_url;
+                    shareUrlBox.value = fullUrl;
+                    portPreviewFrame.src = data.shareable_url;
+
+                    portLoading.style.display = "none";
+                    portResultState.style.display = "flex";
+                } else {
+                    alert(data.error || "Failed to generate portfolio.");
+                    portLoading.style.display = "none";
+                    portEmptyState.style.display = "block";
+                }
+                generatePortBtn.disabled = false;
+                generatePortBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate Portfolio Site';
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Failed to build portfolio due to connection error.");
+                portLoading.style.display = "none";
+                portEmptyState.style.display = "block";
+                generatePortBtn.disabled = false;
+                generatePortBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate Portfolio Site';
+            });
+        });
+    }
+
+    if (copyUrlBtn) {
+        copyUrlBtn.addEventListener("click", () => {
+            shareUrlBox.select();
+            shareUrlBox.setSelectionRange(0, 99999); // Mobile
+            navigator.clipboard.writeText(shareUrlBox.value)
+                .then(() => {
+                    copyUrlBtn.textContent = "Copied!";
+                    copyUrlBtn.style.background = "var(--neon-cyan)";
+                    setTimeout(() => {
+                        copyUrlBtn.textContent = "Copy Link";
+                        copyUrlBtn.style.background = "var(--neon-blue)";
+                    }, 2000);
+                })
+                .catch(err => console.error("Clipboard copy failed:", err));
+        });
+    }
 
     navItems.forEach(item => {
         item.addEventListener("click", () => {

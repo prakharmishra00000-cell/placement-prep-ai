@@ -70,6 +70,10 @@
                     <i class="fa-solid fa-file-invoice"></i>
                     <span>Resume & JD Analyzer</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="portfolio">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>AI Portfolio Generator</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="roadmap">
                     <i class="fa-solid fa-route"></i>
                     <span>Roadmap Generator</span>
@@ -1018,6 +1022,89 @@
                                         <span><i class="fa-solid fa-phone" style="margin-right: 0.5rem; color: var(--neon-cyan);"></i> +91 6372843175</span>
                                         <span><i class="fa-solid fa-university" style="margin-right: 0.5rem; color: var(--neon-purple);"></i> MMMUT Gorakhpur, UP, India</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: AI Portfolio Generator -->
+            <div class="tab-content" id="tab-portfolio">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-globe text-neon-blue"></i> AI One-Click Portfolio Website Builder</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 2rem;">Build a beautiful, modern, shareable developer portfolio website from your links and professional summary instantly.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <!-- Input Form -->
+                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color);">
+                            <h4 style="color: #fff; margin-bottom: 1.25rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-file-pen text-neon-purple"></i> Portfolio Details</h4>
+                            
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <label for="port-name"><i class="fa-solid fa-user"></i> Full Name</label>
+                                <input type="text" id="port-name" placeholder="e.g. Prakhar Mishra">
+                            </div>
+                            
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <label for="port-bio"><i class="fa-solid fa-quote-left"></i> Headline / Brief Bio</label>
+                                <textarea id="port-bio" rows="2" placeholder="e.g. Final Year B.Tech student specializing in robotics, kinematics, and backend system architecture..." style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:4px; padding:0.5rem; color:#fff; font-family:inherit; font-size:0.85rem; resize:vertical;"></textarea>
+                            </div>
+                            
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <label for="port-skills"><i class="fa-solid fa-code"></i> Key Skills (Comma separated)</label>
+                                <input type="text" id="port-skills" placeholder="e.g. Python, CAD, RTOS, Embedded C, ROS">
+                            </div>
+                            
+                            <div class="input-group" style="margin-bottom: 1.25rem;">
+                                <label for="port-resume"><i class="fa-solid fa-file-lines"></i> Professional Summary / Work Experience</label>
+                                <textarea id="port-resume" rows="4" placeholder="Detail your internship roles, college projects, leadership positions, or professional history..." style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:4px; padding:0.5rem; color:#fff; font-family:inherit; font-size:0.85rem; resize:vertical;"></textarea>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div class="input-group">
+                                    <label for="port-github"><i class="fa-brands fa-github"></i> GitHub URL</label>
+                                    <input type="url" id="port-github" placeholder="https://github.com/...">
+                                </div>
+                                <div class="input-group">
+                                    <label for="port-linkedin"><i class="fa-brands fa-linkedin"></i> LinkedIn URL</label>
+                                    <input type="url" id="port-linkedin" placeholder="https://linkedin.com/in/...">
+                                </div>
+                            </div>
+                            
+                            <button id="generate-portfolio-btn" class="glow-btn" style="width: 100%;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Portfolio Site
+                            </button>
+                        </div>
+                        
+                        <!-- Output Screen -->
+                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 400px; text-align: center;">
+                            <div id="port-empty-state">
+                                <i class="fa-solid fa-laptop-code" style="font-size: 3.5rem; color: rgba(255,255,255,0.05); margin-bottom: 1rem;"></i>
+                                <h4 style="color: #fff; margin-bottom: 0.5rem;">Preview & Links Screen</h4>
+                                <p class="text-muted" style="font-size: 0.85rem; max-width: 280px; margin: 0 auto;">Submit your resume, profile details, and links to dynamically generate your personal hosting page.</p>
+                            </div>
+                            
+                            <div id="port-loading" style="display: none;">
+                                <i class="fa-solid fa-circle-notch fa-spin text-neon-blue" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                <h4 style="color: #fff; margin-bottom: 0.25rem;">Assembling Page Elements</h4>
+                                <p class="text-muted" style="font-size: 0.85rem;">Stitching template nodes, integrating social assets, and rendering deployment files...</p>
+                            </div>
+                            
+                            <div id="port-result-state" style="display: none; width: 100%; height: 100%; display: flex; flex-direction: column;">
+                                <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: var(--neon-cyan); margin-bottom: 0.75rem;"></i>
+                                <h4 style="color: #fff; margin-bottom: 0.25rem;">Website Built Successfully!</h4>
+                                <p class="text-muted" style="font-size: 0.8rem; margin-bottom: 1.25rem;">Your personal hosting URL is live and public.</p>
+                                
+                                <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%; margin-bottom: 1.5rem; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <input type="text" id="share-url-box" readonly style="flex: 1; background: transparent; border: none; color: var(--neon-cyan); font-size: 0.85rem; outline: none; font-weight: 700;">
+                                    <button id="copy-url-btn" style="background: var(--neon-blue); border: none; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 700; font-size: 0.75rem; color: #000; cursor: pointer;">
+                                        Copy Link
+                                    </button>
+                                </div>
+                                
+                                <!-- Preview Frame -->
+                                <div style="flex: 1; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: #000; height: 260px;">
+                                    <iframe id="portfolio-preview-frame" style="width: 100%; height: 100%; border: none;"></iframe>
                                 </div>
                             </div>
                         </div>

@@ -2006,5 +2006,290 @@ def generate_study_notes():
     except Exception as e:
         return jsonify({"error": f"AI notes generation failed: {str(e)}"}), 500
 
+@app.route("/api/portfolio/generate", methods=["POST"])
+def generate_portfolio():
+    import uuid
+    data = request.get_json() or {}
+    name = data.get("name", "").strip()
+    bio = data.get("bio", "").strip()
+    skills = data.get("skills", "").strip()
+    resume_text = data.get("resume", "").strip()
+    github = data.get("github", "").strip()
+    linkedin = data.get("linkedin", "").strip()
+    
+    if not name:
+        return jsonify({"error": "Full Name is required to build your portfolio website!"}), 400
+        
+    portfolio_id = str(uuid.uuid4())[:8]
+    
+    # Render template HTML
+    github_username = ""
+    if "github.com/" in github:
+        github_username = github.split("github.com/")[-1].split("/")[0].strip()
+        
+    skills_list = [s.strip() for s in skills.split(",") if s.strip()]
+    skills_html = "".join([f'<span class="skill-tag">{s}</span>' for s in skills_list])
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{name} | Professional Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {{
+            --bg-dark: #030008;
+            --card-bg: rgba(18, 5, 30, 0.65);
+            --neon-blue: #00f0ff;
+            --neon-purple: #9d4ede;
+            --text-primary: #f3f0f7;
+            --text-muted: #a59fb1;
+            --border-color: rgba(157, 78, 221, 0.25);
+        }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.05) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.05) 0%, transparent 40%);
+        }}
+        .container {{
+            width: 100%;
+            max-width: 800px;
+            padding: 3rem 1.5rem;
+        }}
+        header {{
+            text-align: center;
+            margin-bottom: 3rem;
+        }}
+        .avatar {{
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            margin: 0 auto 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #fff;
+            font-weight: 800;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+            border: 2px solid rgba(255,255,255,0.1);
+        }}
+        h1 {{
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }}
+        .subtitle {{
+            color: var(--neon-blue);
+            font-weight: 600;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }}
+        .social-links {{
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+        }}
+        .social-btn {{
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        .social-btn:hover {{
+            color: var(--neon-blue);
+            transform: translateY(-3px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }}
+        .card {{
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }}
+        h2 {{
+            font-size: 1.15rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+        }}
+        p {{
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }}
+        .skill-list {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }}
+        .skill-tag {{
+            background: rgba(157, 78, 221, 0.08);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #c77dff;
+        }}
+        .project-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }}
+        @media (max-width: 600px) {{
+            .project-grid {{ grid-template-columns: 1fr; }}
+        }}
+        .project-card {{
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }}
+        .project-card h4 {{
+            color: #fff;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }}
+        .project-card p {{
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }}
+        .project-link {{
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }}
+        footer {{
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
+            margin-top: auto;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="avatar">{name[0].upper() if name else 'P'}</div>
+            <h1>{name}</h1>
+            <div class="subtitle">Professional Portfolio</div>
+            <p style="max-width: 600px; margin: 1rem auto 0; font-size: 0.95rem; line-height: 1.5;">{bio}</p>
+            <div class="social-links">
+                {f'<a href="{github}" target="_blank" class="social-btn"><i class="fa-brands fa-github"></i></a>' if github else ''}
+                {f'<a href="{linkedin}" target="_blank" class="social-btn"><i class="fa-brands fa-linkedin"></i></a>' if linkedin else ''}
+            </div>
+        </header>
+
+        <section class="card">
+            <h2><i class="fa-solid fa-file-lines text-neon-blue"></i> Professional Summary</h2>
+            <p style="white-space: pre-line;">{resume_text}</p>
+        </section>
+
+        <section class="card">
+            <h2><i class="fa-solid fa-code text-neon-blue"></i> Key Expertise & Skills</h2>
+            <div class="skill-list">
+                {skills_html}
+            </div>
+        </section>
+
+        <section class="card" id="projects-section" style="display: none;">
+            <h2><i class="fa-solid fa-cubes text-neon-blue"></i> GitHub Projects</h2>
+            <div class="project-grid" id="github-repos-list"></div>
+        </section>
+    </div>
+
+    <footer>
+        &copy; {datetime.now().year} {name}. Powered by PrepOS AI.
+    </footer>
+
+    <script>
+        const githubUser = "{github_username}";
+        if (githubUser) {{
+            fetch(`https://api.github.com/users/${{githubUser}}/repos?sort=updated&per_page=4`)
+                .then(res => res.json())
+                .then(data => {{
+                    if (Array.isArray(data) && data.length > 0) {{
+                        const container = document.getElementById("github-repos-list");
+                        const section = document.getElementById("projects-section");
+                        section.style.display = "block";
+                        
+                        data.forEach(repo => {{
+                            const card = document.createElement("div");
+                            card.className = "project-card";
+                            card.innerHTML = `
+                                <div>
+                                    <h4>${{repo.name}}</h4>
+                                    <p>${{repo.description || 'No description provided.'}}</p>
+                                </div>
+                                <a href="${{repo.html_url}}" target="_blank" class="project-link">
+                                    View Repository <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                            `;
+                            container.appendChild(card);
+                        }});
+                    }}
+                }})
+                .catch(err => console.error("Error loading repos:", err));
+        }}
+    </script>
+</body>
+</html>"""
+    
+    os.makedirs(os.path.join("static", "portfolios"), exist_ok=True)
+    file_path = os.path.join("static", "portfolios", f"{portfolio_id}.html")
+    
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        shareable_url = f"/static/portfolios/{portfolio_id}.html"
+        return jsonify({"success": True, "shareable_url": shareable_url})
+    except Exception as e:
+        return jsonify({"error": f"Failed to save portfolio website: {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(debug=True, port=9876)
