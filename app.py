@@ -1407,7 +1407,7 @@ def save_backend_credentials():
 def trigger_cache_update_if_old(cache_file):
     import time
     import threading
-    cache_duration_seconds = 14400  # 4 hours
+    cache_duration_seconds = 3600  # 1 hour
     needs_update = True
     if os.path.exists(cache_file):
         try:
@@ -2479,6 +2479,110 @@ def calculate_indian_tax(ctc, basic_pct, vpf_pct, rent_paid, car_perk, other_ded
             "pf": round(pf_employee)
         }
     }
+    
+@app.route("/api/interview/questions", methods=["GET"])
+def get_interview_questions():
+    company = request.args.get("company", "TCS").strip()
+    role = request.args.get("role", "Software Engineer").strip()
+    difficulty = request.args.get("difficulty", "Medium").strip()
+    
+    api_key = get_backend_gemini_key()
+    fallback_questions = [
+        f"Welcome. Let's start the technical round. Can you explain the difference between a process and a thread?",
+        f"Good. How would you design a database schema to support a ride-sharing app? What indexes are critical?",
+        f"Finally, tell me about a time you resolved a major logic deadlock in your project. How did you diagnose it?"
+    ]
+    
+    if api_key:
+        try:
+            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            prompt = f"""
+            You are an expert technical interviewer at {company} interviewing for the role of "{role}" at a "{difficulty}" difficulty tier.
+            Generate a list of exactly 3 highly realistic, role-specific, and technical questions that you would ask this candidate in an interview.
+            Make the questions specific to {company}'s interview history if possible.
+            
+            Return the output in strict JSON format. Do not use markdown wrappers or backticks. Return a raw JSON array containing exactly 3 strings:
+            [
+               "Question 1...",
+               "Question 2...",
+               "Question 3..."
+            ]
+            """
+            resp = model.generate_content(prompt).text.strip()
+            if resp.startswith("```json"):
+                resp = resp[7:]
+            if resp.endswith("```"):
+                resp = resp[:-3]
+            resp = resp.strip()
+            return jsonify(json.loads(resp))
+        except Exception as e:
+            print("Gemini get_interview_questions error:", e)
+            
+    return jsonify(fallback_questions)
+
+@app.route("/api/interview/evaluate", methods=["POST"])
+def evaluate_interview():
+    data = request.get_json() or {}
+    company = data.get("company", "TCS").strip()
+    role = data.get("role", "Software Engineer").strip()
+    questions = data.get("questions", [])
+    responses = data.get("responses", [])
+    
+    api_key = get_backend_gemini_key()
+    fallback_evaluation = {
+        "tech": 78,
+        "comm": 80,
+        "speed": 82,
+        "vocab": 85,
+        "remarks": "Excellent communication skills. Suggest revising system design paradigms and memory cache edge cases."
+    }
+    
+    if api_key and len(questions) == len(responses):
+        try:
+            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            
+            transcript_str = ""
+            for q, r in zip(questions, responses):
+                transcript_str += f"Interviewer: {q}\nCandidate: {r}\n\n"
+                
+            prompt = f"""
+            You are a professional HR and Technical lead at {company}.
+            Evaluate the following interview transcript for the role of "{role}":
+            
+            ---
+            {transcript_str}
+            ---
+            
+            Please score the candidate out of 100 on these four parameters:
+            1. Technical Depth (tech): Accuracy of technical terms, logic, and frameworks.
+            2. Communication (comm): Clarity, structuring, and articulation.
+            3. Thinking Speed (speed): How structured and fast their flow is.
+            4. Vocabulary & Grammar (vocab): Grammar, wording, and professional tone.
+            
+            Also, provide a short, constructive, and actionable summary remarks highlighting strengths and areas to improve.
+            
+            Return the output in strict JSON format. Do not use markdown wrappers or backticks. Return a raw JSON object with these keys:
+            {{
+                "tech": 82,
+                "comm": 78,
+                "speed": 85,
+                "vocab": 90,
+                "remarks": "Summary remarks..."
+            }}
+            """
+            resp = model.generate_content(prompt).text.strip()
+            if resp.startswith("```json"):
+                resp = resp[7:]
+            if resp.endswith("```"):
+                resp = resp[:-3]
+            resp = resp.strip()
+            return jsonify(json.loads(resp))
+        except Exception as e:
+            print("Gemini evaluate_interview error:", e)
+            
+    return jsonify(fallback_evaluation)
 
 @app.route("/api/tax/advise", methods=["POST"])
 def get_tax_advice():

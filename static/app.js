@@ -336,55 +336,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const role = document.getElementById("interview-role").value;
         const diff = document.getElementById("interview-difficulty").value;
 
-        // Generate interview questions based on role
-        if (role.includes("Software")) {
-            interviewQuestions = [
-                `Welcome. Let's start the technical round. Can you explain the difference between a process and a thread?`,
-                `Good. How would you design a database schema to support a ride-sharing app? What indexes are critical?`,
-                `Finally, tell me about a time you resolved a major logic deadlock in your project. How did you diagnose it?`
-            ];
-        } else if (role.includes("Mechanical")) {
-            interviewQuestions = [
-                `Welcome. Let's start the mechanical round. Can you explain the difference between stress and strain?`,
-                `Explain the working principle of a four-stroke internal combustion engine.`,
-                `How do you determine the critical speed of a rotating shaft?`
-            ];
-        } else if (role.includes("Electrical")) {
-            interviewQuestions = [
-                `Welcome. Let's start the electrical round. Can you explain Kirchhoff's Current and Voltage laws?`,
-                `What is the difference between a synchronous motor and an induction motor?`,
-                `How does a transformer step up or step down AC voltage?`
-            ];
-        } else if (role.includes("Civil")) {
-            interviewQuestions = [
-                `Welcome. Let's start the civil round. Can you explain the concept of workability in fresh concrete?`,
-                `What is the difference between one-way and two-way slabs?`,
-                `Explain the purpose of providing reinforcement bars in concrete structures.`
-            ];
-        } else if (role.includes("Data Analyst")) {
-            interviewQuestions = [
-                `Welcome. Let's start the data analysis round. Can you explain the difference between inner join and outer join in SQL?`,
-                `What is the difference between supervised and unsupervised machine learning?`,
-                `How do you handle missing or duplicate values in a large dataset?`
-            ];
-        } else {
-            interviewQuestions = [
-                `Welcome. Let's start the general round. Can you explain the concept of conservation of energy?`,
-                `What is Bernoulli's principle and where is it applied?`,
-                `Explain step-by-step how you would approach a complex problem in your domain.`
-            ];
-        }
+        startInterviewBtn.disabled = true;
+        startInterviewBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating Questions...';
 
-        interviewSetup.classList.add("hide");
-        interviewAvatarPanel.classList.remove("hide");
-        interviewInputContainer.classList.remove("hide");
-        interviewFeedbackScore.classList.add("hide");
-        interviewStep = 0;
-        responses = [];
-        interviewChatMessages.innerHTML = "";
+        fetch(`/api/interview/questions?company=${encodeURIComponent(company)}&role=${encodeURIComponent(role)}&difficulty=${encodeURIComponent(diff)}`)
+            .then(res => res.json())
+            .then(questions => {
+                interviewQuestions = questions;
+                startInterviewBtn.disabled = false;
+                startInterviewBtn.innerHTML = 'Start AI Simulation Round';
 
-        // First question
-        appendInterviewMsg("system", interviewQuestions[0]);
+                interviewSetup.classList.add("hide");
+                interviewAvatarPanel.classList.remove("hide");
+                interviewInputContainer.classList.remove("hide");
+                interviewFeedbackScore.classList.add("hide");
+                interviewStep = 0;
+                responses = [];
+                interviewChatMessages.innerHTML = "";
+
+                appendInterviewMsg("system", interviewQuestions[0]);
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Failed to initialize simulator. Please try again.");
+                startInterviewBtn.disabled = false;
+                startInterviewBtn.innerHTML = 'Start AI Simulation Round';
+            });
     });
 
     submitResponseBtn.addEventListener("click", () => {
@@ -401,21 +378,41 @@ document.addEventListener("DOMContentLoaded", () => {
                 appendInterviewMsg("system", interviewQuestions[interviewStep]);
             }, 1000);
         } else {
-            // End simulation, show scorecard
-            setTimeout(() => {
-                interviewAvatarPanel.classList.add("hide");
-                interviewInputContainer.classList.add("hide");
+            interviewAvatarPanel.classList.add("hide");
+            interviewInputContainer.classList.add("hide");
+            
+            appendInterviewMsg("system", "Thank you for completing the interview. Evaluating your performance scorecard...");
+
+            const company = document.getElementById("interview-company").value.trim() || "TCS";
+            const role = document.getElementById("interview-role").value;
+
+            fetch("/api/interview/evaluate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    company: company,
+                    role: role,
+                    questions: interviewQuestions,
+                    responses: responses
+                })
+            })
+            .then(res => res.json())
+            .then(evaluation => {
                 interviewFeedbackScore.classList.remove("hide");
                 interviewSetup.classList.remove("hide");
 
-                // Calculate random positive scores
-                document.querySelector("#score-tech span").style.width = `${Math.floor(Math.random() * 20) + 75}%`;
-                document.querySelector("#score-comm span").style.width = `${Math.floor(Math.random() * 20) + 70}%`;
-                document.querySelector("#score-speed span").style.width = `${Math.floor(Math.random() * 25) + 70}%`;
-                document.querySelector("#score-vocab span").style.width = `${Math.floor(Math.random() * 15) + 80}%`;
+                document.querySelector("#score-tech span").style.width = `${evaluation.tech}%`;
+                document.querySelector("#score-comm span").style.width = `${evaluation.comm}%`;
+                document.querySelector("#score-speed span").style.width = `${evaluation.speed}%`;
+                document.querySelector("#score-vocab span").style.width = `${evaluation.vocab}%`;
 
-                document.getElementById("interview-remarks").textContent = "Excellent communication skills. Suggest revising system design paradigms and memory cache edge cases.";
-            }, 1200);
+                document.getElementById("interview-remarks").textContent = evaluation.remarks;
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Failed to compile evaluation scorecard.");
+                interviewSetup.classList.remove("hide");
+            });
         }
     });
 

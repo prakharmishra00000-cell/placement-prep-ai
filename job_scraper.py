@@ -30,23 +30,20 @@ def merge_and_save_cache(cache_file, new_items, unique_keys):
     seen = set()
     merged = []
     
-    # Process new items first so they take precedence
-    for item in new_items + existing_items:
+    # Process new items first so they are at the top (latest hourly scrape)
+    for item in new_items:
         key_tuple = tuple(str(item.get(k, "")).lower().strip() for k in unique_keys)
         if key_tuple not in seen:
             seen.add(key_tuple)
             merged.append(item)
             
-    # Sort merged items by posted_date descending
-    def get_sort_key(x):
-        date_str = x.get("posted_date", "")
-        try:
-            return datetime.strptime(date_str, "%B %d, %Y")
-        except:
-            return datetime.min
+    # Add existing items (old items get pushed to the bottom)
+    for item in existing_items:
+        key_tuple = tuple(str(item.get(k, "")).lower().strip() for k in unique_keys)
+        if key_tuple not in seen:
+            seen.add(key_tuple)
+            merged.append(item)
             
-    merged.sort(key=get_sort_key, reverse=True)
-    
     # Cap size at 100 items to prevent cache bloating
     merged = merged[:100]
     
@@ -59,7 +56,7 @@ def merge_and_save_cache(cache_file, new_items, unique_keys):
 
 def scrape_local_jobs():
     search_key = get_scraper_credential("SEARCH_API_KEY")
-    current_date = datetime.now().strftime("%B %d, %Y")
+    current_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
     
     # Base fallback jobs that will be updated with the current date
     jobs = [
@@ -163,7 +160,7 @@ def scrape_local_jobs():
 
 def scrape_abroad_jobs():
     search_key = get_scraper_credential("SEARCH_API_KEY")
-    current_date = datetime.now().strftime("%B %d, %Y")
+    current_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
     
     abroad_jobs = [
         {
@@ -261,7 +258,7 @@ def scrape_abroad_jobs():
     merge_and_save_cache("abroad_cache.json", abroad_jobs, ["title", "company", "branch", "country"])
 
 def scrape_competitive_exams():
-    current_date = datetime.now().strftime("%B %d, %Y")
+    current_date = datetime.now().strftime("%B %d, %Y at %I:%M %p")
     exams = [
         {
             "title": "GATE 2027 Entrance Exam",
