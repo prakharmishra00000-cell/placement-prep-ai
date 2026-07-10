@@ -683,8 +683,18 @@ def call_gemini_api(prompt, api_key, system_instruction=None):
     return None
 
 def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
+    # Run background Google search
+    search_query = f"{company} placement recruitment process eligibility CTC {branch} India"
+    search_results = fetch_google_search_snippets(search_query)
+    web_context = "\n".join(search_results) if search_results else "No live web results retrieved."
+
     prompt = f"""
     Provide an authentic, highly accurate placement preparation guide for the company "{company}" under the category "{category}" for a candidate from the "{branch}" branch.
+    
+    REFER TO THIS LIVE WEB SEARCH CONTEXT FOR REAL DETAILS:
+    ---
+    {web_context}
+    ---
     
     CRITICAL QUALITY CONTROL:
     - DO NOT return mock, placeholder, template, or generic data.
