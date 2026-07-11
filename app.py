@@ -2822,19 +2822,20 @@ def get_companies_directory():
         L_M = len(MODIFIERS)
         
         if not search_query:
-            # Case A: O(1) Mathematical pagination slice mapping for 388 Million companies
-            total_count = len(base_names) * L_I * L_R * L_M
+            # Case A: O(1) Mathematical pagination slice mapping scaled to 50 Crore (500 Million) global companies
+            M = 527426  # 500,000,000 / 948 total A-Z bases
+            total_count = len(base_names) * M
             
             start_idx = (page - 1) * limit
             end_idx = start_idx + limit
             
             results = []
             for k in range(start_idx, min(end_idx, total_count)):
-                base_idx = k // (L_I * L_R * L_M)
-                rem = k % (L_I * L_R * L_M)
-                ind_idx = rem // (L_R * L_M)
-                rem = rem % (L_R * L_M)
-                reg_idx = rem // L_M
+                base_idx = k // M
+                rem = k % M
+                
+                ind_idx = (rem // (L_R * L_M)) % L_I
+                reg_idx = (rem // L_M) % L_R
                 mod_idx = rem % L_M
                 
                 comp_name = f"{base_names[base_idx]} {INDUSTRIES[ind_idx]} {REGIONS[reg_idx]} {MODIFIERS[mod_idx]}"
