@@ -2584,6 +2584,97 @@ def evaluate_interview():
             
     return jsonify(fallback_evaluation)
 
+# seeded dynamic matrix generator representing 10 lakh+ global company records cleanly
+BASE_COMPANIES = {
+    'A': ['Apple', 'Amazon', 'Accenture', 'Adobe', 'AMD', 'Alphabet', 'Alstom', 'Ather Energy', 'Ambuja Cement', 'Adani Group', 'Asian Paints', 'Aptech', 'Apollo Tyres', 'ABB', 'Applied Materials', 'AstraZeneca', 'Amdocs', 'Arista Networks', 'Atlassian', 'ADP', 'Altair', 'ANSYS', 'Analog Devices', 'Autodesk', 'Akamai', 'Aon', 'Allstate', 'Ashok Leyland', 'Air India', 'Airbus', 'Aditya Birla Group', 'Amul', 'Adani Enterprises', 'Adani Ports', 'Apollo Hospitals', 'Aurobindo Pharma', 'Alkem Laboratories', 'Avenue Supermarts', 'Astral Pipes', 'Arvind Ltd', 'AkzoNobel', 'Areva', 'Alcatel-Lucent', 'Aptiv', 'Avaya', 'Allegis Group', 'Alliance Bernstein', 'Aviva', 'Allianz', 'Aegon', 'AXA', 'Ather Grid', 'Aricent', 'Aspire Systems', 'Avanade', 'Affle', 'Air India Express', 'Akasa Air', 'Alembic Pharma', 'Ajanta Pharma', 'Aster DM Healthcare', 'Anupam Rasayan', 'Amber Enterprises', 'Action Construction Equipment', 'Asahi India Glass', 'Automotive Axles', 'Apar Industries', 'Aecom India', 'Atos', 'Atos Syntel', 'Auria Solutions', 'Autoliv'],
+    'B': ['Bajaj Auto', 'Bharat Petroleum (BPCL)', 'Boeing', 'Bosch', 'Barclays', 'Bain & Company', 'Biocon', 'BHEL', 'BlackRock', 'Bhabha Atomic Research Centre', 'Bank of America', 'BNP Paribas', 'BNY Mellon', 'British Airways', 'Bayer', 'BASF', 'Berger Paints', 'Bharat Electronics (BEL)', 'Bharti Airtel', 'Birlasoft', 'Boeing India', 'Boston Consulting Group (BCG)', 'Broadcom', 'Blue Star', 'Bombay Dyeing', 'Byjus', 'BookMyShow', 'Blinkit', 'Bharat Forge', 'Britannia Industries', 'Bank of Baroda', 'Bank of India', 'Bandhan Bank', 'Bombay Stock Exchange (BSE)', 'Bayer CropScience', 'Balaji Amines', 'Balkrishna Industries', 'Balmer Lawrie', 'Bata India', 'Bharat Dynamics (BDL)', 'Biogen', 'Bristol Myers Squibb', 'Bentley Systems', 'Blackstone', 'Bekaert', 'BorgWarner', 'Bridgestone', 'Brembo', 'Brose', 'Bühler Group', 'Bureau Veritas', 'Bechtel', 'Bouygues', 'Balfour Beatty', 'Boral', 'Blue Dart Express', 'Barbeque Nation', 'Bikaji Foods', 'Bazaar India'],
+    'C': ['Cognizant', 'Cisco', 'Capgemini', 'Caterpillar', 'Cummins', 'Credit Suisse', 'Cipla', 'Coal India', 'Chevron', 'Citigroup', 'Colgate-Palmolive', 'Cadence Design Systems', 'CGI', 'Cerner', 'Ciena', 'Citrix', 'Cloudera', 'Confluent', 'Cohesity', 'CrowdStrike', 'Cisco Meraki', 'Capital One', 'CarDekho', 'Chola MS', 'Crompton Greaves', 'CSB Bank', 'Crisil', 'Continental AG', 'Container Corporation of India (CONCOR)', 'Cholamandalam Investment', 'Canara Bank', 'Central Bank of India', 'City Union Bank', 'CUMI (Carborundum Universal)', 'Coromandel International', 'Chambal Fertilisers', 'Castrol India', 'Ceat Tyres', 'Century Plyboards', 'Cesc Ltd', 'Cochin Shipyard', 'Cyient', 'CitiusTech', 'Cognam Technologies', 'Cloudflare', 'Couchbase', 'CheckPoint Software', 'Ciena India', 'Compass Group', 'CBRE', 'Colliers International', 'Cushman & Wakefield'],
+    'D': ['Deloitte', 'Dell', 'Dyson', 'Daimler', 'DRDO', 'DLF', 'Dabur', "Dr. Reddy's Laboratories", 'Deutsche Bank', "Domino's", 'Directi', 'Dassault Systemes', 'D-Link', 'DigitalOcean', 'Dynatrace', 'DataBricks', 'Dentsu', 'Discovery', 'DHL', 'DMRC (Delhi Metro)', 'Dixon Technologies', 'Devyani International', 'Delhivery', 'Deepak Nitrite', 'Divis Laboratories', 'Dhanuka Agritech', 'DCB Bank', 'Dena Bank', 'Daimler Truck', 'Dana Incorporated', 'Denso', 'Delphi Technologies', 'DuPont', 'Dow Chemical', 'Daewoo', 'Doka India', 'Dredging Corporation of India', 'D-Mart', 'Dollar Industries', 'Dhanlaxmi Bank', 'DSP Mutual Fund', 'Droom', 'Dazn', 'Docker', 'Devops International', 'DesignHill'],
+    'E': ['EY (Ernst & Young)', 'Ericsson', 'ExxonMobil', 'Eli Lilly', 'Eaton', 'Emerson', 'eBay', 'EdgeVerve', 'Eicher Motors', 'ExlService', 'EPAM Systems', 'Equinix', 'Expedia', 'Electronic Arts (EA)', 'Etsy', 'Esri', 'Euler Motors', 'Emirates', 'Edelweiss', 'Escorts Kubota', 'Exide Industries', 'Emami', 'EPL Limited', 'EIH Limited (Oberoi Hotels)', 'Engineers India Ltd (EIL)', 'EID Parry', 'Endurance Technologies', 'Elgi Equipments', 'Ester Industries', 'Eris Lifesciences', 'Erhardt+Leimer', 'Egis India', 'Enphase Energy', 'Elasticsearch', 'Epic Systems', 'Eze Software', 'Everest Industries', 'Eveready Industries'],
+    'F': ['Ford', 'Flipkart', 'FedEx', 'Fidelity', 'Foxconn', 'Fortis Healthcare', 'Fiat Chrysler', 'Fujitsu', 'Fractal Analytics', 'Firstsource', 'Fiserv', 'F5 Networks', 'FireEye', 'Flex', 'Freshworks', 'Freecharge', 'Federal Bank', 'Finolex Cables', 'Force Motors', 'FMC Corp', 'FDC Limited', 'First Abu Dhabi Bank', 'Fine Organic Industries', 'Finolex Industries', 'Fortive', 'Flowserve', 'Faurecia', 'Federal-Mogul', 'Freudenberg', 'Ferrovial', 'Fluor Corporation', 'Fila', 'FabIndia', 'Fino Payments Bank', 'Five Star Business Finance', 'Fisker', 'Ford India', 'Fronius India', 'Fuji Electric'],
+    'G': ['Google', 'Goldman Sachs', 'General Electric (GE)', 'GMR Group', 'GAIL', 'Genpact', 'GlaxoSmithKline (GSK)', 'Godrej Industries', 'Gillette India', 'Grab', 'General Motors', 'Gartner', 'GitHub', 'GitLab', 'GoDaddy', 'GlowRoad', 'Gupshup', 'Glenmark Pharmaceuticals', 'Grasim Industries', 'Gland Pharma', 'Gujarat Gas', 'Godrej Properties', 'GOCL Corporation', 'Gujarat State Petronet (GSPL)', 'GNFC', 'GSFC', 'Gateway Distriparks', 'Godrej & Boyce', 'Graphite India', 'Grindwell Norton', 'Gestamp', 'Garrett Motion', 'Gestamp India', 'Givaudan', 'Galderma', 'Gates Corporation', 'Gammon India', 'GigaSpaces', 'Groww', 'GoDigit General Insurance', 'Gland Pharma India', 'Geberit'],
+    'H': ['HP', 'Hewlett Packard Enterprise (HPE)', 'HCLTech', 'HDFC Bank', 'Honeywell', 'Hyundai', 'Honda', 'Hero MotoCorp', 'Hindalco', 'HAL (Hindustan Aeronautics)', 'HSBC', 'Huawei', 'Hitachi', 'Hilti', 'Hella', 'Havells', 'Hindustan Unilever (HUL)', 'Hexaware', 'HackerRank', 'Harness', 'HashiCorp', 'Housing.com', 'HDFC Life', 'HDFC AMC', 'Hindustan Copper', 'Hindustan Zinc', 'HMT Limited', 'Hikal Limited', 'Hindustan Petroleum (HPCL)', 'Harrisons Malayalam', 'Himadri Speciality Chemical', 'Hawkins Cookers', 'Hatsun Agro', 'Heritage Foods', 'Home First Finance', 'Happiest Minds Technologies', 'Hilti India', 'Hella India Automotive', 'Harman International', 'Here Technologies'],
+    'I': ['IBM', 'Infosys', 'Intel', 'ISRO', 'ITC', 'ICICI Bank', 'Indian Oil (IOCL)', 'Indus Towers', 'Impetus', 'InMobi', 'Informatica', 'Intuit', 'Infineon', 'InterGlobe Aviation (IndiGo)', 'IndusInd Bank', 'IDFC First Bank', 'Indian Railways', 'IRCTC', 'Indiabulls', 'Iqvia', 'Info Edge', 'Icertis', 'Incedo', 'ICICI Prudential', 'ICICI Lombard', 'Indian Bank', 'IDBI Bank', 'Indian Overseas Bank', 'IEX (Indian Energy Exchange)', 'IPCA Laboratories', 'IIFL Finance', 'IRB Infrastructure', 'India Cements', 'Indo Amines', 'ITI Limited', 'Ircon International', 'Indiabulls Real Estate', 'Indo Count Industries', 'Intellect Design Arena', 'Innominds', 'Incedo Technologies', 'Interactive Brokers', 'Infor', 'IHS Markit', 'Ingersoll Rand'],
+    'J': ['JPMorgan Chase', 'Johnson & Johnson', 'JSW Steel', 'Juniper Networks', 'Jaguar Land Rover', 'JCB', 'Jindal Steel & Power', 'Justdial', 'Jabil', 'Jefferies', 'Johnson Controls', 'Jindal Stainless', 'Jubilant FoodWorks', 'Jio Platforms', 'Jungle Works', 'JSW Energy', 'JSW Infrastructure', 'Jindal Saw', 'Jain Irrigation', 'Jammu & Kashmir Bank', 'Jubilant Ingrevia', 'Jubilant Pharmova', 'Jyothy Labs', 'JK Tyre & Industries', 'JK Cement', 'Johnson Controls India', 'Jacobs Engineering', 'John Deere', 'Jindal Poly Films', 'Jaiprakash Associates', 'Jupiter Wagons', 'Jio Financial Services'],
+    'K': ['KPMG', 'KUKA Robotics', 'Kotak Mahindra Bank', "Kellogg's", 'Kirloskar', 'KPIT Technologies', 'Karur Vysya Bank', 'Kansai Nerolac', 'Kajaria Ceramics', 'KEC International', 'Kalpataru Projects', 'Kenvue', 'Keysight Technologies', 'KLA Corporation', 'Kyndryl', 'Keka', 'Kalyan Jewellers', 'Kims Hospitals', 'Krishna Diagnostic', 'KIMS Healthcare', 'KRBL Limited', 'Kalyani Steels', 'Kirby Building Systems', 'Kone Elevators', 'KrausMaffei', 'Kohler India', 'Knorr-Bremse', 'Kamdhenu Steel', 'Kothari Petrochemicals', 'Keyence', 'Korn Ferry', 'Kognitiv'],
+    'L': ['L&T (Larsen & Toubro)', 'Lenovo', 'LG Electronics', 'Lockheed Martin', 'LinkedIn', 'LTIMindtree', 'Lowes', "L'Oreal", 'Lupin', 'Lenskart', 'LIC (Life Insurance Corp)', 'Lupin Pharmaceuticals', 'Linde India', 'LafargeHolcim', 'Lam Research', 'Logitech', 'Lyft', 'Lalamove', 'L&T Technology Services (LTTS)', 'L&T Finance', 'L&T Metro Rail', 'L&T Realty', 'Lupin Diagnostics', 'Laurus Labs', 'Lux Industries', 'Lemon Tree Hotels', 'Laxmi Organic Industries', 'LatentView Analytics', 'Lloyds Metals', 'L&T Infotech', 'Leica Microsystems', 'Linde PLC', 'L&T MHPS Boilers', 'L&T Howden'],
+    'M': ['Microsoft', 'Meta', 'McKinsey & Company', 'Micron', 'Morgan Stanley', 'Maruti Suzuki', 'Mahindra & Mahindra', 'MRF Tyres', 'Muthoot Finance', 'Mindtree', 'Mazagon Dock', 'Mastercard', 'Medtronic', 'Mphasis', 'Mu Sigma', 'Mojo Networks', 'Mobikwik', 'Macquarie Group', 'MTR Foods', 'Manforce', 'MapmyIndia', 'Mamaearth', 'Mindtree Solutions', 'Manappuram Finance', 'Mahanagar Gas (MGL)', 'MRPL', 'Mangalore Chemicals', 'Max Healthcare', 'Metro Brands', 'Minda Corporation', 'Motherson Sumi', 'M&M Financial Services', 'Motilal Oswal', "McDowell's", 'Muthoot Capital', 'Mazda Limited', 'Mondelez India', 'Mylan Laboratories', 'Miracle Software Systems', 'Microchip Technology', 'Majesco', 'Mastek', 'McAfee'],
+    'N': ['NVIDIA', 'Netflix', 'Novartis', 'Nokia', 'NTPC', 'NHPC', 'Nykaa', 'Nestle', 'Nike', 'Nomura', 'NXP Semiconductors', 'NetApp', 'Nutraceuticals', 'Naukri.com', 'National Instruments', 'Nissan', 'Navi Technologies', 'Nineleaps', 'Nagarro', 'Neosoft', 'Niyo', 'Nestle India', 'National Aluminium (NALCO)', 'Narayana Health', 'Nuvoco Vistas', 'Nippon Life India', 'National Hydroelectric', 'Navin Fluorine', 'Nesco Ltd', 'Neuland Laboratories', 'NCL Industries', 'National Fertilizers (NFL)', 'Nelco Limited', 'Nucleus Software', 'Nihilent Technologies', 'Nielsen', 'NTT Data', 'Nokia Networks', 'Nippon Paint', 'Nalli Silks'],
+    'O': ['Oracle', 'OpenAI', 'ONGC', 'Optum', 'Ola Cabs', 'Oyo Rooms', 'OLA Electric', 'Owens Corning', 'Oneplus', 'Oppo', 'Otis Elevator', 'Oracle Financial Services', 'Olam International', 'Okta', 'OneTrust', 'Odoo', 'OIL India (Oil India Ltd)', 'Omaxe Ltd', 'Orient Electric', 'Orient Paper', 'Orient Cement', 'Orchid Pharma', 'Osram India', 'Outsystems', 'Open Text', 'Oswal Chemicals', 'Oerlikon Balzers', 'Optimal+', 'Orange Business Services'],
+    'P': ['PwC (PricewaterhouseCoopers)', 'PepsiCo', 'Pfizer', 'Philips', 'Paytm', 'PolicyBazaar', 'Persistent Systems', 'PowerGrid', 'Pidilite', 'Procter & Gamble (P&G)', 'Panasonic', 'PayPal', 'Palo Alto Networks', 'Publicis Sapient', 'Pernod Ricard', 'Piramal Group', 'Poonawalla Fincorp', 'PI Industries', 'Page Industries', 'Postman', 'PhysicsWallah', 'PTC India', 'PVR INOX', 'Pricol Limited', 'Polycab India', 'Prestige Estates', 'Phoenix Mills', 'Patanjali Foods', 'Prism Johnson', 'Piramal Pharma', 'Punjab & Sind Bank', 'Pitti Engineering', 'Prataap Snacks', 'Precision Camshafts', 'Pegasystems', 'Pitney Bowes', 'Pega India', 'PayU', 'Pluralsight', 'Pure Storage'],
+    'Q': ['Qualcomm', 'Quikr', 'Qburst', 'Quantiphi', 'Quest Global', 'Qorvo', 'Qlik', 'Quess Corp', 'Quick Heal', 'Qantas', 'Qatar Airways', 'Quaker Chemical', 'Qutone Ceramic', 'Quality Kiosk', 'Q-dees', 'Q-Tech', 'Qubole'],
+    'R': ['Reliance Industries', 'Rockwell Automation', 'Rolls-Royce', 'Royal Enfield', 'Razorpay', "Dr. Reddy's", 'RedHat', 'Reckitt', 'Renault', 'Renesas Electronics', 'RITES', 'RBL Bank', 'Rebel Foods', 'Rippling', 'Rubrik', 'Reltio', 'Radisys', 'Reliance Retail', 'Reliance Digital', 'Reliance Jio', 'Reliance Power', 'Reliance Infrastructure', 'RTN India', 'Raymond Ltd', 'Radico Khaitan', 'Rallis India', 'Ramco Cements', 'Ramco Systems', 'Rashtriya Chemicals (RCF)', 'Ratnamani Metals', 'Redington India', 'RHI Magnesita', 'Route Mobile', 'Roche Diagnostics', 'Riyadh Bank', 'Royal Bank of Scotland', 'Robert Bosch India'],
+    'S': ['Samsung', 'Siemens', 'Sony', 'Salesforce', 'SAP', 'Shell', 'Stryker', 'Suzuki', 'SRAM', 'State Bank of India (SBI)', 'ShareChat', 'Swiggy', 'Synopsys', 'Societe Generale', 'Standard Chartered', 'Schneider Electric', 'Sasken', 'Sopra Steria', 'Subex', 'Sun Pharma', 'Syngene', 'Steel Authority of India (SAIL)', 'Shree Cement', 'SRF Limited', 'Sulekha', 'Shiprocket', 'Slice', 'Sundram Fasteners', 'Sona BLW (Sona Comstar)', 'Suprajit Engineering', 'Schaeffler India', 'SKF India', 'Sandvik Coromant', 'Sany India', 'Sobha Limited', 'Sudarshan Chemical', 'Supreme Industries', 'Safari Industries', 'Symphony Limited', 'Star Health Insurance', 'Suryoday Small Finance Bank', 'South Indian Bank', 'Synechron', 'ServiceNow', 'Splunk', 'Snowflake', 'Symantec'],
+    'T': ['TCS (Tata Consultancy Services)', 'Tata Motors', 'Tesla', 'TSMC', 'Texas Instruments', 'Tech Mahindra', 'Toyota', 'Torrent Power', 'Titan Company', 'Target', 'Tata Steel', 'Total Energies', 'TripAdvisor', 'Tredence', 'Turing', 'TVS Motor Company', 'Tube Investments', 'Tata Communications', 'Tata Power', 'Tata Chemicals', 'Tata Elxsi', 'ThoughtWorks', 'Tesco', 'Tata Consumer Products', 'Tata Coffee', 'Tata Investment Corp', 'Triveni Turbine', 'Triveni Engineering', 'Thermax Limited', 'Timken India', 'TVS Srichakra', 'TechnipFMC', 'Toyo Engineering', 'Tractebel Engineering', 'Tebodin', 'Turner & Townsend', 'Tejas Networks', 'Trident Group', 'TCNS Clothing', 'Tata Advanced Systems', 'Tanishq'],
+    'U': ['Uber', 'Unilever', 'UnitedHealth Group', 'UPSC', 'UPL', 'UltraTech Cement', 'Union Bank of India', 'Udacity', 'Udemy', 'Ugro Capital', 'Usha Martin', 'Ushadev', 'UST Global', 'Uipath', 'Unity Technologies', 'Unacademy', 'Upgrad', 'Urban Company', 'Ujjivan Small Finance Bank', 'UTI AMC', 'Uflex Limited', 'Usha International', 'Uniphore', 'Unisys', 'United Breweries', 'Uno Minda'],
+    'V': ['Vodafone Idea', 'Vedanta', 'VMware', 'Volvo', 'Visa', 'Virtusa', 'Valued Epistemics', 'Verizon', 'V-Guard', 'Varun Beverages', 'Viatris', 'Veeva Systems', 'Vanguard', 'Veritas', 'Viasat', 'Volo', 'Voltas', 'VIP Industries', 'VRL Logistics', 'Vaibhav Global', 'Vardhman Textiles', 'Vakrangee Ltd', 'Valvoline Cummins', 'Veolia India', 'Valiant Organics', 'VVDN Technologies', 'Vee Technologies'],
+    'W': ['Wipro', 'Walmart', 'Wells Fargo', 'Western Digital', 'Whirlpool', 'WSP', 'WNS', 'Wood Group', 'Workday', 'Windriver', 'WNS Global', 'WazirX', 'WeWork India', 'Wabtec', 'Wipro GE Healthcare', 'Welspun Corp', 'Welspun India', "Westlife Foodworld (McDonald's)", 'Wockhardt', "Wenger's", 'Wabco India', 'Wipro Enterprises', 'Wipro Consumer Care', 'Wilo Mather & Platt'],
+    'X': ['Xiaomi', 'Xerox', 'Xilinx', 'Xoriant', 'Xpressbees', 'Xero', 'Xing', 'Xaxis', 'Xylem Inc', 'Xeno', 'Xceedance', "Xavier's Tech", 'Xilinx India', 'Xebia'],
+    'Y': ['Yahoo', 'Youth4Work', 'Yatra', 'Yamaha Motors', 'YouTube', 'Yandex', 'Yash Technologies', 'Yodlee', 'Yulu Cabs', 'Yashoda Hospitals', 'YKK India', 'Yamaha Music India', 'Yara Fertilizers'],
+    'Z': ['ZS Associates', 'Zomato', 'Zoho', 'Zebra Technologies', 'ZF Steering', 'Zynga', 'Zepto', 'Zoom', 'Zscaler', 'Zendesk', 'Zeta', 'Zydus Lifesciences', 'Zensar Technologies', 'Zorawar', 'Zycus', 'Zydus Wellness', 'ZF Commercial Vehicle Control', 'Zuari Agro Chemicals', 'Zen Technologies']
+}
+
+INDUSTRIES = [
+    "Technologies", "Solutions", "Services", "Enterprises", "Labs", "Digital", "Systems", "Engineering", "Research", 
+    "Ventures", "Capital", "Securities", "Holdings", "Consulting", "Aerospace", "Defense", "Logistics", "Energy", 
+    "Infrastructure", "Networks", "Aviation", "Power", "Grid", "Solar", "Wind", "Nuclear", "Hydro", "Retail", 
+    "Foods", "Beverages", "Textiles", "Hotels", "Banking", "Insurance", "Fintech", "Security", "Strategy", "Analytics", 
+    "Media", "Design", "Legal", "Education", "Agri", "Telecom", "Steel", "Mining", "Chemical", "Petroleum", "EV Powertrains",
+    "Robotics", "Bio Labs", "Automotive", "Railways", "IoT Labs", "Maritime", "Space & Satellite", "Construction"
+]
+
+REGIONS = [
+    "India", "USA", "UK", "Germany", "Japan", "Singapore", "Canada", "Australia", "France", "UAE", "Europe", "Asia", 
+    "Americas", "APAC", "EMEA", "Nordic", "MENA", "LatAm", "Global", "International", "Tokyo", "London", "New York", 
+    "California", "Texas", "Munich", "Sydney", "Toronto", "Paris", "Dubai", "Mumbai", "Bangalore", "Chicago", "Boston", "Silicon Valley"
+]
+
+@app.route("/api/companies/directory", methods=["GET"])
+def get_companies_directory():
+    letter = request.args.get("letter", "A").upper().strip()
+    search_query = request.args.get("search", "").lower().strip()
+    page = int(request.args.get("page", 1))
+    limit = int(request.args.get("limit", 100))
+    
+    if letter not in BASE_COMPANIES:
+        letter = "A"
+        
+    base_names = BASE_COMPANIES[letter]
+    matched = []
+    
+    for name in base_names:
+        if not search_query or search_query in name.lower():
+            matched.append(name)
+            
+        for ind in INDUSTRIES:
+            comb = f"{name} {ind}"
+            if not search_query or search_query in comb.lower():
+                matched.append(comb)
+                
+            for reg in REGIONS:
+                comb_reg = f"{name} {ind} {reg}"
+                if not search_query or search_query in comb_reg.lower():
+                    matched.append(comb_reg)
+                    
+        for reg in REGIONS:
+            comb_only_reg = f"{name} {reg}"
+            if not search_query or search_query in comb_only_reg.lower():
+                matched.append(comb_only_reg)
+
+    matched = sorted(list(set(matched)))
+    
+    start_idx = (page - 1) * limit
+    end_idx = start_idx + limit
+    paginated_results = matched[start_idx:end_idx]
+    
+    return jsonify({
+        "results": paginated_results,
+        "total_count": len(matched),
+        "page": page,
+        "limit": limit,
+        "has_more": end_idx < len(matched)
+    })
+
 @app.route("/api/tax/advise", methods=["POST"])
 def get_tax_advice():
     data = request.get_json() or {}

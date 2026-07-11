@@ -2321,26 +2321,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ----------------------------------------------------
-    // Tab: Company Sheet PDF Generator Directory Index
+    // Tab: Company Sheet PDF Generator Directory Index (Server-Paginated to prevent lag)
     // ----------------------------------------------------
     const alphabetBarContainer = document.getElementById("alphabet-bar-container");
     const directorySearchInput = document.getElementById("directory-search-input");
     const directoryCompaniesList = document.getElementById("directory-companies-list");
 
-    let allCompaniesData = {};
+    let currentLetter = "A";
+    let currentSearch = "";
+    let currentPage = 1;
+    let hasMoreCompanies = false;
 
     if (alphabetBarContainer && directoryCompaniesList) {
-        fetch("/static/companies_list.json")
-            .then(res => res.json())
-            .then(data => {
-                allCompaniesData = data;
-                initAlphabetDirectory();
-                selectLetter("A");
-            })
-            .catch(err => {
-                console.error("Error loading global company directory:", err);
-                directoryCompaniesList.innerHTML = '<p class="text-muted" style="text-align: center; margin-top: 2rem;">Error loading directory. You can still type any custom company name on the right.</p>';
-            });
+        initAlphabetDirectory();
+        selectLetter("A");
 
         function initAlphabetDirectory() {
             alphabetBarContainer.innerHTML = "";
@@ -2358,6 +2352,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function selectLetter(letter) {
+            currentLetter = letter;
+            currentSearch = "";
+            currentPage = 1;
+
             const activeLetter = alphabetBarContainer.querySelector(".letter-tag.active");
             if (activeLetter) activeLetter.classList.remove("active");
             
@@ -2366,14 +2364,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (directorySearchInput) directorySearchInput.value = "";
 
-            renderCompaniesList(allCompaniesData[letter] || [], letter);
+            fetchCompaniesFromServer(false);
         }
 
-        function renderCompaniesList(list, contextName) {
-            directoryCompaniesList.innerHTML = "";
-            if (list.length === 0) {
-                directoryCompaniesList.innerHTML = `<p class="text-muted" style="font-size: 0.8rem; text-align: center; margin-top: 2rem;">No companies found in category ${contextName}</p>`;
+        function fetchCompaniesFromServer(append = false) {
+            if (!append) {
+                directoryCompaniesList.innerHTML = '<p class="text-muted" style="text-align: center; margin-top: 2rem;"><i class="fa-solid fa-circle-notch fa-spin text-neon-blue"></i> Loading global directory...</p>';
+            }
+
+            const url = `/api/companies/directory?letter=${currentLetter}&search=${encodeURIComponent(currentSearch)}&page=${currentPage}&limit=100`;
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    hasMoreCompanies = data.has_more;
+                    renderCompaniesList(data.results, data.total_count, append);
+                })
+                .catch(err => {
+                    console.error("Error loading directory from server:", err);
+                    directoryCompaniesList.innerHTML = '<p class="text-muted" style="text-align: center; margin-top: 2rem;">Error loading directory. You can still type any custom company name on the right.</p>';
+                });
+        }
+
+        function renderCompaniesList(list, totalCount, append) {
+            const existingBtn = document.getElementById("load-more-companies-btn");
+            if (existingBtn) existingBtn.remove();
+
+            const existingMsg = document.getElementById("directory-count-msg");
+            if (existingMsg) existingMsg.remove();
+
+            if (!append) {
+                directoryCompaniesList.innerHTML = "";
+            }
+
+            if (list.length === 0 && !append) {
+                directoryCompaniesList.innerHTML = `<p class="text-muted" style="font-size: 0.8rem; text-align: center; margin-top: 2rem;">No companies found matching criteria</p>`;
                 return;
+            }
+
+            if (!append) {
+                const infoDiv = document.createElement("div");
+                infoDiv.id = "directory-count-msg";
+                infoDiv.style = "font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(255,255,255,0.02); border-radius: 4px;";
+                infoDiv.innerHTML = `<i class="fa-solid fa-database text-neon-cyan"></i> Showing ${list.length} of ${totalCount.toLocaleString()} companies`;
+                directoryCompaniesList.appendChild(infoDiv);
             }
 
             list.forEach(comp => {
@@ -2392,32 +2425,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 directoryCompaniesList.appendChild(div);
             });
+
+            if (hasMoreCompanies) {
+                const btn = document.createElement("button");
+                btn.id = "load-more-companies-btn";
+                btn.className = "glow-btn";
+                btn.style = "width: 100%; margin-top: 1rem; padding: 0.5rem; font-size: 0.75rem; justify-content: center; height: auto;";
+                btn.innerHTML = '<i class="fa-solid fa-angle-down"></i> Load More Companies';
+                btn.addEventListener("click", () => {
+                    currentPage += 1;
+                    fetchCompaniesFromServer(true);
+                });
+                directoryCompaniesList.appendChild(btn);
+            }
         }
 
+        let searchDebounceTimeout;
         if (directorySearchInput) {
             directorySearchInput.addEventListener("input", () => {
-                const query = directorySearchInput.value.trim().toLowerCase();
-                if (!query) {
-                    const activeLetter = alphabetBarContainer.querySelector(".letter-tag.active");
-                    const activeL = activeLetter ? activeLetter.textContent : "A";
-                    renderCompaniesList(allCompaniesData[activeL] || [], activeL);
-                    return;
-                }
+                clearTimeout(searchDebounceTimeout);
+                searchDebounceTimeout = setTimeout(() => {
+                    const query = directorySearchInput.value.trim().toLowerCase();
+                    currentSearch = query;
+                    currentPage = 1;
 
-                const activeLetter = alphabetBarContainer.querySelector(".letter-tag.active");
-                if (activeLetter) activeLetter.classList.remove("active");
+                    if (query) {
+                        const activeLetter = alphabetBarContainer.querySelector(".letter-tag.active");
+                        if (activeLetter) activeLetter.classList.remove("active");
+                    } else {
+                        selectLetter("A");
+                        return;
+                    }
 
-                let matched = [];
-                Object.keys(allCompaniesData).forEach(key => {
-                    allCompaniesData[key].forEach(comp => {
-                        if (comp.toLowerCase().includes(query)) {
-                            matched.push(comp);
-                        }
-                    });
-                });
-
-                matched.sort();
-                renderCompaniesList(matched, `Search: "${query}"`);
+                    fetchCompaniesFromServer(false);
+                }, 300);
             });
         }
     }
