@@ -2851,25 +2851,43 @@ def get_serpapi_key():
 
 def fetch_google_search_snippets(query):
     key = get_serpapi_key()
-    if not key:
-        return []
-    url = "https://serpapi.com/search.json"
-    params = {
-        "q": query,
-        "api_key": key,
-        "hl": "en",
-        "gl": "in"
+    if key:
+        url = "https://serpapi.com/search.json"
+        params = {
+            "q": query,
+            "api_key": key,
+            "hl": "en",
+            "gl": "in"
+        }
+        try:
+            r = requests.get(url, params=params, timeout=10)
+            if r.status_code == 200:
+                data = r.json()
+                snippets = []
+                for result in data.get("organic_results", [])[:5]:
+                    snippets.append(result.get("title", "") + ": " + result.get("snippet", ""))
+                return snippets
+        except Exception as e:
+            print("SerpAPI search error:", e)
+            
+    # Resilient free fallback using DuckDuckGo HTML search (no API key required)
+    url = "https://html.duckduckgo.com/html/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     try:
-        r = requests.get(url, params=params, timeout=10)
+        r = requests.post(url, data={"q": query}, headers=headers, timeout=10)
         if r.status_code == 200:
-            data = r.json()
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(r.text, "html.parser")
             snippets = []
-            for result in data.get("organic_results", [])[:5]:
-                snippets.append(result.get("title", "") + ": " + result.get("snippet", ""))
-            return snippets
+            results = soup.find_all("a", class_="result__snippet")
+            for res in results[:5]:
+                snippets.append(res.get_text().strip())
+            if snippets:
+                return snippets
     except Exception as e:
-        print("SerpAPI search error:", e)
+        print("DuckDuckGo free search fallback error:", e)
     return []
 
 def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
@@ -2965,14 +2983,40 @@ def generate_company_sheet():
     search_results = fetch_google_search_snippets(search_query)
     web_context = "\n".join(search_results) if search_results else "No live web results retrieved."
     
-    # 2. Query Gemini to synthesize parameters
-    api_key = get_backend_gemini_key()
-    
+    # 2. Parse crawled snippets to set company-specific fallback parameters
     overview = f"{company_name} is a global corporation. It is widely recognized for engineering and development operations globally."
+    if search_results:
+        overview = " ".join([res.split(": ", 1)[-1] for res in search_results[:3]])
+        
     process = "1. Online Aptitude & Coding Test\n2. Technical Interview Round 1\n3. Technical Interview Round 2\n4. HR Discussion"
+    process_list = []
+    for snippet in search_results:
+        s_lower = snippet.lower()
+        if any(kw in s_lower for kw in ["rounds", "test", "aptitude", "interview", "written", "selection"]):
+            process_list.append(snippet.split(": ", 1)[-1])
+    if process_list:
+        process = "\n".join([f"- {p}" for p in process_list[:4]])
+        
     ctc = "INR 6.5 LPA - 12.0 LPA (Base pay: 85%, Variable component: 15%)"
+    ctc_list = []
+    for snippet in search_results:
+        s_lower = snippet.lower()
+        if any(kw in s_lower for kw in ["ctc", "lpa", "salary", "package", "lakhs", "pay", "compensation"]):
+            ctc_list.append(snippet.split(": ", 1)[-1])
+    if ctc_list:
+        ctc = " | ".join(ctc_list[:3])
+        
     eligibility = "B.Tech / M.Tech (CSE, ECE, EEE, Mechanical, Civil branches), CGPA 6.0+ minimum, no active backlogs."
-
+    elig_list = []
+    for snippet in search_results:
+        s_lower = snippet.lower()
+        if any(kw in s_lower for kw in ["cgpa", "eligibility", "criteria", "backlog", "degree", "qualification", "branches"]):
+            elig_list.append(snippet.split(": ", 1)[-1])
+    if elig_list:
+        eligibility = " | ".join(elig_list[:3])
+        
+    # 3. Query Gemini to synthesize parameters
+    api_key = get_backend_gemini_key()
     if api_key:
         prompt = f"""
         Analyze and compile placement information for: "{company_name}".
