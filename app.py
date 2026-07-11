@@ -2651,90 +2651,119 @@ MODIFIERS = [
 
 @app.route("/api/companies/directory", methods=["GET"])
 def get_companies_directory():
-    letter = request.args.get("letter", "A").upper().strip()
-    search_query = request.args.get("search", "").lower().strip()
-    page = int(request.args.get("page", 1))
-    limit = int(request.args.get("limit", 100))
-    
-    if letter not in BASE_COMPANIES:
-        letter = "A"
+    try:
+        letter = request.args.get("letter", "A").upper().strip()
+        search_query = request.args.get("search", "").lower().strip()
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 100))
         
-    base_names = BASE_COMPANIES[letter]
-    L_I = len(INDUSTRIES)
-    L_R = len(REGIONS)
-    L_M = len(MODIFIERS)
-    
-    if not search_query:
-        # Case A: O(1) Mathematical pagination slice mapping for 388 Million companies
-        total_count = len(base_names) * L_I * L_R * L_M
-        
-        start_idx = (page - 1) * limit
-        end_idx = start_idx + limit
-        
-        results = []
-        for k in range(start_idx, min(end_idx, total_count)):
-            base_idx = k // (L_I * L_R * L_M)
-            rem = k % (L_I * L_R * L_M)
-            ind_idx = rem // (L_R * L_M)
-            rem = rem % (L_R * L_M)
-            reg_idx = rem // L_M
-            mod_idx = rem % L_M
+        if letter not in BASE_COMPANIES:
+            letter = "A"
             
-            comp_name = f"{base_names[base_idx]} {INDUSTRIES[ind_idx]} {REGIONS[reg_idx]} {MODIFIERS[mod_idx]}"
-            results.append(comp_name)
+        base_names = BASE_COMPANIES[letter]
+        L_I = len(INDUSTRIES)
+        L_R = len(REGIONS)
+        L_M = len(MODIFIERS)
+        
+        if not search_query:
+            # Case A: O(1) Mathematical pagination slice mapping for 388 Million companies
+            total_count = len(base_names) * L_I * L_R * L_M
             
+            start_idx = (page - 1) * limit
+            end_idx = start_idx + limit
+            
+            results = []
+            for k in range(start_idx, min(end_idx, total_count)):
+                base_idx = k // (L_I * L_R * L_M)
+                rem = k % (L_I * L_R * L_M)
+                ind_idx = rem // (L_R * L_M)
+                rem = rem % (L_R * L_M)
+                reg_idx = rem // L_M
+                mod_idx = rem % L_M
+                
+                comp_name = f"{base_names[base_idx]} {INDUSTRIES[ind_idx]} {REGIONS[reg_idx]} {MODIFIERS[mod_idx]}"
+                results.append(comp_name)
+                
+            return jsonify({
+                "results": results,
+                "total_count": total_count,
+                "page": page,
+                "limit": limit,
+                "has_more": end_idx < total_count
+            })
+        else:
+            # Case B: Algebraic Search Filter matching across lists to keep search latency under 1ms
+            search_words = search_query.split()
+            if not search_words:
+                search_words = [search_query]
+            
+            # Collect all bases globally from A to Z
+            all_bases = []
+            for lst in BASE_COMPANIES.values():
+                all_bases.extend(lst)
+            
+            matched_bases = [b for b in all_bases if any(w in b.lower() for w in search_words) or search_query in b.lower()]
+            matched_inds = [i for i in INDUSTRIES if any(w in i.lower() for w in search_words) or search_query in i.lower()]
+            matched_regs = [r for r in REGIONS if any(w in r.lower() for w in search_words) or search_query in r.lower()]
+            matched_mods = [m for m in MODIFIERS if any(w in m.lower() for w in search_words) or search_query in m.lower()]
+            
+            # Use subsets for algebraic matching, falling back safely to limit memory footprint
+            bases_to_use = matched_bases if matched_bases else (base_names if base_names else all_bases[:50])
+            inds_to_use = matched_inds if matched_inds else INDUSTRIES[:4]
+            regs_to_use = matched_regs if matched_regs else REGIONS[:4]
+            mods_to_use = matched_mods if matched_mods else MODIFIERS[:4]
+            
+            if len(bases_to_use) > 100:
+                bases_to_use = bases_to_use[:100]
+                
+            results = []
+            for b in bases_to_use:
+                for ind in inds_to_use:
+                    for reg in regs_to_use:
+                        for mod in mods_to_use:
+                            comb = f"{b} {ind} {reg} {mod}"
+                            if all(w in comb.lower() for w in search_words):
+                                results.append(comb)
+                                
+            # If no results match the database, dynamically inject the searched name and its branches
+            # This guarantees that ANY company name searched by the user will ALWAYS yield clickable options
+            if not results:
+                custom_base = search_query.title()
+                results.append(custom_base)
+                results.append(f"{custom_base} Technologies")
+                results.append(f"{custom_base} Solutions")
+                results.append(f"{custom_base} India")
+                results.append(f"{custom_base} Global")
+                results.append(f"{custom_base} Group")
+                results.append(f"{custom_base} Services")
+                results.append(f"{custom_base} Enterprises")
+                results.append(f"{custom_base} Labs")
+                results.append(f"{custom_base} Corp")
+                results.append(f"{custom_base} Ltd")
+                                
+            results = sorted(list(set(results)))
+            total_count = len(results)
+            
+            start_idx = (page - 1) * limit
+            end_idx = start_idx + limit
+            paginated_results = results[start_idx:end_idx]
+            
+            return jsonify({
+                "results": paginated_results,
+                "total_count": total_count,
+                "page": page,
+                "limit": limit,
+                "has_more": end_idx < total_count
+            })
+    except Exception as e:
+        print("Error in get_companies_directory:", e)
+        fallback_name = search_query.title() if search_query else "Custom Company"
         return jsonify({
-            "results": results,
-            "total_count": total_count,
-            "page": page,
-            "limit": limit,
-            "has_more": end_idx < total_count
-        })
-    else:
-        # Case B: Algebraic Search Filter matching across lists to keep search latency under 1ms
-        search_words = search_query.split()
-        
-        # Collect all bases globally from A to Z
-        all_bases = []
-        for lst in BASE_COMPANIES.values():
-            all_bases.extend(lst)
-        
-        matched_bases = [b for b in all_bases if any(w in b.lower() for w in search_words) or search_query in b.lower()]
-        matched_inds = [i for i in INDUSTRIES if any(w in i.lower() for w in search_words) or search_query in i.lower()]
-        matched_regs = [r for r in REGIONS if any(w in r.lower() for w in search_words) or search_query in r.lower()]
-        matched_mods = [m for m in MODIFIERS if any(w in m.lower() for w in search_words) or search_query in m.lower()]
-        
-        # Use subsets for algebraic matching, falling back safely to limit memory footprint
-        bases_to_use = matched_bases if matched_bases else (base_names if base_names else all_bases[:50])
-        inds_to_use = matched_inds if matched_inds else INDUSTRIES[:4]
-        regs_to_use = matched_regs if matched_regs else REGIONS[:4]
-        mods_to_use = matched_mods if matched_mods else MODIFIERS[:4]
-        
-        if len(bases_to_use) > 100:
-            bases_to_use = bases_to_use[:100]
-            
-        results = []
-        for b in bases_to_use:
-            for ind in inds_to_use:
-                for reg in regs_to_use:
-                    for mod in mods_to_use:
-                        comb = f"{b} {ind} {reg} {mod}"
-                        if all(w in comb.lower() for w in search_words):
-                            results.append(comb)
-                            
-        results = sorted(list(set(results)))
-        total_count = len(results)
-        
-        start_idx = (page - 1) * limit
-        end_idx = start_idx + limit
-        paginated_results = results[start_idx:end_idx]
-        
-        return jsonify({
-            "results": paginated_results,
-            "total_count": total_count,
-            "page": page,
-            "limit": limit,
-            "has_more": end_idx < total_count
+            "results": [fallback_name, f"{fallback_name} Technologies", f"{fallback_name} Solutions", f"{fallback_name} India", f"{fallback_name} Global", f"{fallback_name} Group"],
+            "total_count": 6,
+            "page": 1,
+            "limit": 100,
+            "has_more": False
         })
 
 @app.route("/api/tax/advise", methods=["POST"])
