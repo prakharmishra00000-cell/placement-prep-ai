@@ -242,6 +242,114 @@ def generate_55_pyqs(company_name, domain="software"):
         }
     ]
 
+    tech_finance = [
+        {
+            "question": "Which of the following metrics is most commonly used to measure a company's operating performance before accounting for interest, taxes, depreciation, and amortization?",
+            "options": ["Net Profit", "EBITDA", "Gross Margin", "Operating Cash Flow"],
+            "answer": "EBITDA",
+            "solution": "EBITDA stands for Earnings Before Interest, Taxes, Depreciation, and Amortization, and is widely used to evaluate core profitability.",
+            "year": "2025",
+            "source": f"{company} Corporate Finance"
+        },
+        {
+            "question": "In portfolio management, what does the Sharpe Ratio measure?",
+            "options": ["Excess return per unit of total risk", "Beta of a security", "Volatility of the market", "Liquidity of assets"],
+            "answer": "Excess return per unit of total risk",
+            "solution": "The Sharpe Ratio evaluates the performance of an investment by adjusting for its risk, calculating the excess return per unit of deviation.",
+            "year": "2024",
+            "source": f"{company} Asset Management"
+        },
+        {
+            "question": "According to the Capital Asset Pricing Model (CAPM), what represents the systematic risk of a stock?",
+            "options": ["Alpha", "Beta", "Standard Deviation", "Variance"],
+            "answer": "Beta",
+            "solution": "Beta measures the volatility or systematic risk of a security in comparison to the market as a whole.",
+            "year": "2025",
+            "source": f"{company} Quantitative Valuation"
+        }
+    ]
+
+    tech_consulting = [
+        {
+            "question": "Which framework is most appropriate to analyze the competitive forces within an industry?",
+            "options": ["MECE Framework", "Porter's Five Forces", "SWOT Analysis", "BCG Growth-Share Matrix"],
+            "answer": "Porter's Five Forces",
+            "solution": "Porter's Five Forces evaluates industry attractiveness and competitive intensity (suppliers, buyers, entry, substitutes, rivalry).",
+            "year": "2025",
+            "source": f"{company} Case Round"
+        },
+        {
+            "question": "What does the abbreviation MECE stand for in professional consulting problem-solving?",
+            "options": ["Mutually Exclusive, Collectively Exhaustive", "Market Entry, Cost Efficiency", "Mostly Effective, Completely Evaluated", "Management Evaluation, Corporate Ethics"],
+            "answer": "Mutually Exclusive, Collectively Exhaustive",
+            "solution": "MECE is a grouping principle for structuring information that is mutually exclusive (no overlap) and collectively exhaustive (covers all parts).",
+            "year": "2024",
+            "source": f"{company} Strategy Interview"
+        },
+        {
+            "question": "In market sizing guesstimates, what is a typical rule-of-thumb estimate for the average household size in urban India?",
+            "options": ["2.0 people", "4.5 people", "8.0 people", "1.5 people"],
+            "answer": "4.5 people",
+            "solution": "In standard consulting guesstimate cases, 4.0 to 4.5 is assumed as the average urban household size in India for calculation consistency.",
+            "year": "2025",
+            "source": f"{company} Guesstimate Exam"
+        }
+    ]
+
+    tech_pharma = [
+        {
+            "question": "Which phase of clinical trials is primarily designed to assess the efficacy and safety of a drug in a larger group of patients (typically 100-300)?",
+            "options": ["Phase I", "Phase II", "Phase III", "Phase IV"],
+            "answer": "Phase II",
+            "solution": "Phase II trials evaluate efficacy and side effects in a medium-sized cohort of patient volunteers. Phase I tests safety in healthy controls.",
+            "year": "2025",
+            "source": f"{company} Clinical Research"
+        },
+        {
+            "question": "What does the term 'Bioavailability' refer to in pharmacokinetics?",
+            "options": ["The rate and extent to which the active drug reaches systemic circulation", "The shelf life of a drug under room temperature", "The safety index of a drug", "The manufacturing cost of active ingredients"],
+            "answer": "The rate and extent to which the active drug reaches systemic circulation",
+            "solution": "Bioavailability is the fraction of an administered dose of unchanged drug that reaches the systemic circulation.",
+            "year": "2024",
+            "source": f"{company} Formulation Round"
+        },
+        {
+            "question": "Which analytical technique is most widely used in QA/QC labs to separate and quantify components in a drug mixture?",
+            "options": ["Infrared Spectroscopy", "High-Performance Liquid Chromatography (HPLC)", "Nuclear Magnetic Resonance (NMR)", "Centrifugation"],
+            "answer": "High-Performance Liquid Chromatography (HPLC)",
+            "solution": "HPLC is the gold standard in pharmaceutical QA/QC for separating, identifying, and quantifying active pharmaceutical ingredients (APIs).",
+            "year": "2025",
+            "source": f"{company} Quality Control Test"
+        }
+    ]
+
+    tech_fmcg = [
+        {
+            "question": "Which inventory management term refers to the order quantity that minimizes the total holding costs and ordering costs?",
+            "options": ["Safety Stock", "Reorder Point (ROP)", "Economic Order Quantity (EOQ)", "Lead Time Order"],
+            "answer": "Economic Order Quantity (EOQ)",
+            "solution": "EOQ is the optimal order size that minimizes total inventory holding costs and ordering setup fees.",
+            "year": "2025",
+            "source": f"{company} Operations Test"
+        },
+        {
+            "question": "What is the primary objective of 'Cross-Docking' in supply chain and logistics?",
+            "options": ["To store inventory for long-term price fluctuations", "To unload materials from incoming carriers and load them directly into outbound carriers with little to no storage", "To test the quality of consumer goods at ports", "To calculate retail discounts dynamically"],
+            "answer": "To unload materials from incoming carriers and load them directly into outbound carriers with little to no storage",
+            "solution": "Cross-docking streamlines logistics by transferring incoming products directly to outgoing shipments, reducing warehousing storage time.",
+            "year": "2024",
+            "source": f"{company} Supply Chain Round"
+        },
+        {
+            "question": "In retail inventory distribution, what does the term 'FIFO' stand for?",
+            "options": ["First In, First Out", "Fast Inventory, Fast Operations", "Fix Invoice, Finance Order", "Freight Inward, Freight Outward"],
+            "answer": "First In, First Out",
+            "solution": "FIFO is an asset-management and valuation method in which assets produced or acquired first are sold, used, or disposed of first.",
+            "year": "2025",
+            "source": f"{company} Warehouse Operations"
+        }
+    ]
+
     # Select the correct pools based on domain
     d_clean = domain.lower().strip()
     if d_clean == "mechanical":
@@ -252,6 +360,14 @@ def generate_55_pyqs(company_name, domain="software"):
         core_pool = tech_civil
     elif d_clean == "chemical":
         core_pool = tech_chemical
+    elif d_clean == "finance":
+        core_pool = tech_finance
+    elif d_clean == "consulting":
+        core_pool = tech_consulting
+    elif d_clean == "pharma":
+        core_pool = tech_pharma
+    elif d_clean == "fmcg":
+        core_pool = tech_fmcg
     else:
         core_pool = tech_software
 

@@ -168,25 +168,49 @@ COMPANY_KNOWLEDGE = {
 def classify_company_domain(company_name):
     c_key = company_name.lower().strip()
     
-    # 1. Mechanical / Automotive / Manufacturing / Aerospace / Heavy Eng.
-    mech_keywords = ["motors", "mahindra", "maruti", "suzuki", "tata motors", "ford", "hyundai", "caterpillar", "boeing", "airbus", "general electric", "bhel", "bosch", "cummins", "tesla", "ashok leyland", "hero", "bajaj", "honda", "volvo"]
-    if any(x in c_key for x in mech_keywords):
+    # 1. Quick local check to speed up common queries
+    if any(x in c_key for x in ["motors", "mahindra", "maruti", "suzuki", "tata motors", "ford", "hyundai", "caterpillar", "boeing", "airbus", "general electric", "bhel", "bosch", "cummins", "tesla", "ashok leyland", "hero", "bajaj", "honda", "volvo"]):
         return "mechanical"
-        
-    # 2. Civil / Infrastructure / Construction
-    civil_keywords = ["l&t", "larsen", "toubro", "dlf", "tata projects", "bechtel", "shapoorji", "pallonji", "afcons", "gmr", "sobha", "godrej properties", "soma"]
-    if any(x in c_key for x in civil_keywords):
+    if any(x in c_key for x in ["l&t", "larsen", "toubro", "dlf", "tata projects", "bechtel", "shapoorji", "pallonji", "afcons", "gmr", "sobha", "godrej properties", "soma"]):
         return "civil"
-        
-    # 3. Electrical / Electronics / Semiconductors / Hardware
-    elec_keywords = ["intel", "qualcomm", "nvidia", "amd", "texas instruments", "semiconductor", "analog devices", "arm", "nxp", "broadcom", "mediatek", "siemens", "abb", "phillips", "schneider", "alstom", "havells"]
-    if any(x in c_key for x in elec_keywords):
+    if any(x in c_key for x in ["intel", "qualcomm", "nvidia", "amd", "texas instruments", "semiconductor", "analog devices", "arm", "nxp", "broadcom", "mediatek", "siemens", "abb", "phillips", "schneider", "alstom", "havells"]):
         return "electrical"
-        
-    # 4. Chemical / Petroleum / Energy / Process / Metallurgy
-    chem_keywords = ["reliance", "ongc", "iocl", "bpcl", "hpcl", "exxon", "mobil", "shell", "chevron", "dow", "basf", "dupont", "tata chemicals", "sibur", "gail", "ntpc", "steel", "sail", "jsw"]
-    if any(x in c_key for x in chem_keywords):
+    if any(x in c_key for x in ["reliance", "ongc", "iocl", "bpcl", "hpcl", "exxon", "mobil", "shell", "chevron", "dow", "basf", "dupont", "tata chemicals", "sibur", "gail", "ntpc", "steel", "sail", "jsw"]):
         return "chemical"
+    if any(x in c_key for x in ["mckinsey", "boston consulting", "bcg", "kpmg", "deloitte", "pwc", "ey", "bain"]):
+        return "consulting"
+    if any(x in c_key for x in ["hdfc", "icici", "sbi", "jpmorgan", "goldman", "barclays", "morgan stanley", "hsbc", "citigroup", "blackrock"]):
+        return "finance"
+    if any(x in c_key for x in ["biocon", "cipla", "sun pharma", "pfizer", "novartis", "dr. reddy", "lupin", "astrazeneca", "gsk"]):
+        return "pharma"
+    if any(x in c_key for x in ["nestle", "unilever", "itc", "pepsico", "coca-cola", "britannia", "dabur", "godrej consumer", "p&g"]):
+        return "fmcg"
+        
+    # 2. Run a background live search query to classify custom sectors
+    try:
+        search_query = f"{company_name} company sector industry"
+        snippets = fetch_google_search_snippets(search_query)
+        search_text = " ".join(snippets).lower() if snippets else ""
+        combined_text = f"{c_key} {search_text}"
+        
+        if any(x in combined_text for x in ["bank", "finance", "fintech", "wealth", "investment", "credit", "insurance", "securities"]):
+            return "finance"
+        elif any(x in combined_text for x in ["consulting", "advisor", "strategy", "mckinsey", "boston consulting", "deloitte", "kpmg", "pwc", "ey"]):
+            return "consulting"
+        elif any(x in combined_text for x in ["pharma", "biotech", "drug", "medicine", "healthcare", "hospital", "clinical", "diagnostic"]):
+            return "pharma"
+        elif any(x in combined_text for x in ["fmcg", "food", "beverage", "consumer", "retail", "grocery", "nestle", "unilever", "pepsico", "coca-cola", "apparel"]):
+            return "fmcg"
+        elif any(x in combined_text for x in ["motors", "automotive", "car", "truck", "ev ", "electric vehicle", "powertrain", "vehicle", "chassis"]):
+            return "mechanical"
+        elif any(x in combined_text for x in ["construction", "infrastructure", "real estate", "cement", "structural", "highway", "surveying", "civil"]):
+            return "civil"
+        elif any(x in combined_text for x in ["semiconductor", "vlsi", "electronics", "circuit", "hardware", "analog", "electrical", "grid", "power transmission"]):
+            return "electrical"
+        elif any(x in combined_text for x in ["petroleum", "oil & gas", "refinery", "chemical", "metallurgy", "steel", "coal", "mining", "mineral"]):
+            return "chemical"
+    except Exception as e:
+        print("Live domain classification failed:", e)
         
     return "software"
 
@@ -436,6 +460,138 @@ def synthesize_company_data(company_name, category, branch="cse"):
             "technical": f"Focus on heat exchanger efficiency equations, distillation column configurations, and Bernoulli's application for fluid flowing operations.",
             "hr": f"Highlight safety compliance values and comfort in physical manufacturing plant environments.",
             "assessment": "Revise stoichiometry calculations, fluid flow formulas, and general numerical aptitude."
+        }
+    elif domain == "finance":
+        skills = [
+            {"name": "Financial Modeling & Excel", "level": l1},
+            {"name": "Quantitative Valuation", "level": l2},
+            {"name": "Corporate Finance Theory", "level": l3},
+            {"name": "Risk Assessment & Portfolio", "level": l4},
+            {"name": "Quantitative Aptitude", "level": l5}
+        ]
+        topics = [
+            {"name": "Valuation, EBITDA & Financial Sheets", "weight": w1},
+            {"name": "Portfolio Management & Risk (Sharpe, CAPM)", "weight": w2},
+            {"name": "Accounting Principles & Ratios", "weight": w3},
+            {"name": "Aptitude, Logic & Mental Arithmetic", "weight": w4}
+        ]
+        salary = {
+            "tiers": [
+                {"name": "Financial Analyst Trainee", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 55%, HRA: 25%, Bonus: 20%. Deductions: PF, Professional Tax."},
+                {"name": "Senior Risk Analyst", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 50%, HRA: 20%. Deductions: Income Tax, PF."},
+                {"name": "Investment Associate / VP", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 15%. Deductions: Income Tax, PF."}
+            ]
+        }
+        career_path = [
+            {"level": "Level 1", "role": "Financial Analyst Trainee", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Senior Analyst / consultant", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Associate Consultant", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "Investment Manager", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "Vice President / Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
+        ]
+        tips = {
+            "technical": f"Focus on DuPont analysis, DCF valuation models, Option pricing models, and key accounting formulas.",
+            "hr": f"Emphasize ethical standards, detail-oriented mindset, and capability to work in high-stakes environments.",
+            "assessment": "Prepare for numerical reasoning tests, mental math rounds, and accounting basic MCQs."
+        }
+    elif domain == "consulting":
+        skills = [
+            {"name": "Case Study Frameworks", "level": l1},
+            {"name": "Structured Problem Solving", "level": l2},
+            {"name": "Market Sizing Guesstimates", "level": l3},
+            {"name": "Business Strategy Models", "level": l4},
+            {"name": "Communication & Pitching", "level": l5}
+        ]
+        topics = [
+            {"name": "Guesstimates & Market Sizing", "weight": w1},
+            {"name": "Profitability & Market Entry Case Frameworks", "weight": w2},
+            {"name": "Data Interpretation & Complex Graphs", "weight": w3},
+            {"name": "Behavioral Case Interviews", "weight": w4}
+        ]
+        salary = {
+            "tiers": [
+                {"name": "Associate Consultant Trainee", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 25%, Perks: 25%. Deductions: PF, Professional Tax."},
+                {"name": "Management Consultant", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 22%. Deductions: Income Tax, PF."},
+                {"name": "Principal Strategist", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 42%, HRA: 18%. Deductions: Income Tax, PF."}
+            ]
+        }
+        career_path = [
+            {"level": "Level 1", "role": "Junior Associate", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Management Consultant", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Senior Consultant", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "Engagement Manager", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "Partner / Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
+        ]
+        tips = {
+            "technical": f"Always construct a MECE tree. Practice guesstimate equations aloud and walk through step-by-step assumptions.",
+            "hr": f"Demonstrate structure, leadership under pressure, and active listening capabilities.",
+            "assessment": "Solve case study MCQ sheets, logical sequencing and data interpretation sets."
+        }
+    elif domain == "pharma":
+        skills = [
+            {"name": "Pharmacology & Kinetics", "level": l1},
+            {"name": "FDA & GMP Compliance Protocols", "level": l2},
+            {"name": "HPLC & Analytical Methods", "level": l3},
+            {"name": "Organic Synthesis & Chemistry", "level": l4},
+            {"name": "Quantitative Aptitude", "level": l5}
+        ]
+        topics = [
+            {"name": "Drug Action, Formulation & Bioavailability", "weight": w1},
+            {"name": "Good Manufacturing Practices & FDA Guidelines", "weight": w2},
+            {"name": "Spectroscopy, Chromatography & Assays", "weight": w3},
+            {"name": "General Aptitude & Reasoning Tests", "weight": w4}
+        ]
+        salary = {
+            "tiers": [
+                {"name": "R&D Associate GET", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                {"name": "Formulations Engineer", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                {"name": "Principal QA/QC Superintendent", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
+            ]
+        }
+        career_path = [
+            {"level": "Level 1", "role": "Research Associate GET", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Formulations Scientist", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Senior Quality Scientist", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "R&D Project Lead", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "R&D Director", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
+        ]
+        tips = {
+            "technical": f"Revise HPLC methods, phase trials requirements, and basic stoichiometry balance rules.",
+            "hr": f"Highlight precision, high focus on QA protocols, and safety compliance culture.",
+            "assessment": "Prepare for chemistry-focused MCQs, molecular structure checks, and logic puzzles."
+        }
+    elif domain == "fmcg":
+        skills = [
+            {"name": "Supply Chain & Logistics", "level": l1},
+            {"name": "Inventory Management & FIFO", "level": l2},
+            {"name": "Consumer Marketing & Valuation", "level": l3},
+            {"name": "Sales & Distribution Operations", "level": l4},
+            {"name": "Quantitative Aptitude", "level": l5}
+        ]
+        topics = [
+            {"name": "Inventory Models (EOQ, ROP) & Cross-Docking", "weight": w1},
+            {"name": "Consumer Insights & Brand Management Strategy", "weight": w2},
+            {"name": "Distribution Channels & Operations", "weight": w3},
+            {"name": "Logical, Cognitive & General Aptitude", "weight": w4}
+        ]
+        salary = {
+            "tiers": [
+                {"name": "Operations Trainee GET", "package": sal_tier1, "inhand": f"₹{inhand_1:,} / month", "details": f"Basic Pay: 50%, HRA: 30%, Allowances: 20%. Deductions: PF, Professional Tax."},
+                {"name": "Brand / Supply Chain Manager", "package": sal_tier2, "inhand": f"₹{inhand_2:,} / month", "details": f"Basic Pay: 48%, HRA: 28%. Deductions: Income Tax, PF."},
+                {"name": "Territory Sales Director", "package": sal_tier3, "inhand": f"₹{inhand_3:,} / month", "details": f"Basic Pay: 45%, HRA: 25%. Deductions: Income Tax, PF."}
+            ]
+        }
+        career_path = [
+            {"level": "Level 1", "role": "Operations Executive Trainee", "duration": "1 Year", "salary": sal_tier1},
+            {"level": "Level 2", "role": "Assistant Operations Manager", "duration": "2 Years", "salary": f"{base_pkg_max + 1} - {mid_pkg_min} LPA"},
+            {"level": "Level 3", "role": "Brand / Supply Chain Manager", "duration": "3 Years", "salary": sal_tier2},
+            {"level": "Level 4", "role": "Territory Manager / Lead", "duration": "4+ Years", "salary": sal_tier3},
+            {"level": "Level 5", "role": "National Operations Head", "duration": "To the top!", "salary": f"{senior_pkg_max + 10}+ LPA"}
+        ]
+        tips = {
+            "technical": f"Revise lead time calculations, retail channel setups, and economic order quantities.",
+            "hr": f"Highlight mobility, active team cooperation, and client-centric mindset.",
+            "assessment": "Expect logistics math, sales scenario judgments, and aptitude questions."
         }
     else:
         # Standard software MNC / FAANG domain
