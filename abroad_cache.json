@@ -1,5 +1,71 @@
 [
     {
+        "title": "AI Platform Engineer",
+        "company": "OpenAI",
+        "branch": "cse",
+        "country": "usa",
+        "description": "Build orchestration platforms for large language model deployments and low-latency APIs.",
+        "experience": "3+ Years",
+        "qualification": "M.Tech",
+        "link": "https://openai.com/careers",
+        "posted_date": "July 11, 2026 at 10:30 PM"
+    },
+    {
+        "title": "Systems Architect",
+        "company": "Dyson",
+        "branch": "ece",
+        "country": "singapore",
+        "description": "Design electronic microcontrollers and sensor subsystems for robotic consumer products.",
+        "experience": "2 Years",
+        "qualification": "B.Tech",
+        "link": "https://careers.dyson.com",
+        "posted_date": "July 11, 2026 at 10:30 PM"
+    },
+    {
+        "title": "Robotics Integration Specialist",
+        "company": "KUKA Robotics",
+        "branch": "mechanical",
+        "country": "germany",
+        "description": "Program factory automation cells, coordinate robotic arms paths, and perform kinematics simulations.",
+        "experience": "1 Year",
+        "qualification": "B.Tech",
+        "link": "https://www.kuka.com/en-de/about-kuka/careers",
+        "posted_date": "July 11, 2026 at 10:30 PM"
+    },
+    {
+        "title": "Microprocessor Layout Designer",
+        "company": "TSMC",
+        "branch": "ece",
+        "country": "japan",
+        "description": "Structure sub-5nm microchip packaging physical designs and run electromagnetic analyses.",
+        "experience": "Fresher",
+        "qualification": "M.Tech",
+        "link": "https://www.tsmc.com/english/careers",
+        "posted_date": "July 11, 2026 at 10:30 PM"
+    },
+    {
+        "title": "Senior Energy Storage Specialist",
+        "company": "BMW Group",
+        "branch": "electrical",
+        "country": "germany",
+        "description": "Integrate modular lithium-ion powertrains and optimize regenerative braking control parameters.",
+        "experience": "3+ Years",
+        "qualification": "M.Tech",
+        "link": "https://www.bmwgroup.jobs/de/en.html",
+        "posted_date": "July 11, 2026 at 10:30 PM"
+    },
+    {
+        "title": "Junior BIM Infrastructure Engineer",
+        "company": "AECOM",
+        "branch": "civil",
+        "country": "usa",
+        "description": "Build high-precision 3D structural concrete models and track green building certifications.",
+        "experience": "Fresher",
+        "qualification": "B.Tech",
+        "link": "https://aecom.jobs",
+        "posted_date": "July 11, 2026 at 10:30 PM"
+    },
+    {
         "title": "Local Marketing Manager",
         "company": "Test",
         "branch": "cse",
@@ -140,72 +206,6 @@
         "experience": "2 Years",
         "qualification": "B.Tech",
         "link": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-guggenhausen-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-475988",
-        "posted_date": "July 11, 2026 at 10:22 PM"
-    },
-    {
-        "title": "AI Platform Engineer",
-        "company": "OpenAI",
-        "branch": "cse",
-        "country": "usa",
-        "description": "Build orchestration platforms for large language model deployments and low-latency APIs.",
-        "experience": "3+ Years",
-        "qualification": "M.Tech",
-        "link": "https://openai.com/careers",
-        "posted_date": "July 11, 2026 at 10:22 PM"
-    },
-    {
-        "title": "Systems Architect",
-        "company": "Dyson",
-        "branch": "ece",
-        "country": "singapore",
-        "description": "Design electronic microcontrollers and sensor subsystems for robotic consumer products.",
-        "experience": "2 Years",
-        "qualification": "B.Tech",
-        "link": "https://careers.dyson.com",
-        "posted_date": "July 11, 2026 at 10:22 PM"
-    },
-    {
-        "title": "Robotics Integration Specialist",
-        "company": "KUKA Robotics",
-        "branch": "mechanical",
-        "country": "germany",
-        "description": "Program factory automation cells, coordinate robotic arms paths, and perform kinematics simulations.",
-        "experience": "1 Year",
-        "qualification": "B.Tech",
-        "link": "https://www.kuka.com/en-de/about-kuka/careers",
-        "posted_date": "July 11, 2026 at 10:22 PM"
-    },
-    {
-        "title": "Microprocessor Layout Designer",
-        "company": "TSMC",
-        "branch": "ece",
-        "country": "japan",
-        "description": "Structure sub-5nm microchip packaging physical designs and run electromagnetic analyses.",
-        "experience": "Fresher",
-        "qualification": "M.Tech",
-        "link": "https://www.tsmc.com/english/careers",
-        "posted_date": "July 11, 2026 at 10:22 PM"
-    },
-    {
-        "title": "Senior Energy Storage Specialist",
-        "company": "BMW Group",
-        "branch": "electrical",
-        "country": "germany",
-        "description": "Integrate modular lithium-ion powertrains and optimize regenerative braking control parameters.",
-        "experience": "3+ Years",
-        "qualification": "M.Tech",
-        "link": "https://www.bmwgroup.jobs/de/en.html",
-        "posted_date": "July 11, 2026 at 10:22 PM"
-    },
-    {
-        "title": "Junior BIM Infrastructure Engineer",
-        "company": "AECOM",
-        "branch": "civil",
-        "country": "usa",
-        "description": "Build high-precision 3D structural concrete models and track green building certifications.",
-        "experience": "Fresher",
-        "qualification": "B.Tech",
-        "link": "https://aecom.jobs",
         "posted_date": "July 11, 2026 at 10:22 PM"
     }
 ]

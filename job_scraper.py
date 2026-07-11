@@ -1,7 +1,17 @@
 import os
 import json
 import requests
+import re
 from datetime import datetime
+
+def is_english(text):
+    # Common German stop words indicating the text is not English
+    german_stopwords = {"und", "ist", "für", "das", "mit", "sind", "oder", "eine", "ein", "wir", "uns", "sie", "ihnen", "ihr", "entwickler", "bereich", "aufgaben", "profil", "bewerbung"}
+    clean_text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
+    words = set(clean_text.split())
+    if len(words.intersection(german_stopwords)) >= 2:
+        return False
+    return True
 
 # Helper to fetch credentials from env or config.json
 def get_scraper_credential(key_name):
@@ -173,6 +183,10 @@ def scrape_local_jobs():
                 if len(clean_desc) > 300:
                     clean_desc = clean_desc[:300] + "..."
                     
+                # Skip non-English job descriptions/titles
+                if not is_english(clean_desc) or not is_english(title):
+                    continue
+                    
                 # Classify branch
                 branch = "cse"
                 t_lower = title.lower()
@@ -337,6 +351,10 @@ def scrape_abroad_jobs():
                 clean_desc = soup.get_text().strip()
                 if len(clean_desc) > 300:
                     clean_desc = clean_desc[:300] + "..."
+                    
+                # Skip non-English job descriptions/titles
+                if not is_english(clean_desc) or not is_english(title):
+                    continue
                     
                 # Classify branch
                 branch = "cse"
