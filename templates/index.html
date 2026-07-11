@@ -1766,13 +1766,86 @@
             <div class="tab-content" id="tab-sheet-generator">
                 <div class="glass-card panel-card">
                     <h3 class="panel-title"><i class="fa-solid fa-file-pdf text-neon-blue"></i> Company Sheet PDF Generator</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 2rem;">Enter any target company name. The bot runs a real-time Google Search to retrieve authentic, current information, synthesizes it with AI, and outputs a downloadable PDF prep sheet containing the Overview, Selection Process, CTC, and Eligibility criteria.</p>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Select a company from the global directory folders or type any custom target company. The bot runs a real-time Google Search to retrieve authentic, current details, synthesizes it with AI, and outputs a downloadable PDF prep sheet containing the Overview, Selection Process, CTC, and Eligibility criteria.</p>
                     
-                    <div style="max-width: 600px; margin: 0 auto; padding: 2rem 0; text-align: center;">
-                        <div class="glass-card" style="padding: 2rem; border: 1px solid var(--border-color);">
+                    <style>
+                        .letter-tag {
+                            display: inline-flex;
+                            width: 25px;
+                            height: 25px;
+                            justify-content: center;
+                            align-items: center;
+                            background: rgba(255,255,255,0.03);
+                            border: 1px solid rgba(255,255,255,0.08);
+                            border-radius: 50%;
+                            font-size: 0.7rem;
+                            color: #b3a7c4;
+                            font-weight: 700;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+                        .letter-tag:hover, .letter-tag.active {
+                            background: var(--neon-cyan);
+                            color: #000;
+                            border-color: var(--neon-cyan);
+                            box-shadow: 0 0 10px rgba(123, 44, 191, 0.4);
+                        }
+                        .company-item {
+                            padding: 0.5rem 0.75rem;
+                            font-size: 0.8rem;
+                            color: #b3a7c4;
+                            cursor: pointer;
+                            border-radius: 6px;
+                            transition: all 0.2s;
+                            border-bottom: 1px solid rgba(255,255,255,0.02);
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                        }
+                        .company-item:hover {
+                            background: rgba(123, 44, 191, 0.15);
+                            color: #fff;
+                            padding-left: 1rem;
+                        }
+                        .company-item.active {
+                            background: rgba(0, 240, 255, 0.1);
+                            color: #00f0ff;
+                            font-weight: 600;
+                            border-left: 3px solid #00f0ff;
+                        }
+                        @media (max-width: 768px) {
+                            .sheet-grid {
+                                grid-template-columns: 1fr !important;
+                            }
+                        }
+                    </style>
+
+                    <div class="sheet-grid" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; margin-top: 1rem;">
+                        <!-- Left: Alphabetical Directory & Search -->
+                        <div class="glass-card" style="padding: 1.5rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; max-height: 520px; min-height: 480px; background: rgba(10,5,20,0.4);">
+                            <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-folder-open text-neon-cyan"></i> Global Company Folders</h4>
+                            
+                            <!-- Search Bar inside directory -->
+                            <div class="input-group" style="margin-bottom: 1rem;">
+                                <input type="text" id="directory-search-input" placeholder="Search 1000+ companies from A to Z..." style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 1rem; border-radius: 8px; width: 100%; font-size: 0.85rem;">
+                            </div>
+
+                            <!-- Alphabet Bar -->
+                            <div id="alphabet-bar-container" style="display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 1rem;">
+                                <!-- Generated by JS: A B C D ... Z -->
+                            </div>
+
+                            <!-- Companies List Box -->
+                            <div id="directory-companies-list" style="flex: 1; overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 8px; background: rgba(0,0,0,0.15);">
+                                <p class="text-muted" style="font-size: 0.8rem; text-align: center; margin-top: 2rem;">Select a letter to explore companies</p>
+                            </div>
+                        </div>
+
+                        <!-- Right: Generate Card -->
+                        <div class="glass-card" style="padding: 2rem; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; text-align: center; background: rgba(10,5,20,0.4);">
                             <div class="input-group" style="margin-bottom: 1.5rem; text-align: left;">
-                                <label for="sheet-company-name"><i class="fa-solid fa-building"></i> Target Company Name</label>
-                                <input type="text" id="sheet-company-name" placeholder="e.g. Tata Consultancy Services, Google, L&T, MRF Tyres">
+                                <label for="sheet-company-name"><i class="fa-solid fa-building"></i> Selected Company Name</label>
+                                <input type="text" id="sheet-company-name" placeholder="Choose from left directory or type custom name here...">
                             </div>
                             
                             <button id="generate-pdf-sheet-btn" class="glow-btn" style="width: 100%; height: 44px; justify-content: center;">

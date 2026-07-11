@@ -2320,6 +2320,108 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ----------------------------------------------------
+    // Tab: Company Sheet PDF Generator Directory Index
+    // ----------------------------------------------------
+    const alphabetBarContainer = document.getElementById("alphabet-bar-container");
+    const directorySearchInput = document.getElementById("directory-search-input");
+    const directoryCompaniesList = document.getElementById("directory-companies-list");
+
+    let allCompaniesData = {};
+
+    if (alphabetBarContainer && directoryCompaniesList) {
+        fetch("/static/companies_list.json")
+            .then(res => res.json())
+            .then(data => {
+                allCompaniesData = data;
+                initAlphabetDirectory();
+                selectLetter("A");
+            })
+            .catch(err => {
+                console.error("Error loading global company directory:", err);
+                directoryCompaniesList.innerHTML = '<p class="text-muted" style="text-align: center; margin-top: 2rem;">Error loading directory. You can still type any custom company name on the right.</p>';
+            });
+
+        function initAlphabetDirectory() {
+            alphabetBarContainer.innerHTML = "";
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            letters.forEach(letter => {
+                const span = document.createElement("span");
+                span.className = "letter-tag";
+                span.textContent = letter;
+                span.dataset.letter = letter;
+                span.addEventListener("click", () => {
+                    selectLetter(letter);
+                });
+                alphabetBarContainer.appendChild(span);
+            });
+        }
+
+        function selectLetter(letter) {
+            const activeLetter = alphabetBarContainer.querySelector(".letter-tag.active");
+            if (activeLetter) activeLetter.classList.remove("active");
+            
+            const targetSpan = alphabetBarContainer.querySelector(`[data-letter="${letter}"]`);
+            if (targetSpan) targetSpan.classList.add("active");
+
+            if (directorySearchInput) directorySearchInput.value = "";
+
+            renderCompaniesList(allCompaniesData[letter] || [], letter);
+        }
+
+        function renderCompaniesList(list, contextName) {
+            directoryCompaniesList.innerHTML = "";
+            if (list.length === 0) {
+                directoryCompaniesList.innerHTML = `<p class="text-muted" style="font-size: 0.8rem; text-align: center; margin-top: 2rem;">No companies found in category ${contextName}</p>`;
+                return;
+            }
+
+            list.forEach(comp => {
+                const div = document.createElement("div");
+                div.className = "company-item";
+                if (sheetCompanyInput.value === comp) {
+                    div.classList.add("active");
+                }
+                div.innerHTML = `<i class="fa-regular fa-building text-neon-blue"></i> <span>${comp}</span>`;
+                div.addEventListener("click", () => {
+                    const prevActive = directoryCompaniesList.querySelector(".company-item.active");
+                    if (prevActive) prevActive.classList.remove("active");
+                    div.classList.add("active");
+
+                    sheetCompanyInput.value = comp;
+                });
+                directoryCompaniesList.appendChild(div);
+            });
+        }
+
+        if (directorySearchInput) {
+            directorySearchInput.addEventListener("input", () => {
+                const query = directorySearchInput.value.trim().toLowerCase();
+                if (!query) {
+                    const activeLetter = alphabetBarContainer.querySelector(".letter-tag.active");
+                    const activeL = activeLetter ? activeLetter.textContent : "A";
+                    renderCompaniesList(allCompaniesData[activeL] || [], activeL);
+                    return;
+                }
+
+                const activeLetter = alphabetBarContainer.querySelector(".letter-tag.active");
+                if (activeLetter) activeLetter.classList.remove("active");
+
+                let matched = [];
+                Object.keys(allCompaniesData).forEach(key => {
+                    allCompaniesData[key].forEach(comp => {
+                        if (comp.toLowerCase().includes(query)) {
+                            matched.push(comp);
+                        }
+                    });
+                });
+
+                matched.sort();
+                renderCompaniesList(matched, `Search: "${query}"`);
+            });
+        }
+    }
+
     navItems.forEach(item => {
         item.addEventListener("click", () => {
             const tab = item.getAttribute("data-tab");
