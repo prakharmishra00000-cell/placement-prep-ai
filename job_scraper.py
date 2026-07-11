@@ -156,6 +156,71 @@ def scrape_local_jobs():
         except Exception as e:
             print("SerpAPI Local Job Fetch error:", e)
 
+    # Free Live API Scraper fallback (Arbeitnow Job Board API)
+    try:
+        r = requests.get('https://www.arbeitnow.com/api/job-board-api', headers={'User-Agent': 'Mozilla/5.0'}, timeout=8)
+        if r.status_code == 200:
+            data = r.json()
+            api_jobs = []
+            for j in data.get('data', [])[:30]:
+                title = j.get("title", "Engineering Associate")
+                desc = j.get("description", "Dynamic opportunity listed on live career portals.")
+                
+                # Strip HTML tags cleanly
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(desc, "html.parser")
+                clean_desc = soup.get_text().strip()
+                if len(clean_desc) > 300:
+                    clean_desc = clean_desc[:300] + "..."
+                    
+                # Classify branch
+                branch = "cse"
+                t_lower = title.lower()
+                if any(x in t_lower for x in ["embedded", "vlsi", "electronics", "circuit", "hardware", "iot", "signal", "semiconductor"]):
+                    branch = "ece"
+                elif any(x in t_lower for x in ["mechanical", "automobile", "design", "cad", "production", "manufacturing", "vehicle"]):
+                    branch = "mechanical"
+                elif any(x in t_lower for x in ["electrical", "power", "grid", "transformer"]):
+                    branch = "electrical"
+                elif any(x in t_lower for x in ["civil", "structural", "construction", "site", "surveyor", "architectural"]):
+                    branch = "civil"
+                elif any(x in t_lower for x in ["chemical", "refinery", "process engineer"]):
+                    branch = "chemical"
+                    
+                # Classify experience
+                experience = "1 Year"
+                if any(x in t_lower for x in ["junior", "intern", "graduate", "entry", "fresher", "trainee"]):
+                    experience = "Fresher"
+                elif any(x in t_lower for x in ["senior", "lead", "principal", "architect", "manager"]):
+                    experience = "3+ Years"
+                    
+                # Classify qualification
+                qualification = "B.Tech"
+                d_lower = clean_desc.lower()
+                if "phd" in d_lower:
+                    qualification = "PhD"
+                elif "mtech" in d_lower or "m.tech" in d_lower or "master" in d_lower:
+                    qualification = "M.Tech"
+                elif "diploma" in d_lower or "polytechnic" in d_lower:
+                    qualification = "Diploma"
+                elif "12th" in d_lower:
+                    qualification = "12th Pass"
+                    
+                api_jobs.append({
+                    "title": title,
+                    "company": j.get("company_name", "Leading Corporation"),
+                    "branch": branch,
+                    "description": clean_desc,
+                    "experience": experience,
+                    "qualification": qualification,
+                    "link": j.get("url", "https://careers.google.com"),
+                    "posted_date": current_date
+                })
+            if api_jobs:
+                jobs = api_jobs + jobs
+    except Exception as e:
+        print("Free local jobs scraper update error:", e)
+
     merge_and_save_cache("jobs_cache.json", jobs, ["title", "company", "branch"])
 
 def scrape_abroad_jobs():
@@ -254,6 +319,86 @@ def scrape_abroad_jobs():
                     abroad_jobs = api_jobs + abroad_jobs
         except Exception as e:
             print("SerpAPI Abroad Job Fetch error:", e)
+
+    # Free Live API Scraper fallback for Abroad listings
+    try:
+        r = requests.get('https://www.arbeitnow.com/api/job-board-api', headers={'User-Agent': 'Mozilla/5.0'}, timeout=8)
+        if r.status_code == 200:
+            data = r.json()
+            api_jobs = []
+            for j in data.get('data', [])[:30]:
+                title = j.get("title", "International Associate")
+                desc = j.get("description", "Overseas opportunity listed on global corporate portals.")
+                location = j.get("location", "Germany").lower()
+                
+                # Strip HTML tags
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(desc, "html.parser")
+                clean_desc = soup.get_text().strip()
+                if len(clean_desc) > 300:
+                    clean_desc = clean_desc[:300] + "..."
+                    
+                # Classify branch
+                branch = "cse"
+                t_lower = title.lower()
+                if any(x in t_lower for x in ["embedded", "vlsi", "electronics", "circuit", "hardware", "iot", "signal", "semiconductor"]):
+                    branch = "ece"
+                elif any(x in t_lower for x in ["mechanical", "automobile", "design", "cad", "production", "manufacturing", "vehicle"]):
+                    branch = "mechanical"
+                elif any(x in t_lower for x in ["electrical", "power", "grid", "transformer"]):
+                    branch = "electrical"
+                elif any(x in t_lower for x in ["civil", "structural", "construction", "site", "surveyor", "architectural"]):
+                    branch = "civil"
+                elif any(x in t_lower for x in ["chemical", "refinery", "process engineer"]):
+                    branch = "chemical"
+                    
+                # Classify country
+                country = "germany"
+                if "usa" in location or "united states" in location:
+                    country = "usa"
+                elif "singapore" in location:
+                    country = "singapore"
+                elif "uk" in location or "united kingdom" in location or "london" in location:
+                    country = "uk"
+                elif "japan" in location or "tokyo" in location:
+                    country = "japan"
+                elif "canada" in location:
+                    country = "canada"
+                    
+                # Classify experience
+                experience = "2 Years"
+                if any(x in t_lower for x in ["junior", "intern", "graduate", "entry", "fresher", "trainee"]):
+                    experience = "Fresher"
+                elif any(x in t_lower for x in ["senior", "lead", "principal", "architect", "manager"]):
+                    experience = "3+ Years"
+                    
+                # Classify qualification
+                qualification = "B.Tech"
+                d_lower = clean_desc.lower()
+                if "phd" in d_lower:
+                    qualification = "PhD"
+                elif "mtech" in d_lower or "m.tech" in d_lower or "master" in d_lower:
+                    qualification = "M.Tech"
+                elif "diploma" in d_lower or "polytechnic" in d_lower:
+                    qualification = "Diploma"
+                elif "12th" in d_lower:
+                    qualification = "12th Pass"
+                    
+                api_jobs.append({
+                    "title": title,
+                    "company": j.get("company_name", "Global Inc"),
+                    "branch": branch,
+                    "country": country,
+                    "description": clean_desc,
+                    "experience": experience,
+                    "qualification": qualification,
+                    "link": j.get("url", "https://openai.com/careers"),
+                    "posted_date": current_date
+                })
+            if api_jobs:
+                abroad_jobs = api_jobs + abroad_jobs
+    except Exception as e:
+        print("Free abroad jobs scraper update error:", e)
 
     merge_and_save_cache("abroad_cache.json", abroad_jobs, ["title", "company", "branch", "country"])
 
