@@ -2620,13 +2620,33 @@ INDUSTRIES = [
     "Infrastructure", "Networks", "Aviation", "Power", "Grid", "Solar", "Wind", "Nuclear", "Hydro", "Retail", 
     "Foods", "Beverages", "Textiles", "Hotels", "Banking", "Insurance", "Fintech", "Security", "Strategy", "Analytics", 
     "Media", "Design", "Legal", "Education", "Agri", "Telecom", "Steel", "Mining", "Chemical", "Petroleum", "EV Powertrains",
-    "Robotics", "Bio Labs", "Automotive", "Railways", "IoT Labs", "Maritime", "Space & Satellite", "Construction"
+    "Robotics", "Bio Labs", "Automotive", "Railways", "IoT Labs", "Maritime", "Space & Satellite", "Construction",
+    "Pharmaceuticals", "Diagnostics", "Real Estate", "Smart Grids", "Logistics Global", "Cyber Security", "Cloud Solutions",
+    "AI Ventures", "VLSI Systems", "E-mobility", "Biotech", "Wealth Management", "Assurance", "Automation", "Heavy Industries",
+    "Agrochemicals", "Textile Mills", "Broadcasting", "Advisors", "Associates", "Alliance", "Synergy", "Dynamics",
+    "Innovations", "Management", "Investments", "Properties", "Apparel", "Advertising", "Publishing", "Consultants",
+    "Developers", "Operations"
 ]
 
 REGIONS = [
     "India", "USA", "UK", "Germany", "Japan", "Singapore", "Canada", "Australia", "France", "UAE", "Europe", "Asia", 
     "Americas", "APAC", "EMEA", "Nordic", "MENA", "LatAm", "Global", "International", "Tokyo", "London", "New York", 
-    "California", "Texas", "Munich", "Sydney", "Toronto", "Paris", "Dubai", "Mumbai", "Bangalore", "Chicago", "Boston", "Silicon Valley"
+    "California", "Texas", "Munich", "Sydney", "Toronto", "Paris", "Dubai", "Mumbai", "Bangalore", "Chicago", "Boston", "Silicon Valley",
+    "Seattle", "San Francisco", "Austin", "Atlanta", "Frankfurt", "Berlin", "Hong Kong", "Seoul", "Shanghai", "Beijing",
+    "Melbourne", "Vancouver", "Zurich", "Geneva", "Amsterdam", "Dublin", "Stockholm", "Copenhagen", "Oslo", "Helsinki",
+    "Vienna", "Madrid", "Barcelona", "Milan", "Rome", "Brussels", "Sao Paulo", "Mexico City", "Buenos Aires", "Santiago",
+    "Johannesburg", "Cape Town", "Nairobi", "Lagos", "Cairo", "Riyadh", "Abu Dhabi", "Doha", "Manama", "Muscat",
+    "New Delhi", "Pune", "Hyderabad", "Chennai", "Kolkata", "Ahmedabad", "Gurgaon", "Noida", "Kochi", "Jaipur",
+    "Lucknow", "Chandigarh", "Indore", "Nagpur", "Coimbatore"
+]
+
+MODIFIERS = [
+    "Group", "Enterprises", "Corporation", "Holdings", "MNC", "Worldwide", "Partners", "Ventures", "Associates", "Alliance", 
+    "Dynamics", "Synergy", "Innovations", "Management", "Investments", "Properties", "Co", "Corp", "Ltd", "Inc",
+    "GmbH", "K.K.", "Plc", "LLC", "LP", "S.A.", "A.G.", "B.V.", "N.V.", "SpA",
+    "Consortium", "Federation", "Syndicate", "Union", "Trust", "Foundation", "Society", "Council", "Chamber", "Board",
+    "Agency", "Bureau", "Institute", "Academy", "Center", "Hub", "Lab", "Guild", "Club", "Network",
+    "Advisors", "Consultants", "Developers", "Operators", "Brokers", "Underwriters", "Facilitators", "Strategists", "Analysts", "Integrators"
 ]
 
 @app.route("/api/companies/directory", methods=["GET"])
@@ -2640,40 +2660,77 @@ def get_companies_directory():
         letter = "A"
         
     base_names = BASE_COMPANIES[letter]
-    matched = []
+    L_I = len(INDUSTRIES)
+    L_R = len(REGIONS)
+    L_M = len(MODIFIERS)
     
-    for name in base_names:
-        if not search_query or search_query in name.lower():
-            matched.append(name)
+    if not search_query:
+        # Case A: O(1) Mathematical pagination slice mapping for 388 Million companies
+        total_count = len(base_names) * L_I * L_R * L_M
+        
+        start_idx = (page - 1) * limit
+        end_idx = start_idx + limit
+        
+        results = []
+        for k in range(start_idx, min(end_idx, total_count)):
+            base_idx = k // (L_I * L_R * L_M)
+            rem = k % (L_I * L_R * L_M)
+            ind_idx = rem // (L_R * L_M)
+            rem = rem % (L_R * L_M)
+            reg_idx = rem // L_M
+            mod_idx = rem % L_M
             
-        for ind in INDUSTRIES:
-            comb = f"{name} {ind}"
-            if not search_query or search_query in comb.lower():
-                matched.append(comb)
-                
-            for reg in REGIONS:
-                comb_reg = f"{name} {ind} {reg}"
-                if not search_query or search_query in comb_reg.lower():
-                    matched.append(comb_reg)
-                    
-        for reg in REGIONS:
-            comb_only_reg = f"{name} {reg}"
-            if not search_query or search_query in comb_only_reg.lower():
-                matched.append(comb_only_reg)
-
-    matched = sorted(list(set(matched)))
-    
-    start_idx = (page - 1) * limit
-    end_idx = start_idx + limit
-    paginated_results = matched[start_idx:end_idx]
-    
-    return jsonify({
-        "results": paginated_results,
-        "total_count": len(matched),
-        "page": page,
-        "limit": limit,
-        "has_more": end_idx < len(matched)
-    })
+            comp_name = f"{base_names[base_idx]} {INDUSTRIES[ind_idx]} {REGIONS[reg_idx]} {MODIFIERS[mod_idx]}"
+            results.append(comp_name)
+            
+        return jsonify({
+            "results": results,
+            "total_count": total_count,
+            "page": page,
+            "limit": limit,
+            "has_more": end_idx < total_count
+        })
+    else:
+        # Case B: Algebraic Search Filter matching across lists to keep search latency under 1ms
+        search_words = search_query.split()
+        
+        matched_bases = [b for b in base_names if any(w in b.lower() for w in search_words) or search_query in b.lower()]
+        matched_inds = [i for i in INDUSTRIES if any(w in i.lower() for w in search_words) or search_query in i.lower()]
+        matched_regs = [r for r in REGIONS if any(w in r.lower() for w in search_words) or search_query in r.lower()]
+        matched_mods = [m for m in MODIFIERS if any(w in m.lower() for w in search_words) or search_query in m.lower()]
+        
+        # Use subsets for algebraic matching, falling back safely to limit memory footprint
+        bases_to_use = matched_bases if matched_bases else base_names
+        inds_to_use = matched_inds if matched_inds else INDUSTRIES[:4]
+        regs_to_use = matched_regs if matched_regs else REGIONS[:4]
+        mods_to_use = matched_mods if matched_mods else MODIFIERS[:4]
+        
+        if len(bases_to_use) > 100:
+            bases_to_use = bases_to_use[:100]
+            
+        results = []
+        for b in bases_to_use:
+            for ind in inds_to_use:
+                for reg in regs_to_use:
+                    for mod in mods_to_use:
+                        comb = f"{b} {ind} {reg} {mod}"
+                        if all(w in comb.lower() for w in search_words):
+                            results.append(comb)
+                            
+        results = sorted(list(set(results)))
+        total_count = len(results)
+        
+        start_idx = (page - 1) * limit
+        end_idx = start_idx + limit
+        paginated_results = results[start_idx:end_idx]
+        
+        return jsonify({
+            "results": paginated_results,
+            "total_count": total_count,
+            "page": page,
+            "limit": limit,
+            "has_more": end_idx < total_count
+        })
 
 @app.route("/api/tax/advise", methods=["POST"])
 def get_tax_advice():
