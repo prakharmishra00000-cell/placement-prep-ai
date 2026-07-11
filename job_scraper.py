@@ -475,6 +475,26 @@ def scrape_competitive_exams():
         }
     ]
 
+    # Live web crawling for active exam notifications & registration dates
+    import urllib.parse
+    from bs4 import BeautifulSoup
+    for exam in exams:
+        try:
+            query = f"{exam['title']} news updates registration dates 2026 2027"
+            url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query)}"
+            r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
+            if r.status_code == 200:
+                soup = BeautifulSoup(r.text, 'html.parser')
+                snippets = [a.get_text().strip() for a in soup.find_all('a', class_='result__snippet')]
+                if snippets:
+                    clean_snippet = snippets[0]
+                    clean_snippet = " ".join(clean_snippet.split())
+                    if len(clean_snippet) > 240:
+                        clean_snippet = clean_snippet[:240] + "..."
+                    exam["description"] = f"Live Alert: {clean_snippet} • Original details: {exam['description']}"
+        except Exception as e:
+            print(f"Dynamic crawler update failed for exam '{exam['title']}': {e}")
+
     merge_and_save_cache("exams_cache.json", exams, ["title", "company"])
 
 if __name__ == "__main__":
