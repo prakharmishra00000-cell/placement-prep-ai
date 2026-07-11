@@ -2694,13 +2694,18 @@ def get_companies_directory():
         # Case B: Algebraic Search Filter matching across lists to keep search latency under 1ms
         search_words = search_query.split()
         
-        matched_bases = [b for b in base_names if any(w in b.lower() for w in search_words) or search_query in b.lower()]
+        # Collect all bases globally from A to Z
+        all_bases = []
+        for lst in BASE_COMPANIES.values():
+            all_bases.extend(lst)
+        
+        matched_bases = [b for b in all_bases if any(w in b.lower() for w in search_words) or search_query in b.lower()]
         matched_inds = [i for i in INDUSTRIES if any(w in i.lower() for w in search_words) or search_query in i.lower()]
         matched_regs = [r for r in REGIONS if any(w in r.lower() for w in search_words) or search_query in r.lower()]
         matched_mods = [m for m in MODIFIERS if any(w in m.lower() for w in search_words) or search_query in m.lower()]
         
         # Use subsets for algebraic matching, falling back safely to limit memory footprint
-        bases_to_use = matched_bases if matched_bases else base_names
+        bases_to_use = matched_bases if matched_bases else (base_names if base_names else all_bases[:50])
         inds_to_use = matched_inds if matched_inds else INDUSTRIES[:4]
         regs_to_use = matched_regs if matched_regs else REGIONS[:4]
         mods_to_use = matched_mods if matched_mods else MODIFIERS[:4]
