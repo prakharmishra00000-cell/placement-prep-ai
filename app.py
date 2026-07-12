@@ -2760,7 +2760,15 @@ def evaluate_interview():
             if resp.endswith("```"):
                 resp = resp[:-3]
             resp = resp.strip()
-            return jsonify(json.loads(resp))
+            parsed = json.loads(resp)
+            normalized = {
+                "tech": int(parsed.get("tech", 75)),
+                "comm": int(parsed.get("comm", 75)),
+                "speed": int(parsed.get("speed", 75)),
+                "vocab": int(parsed.get("vocab", 75)),
+                "remarks": str(parsed.get("remarks", "Evaluation completed successfully."))
+            }
+            return jsonify(normalized)
         except Exception as e:
             print("Gemini evaluate_interview error:", e)
             
