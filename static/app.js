@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "portfolio": { title: "AI Portfolio Generator", sub: "Build a beautiful, modern, shareable developer portfolio website from your links and resume instantly" },
         "sheet-generator": { title: "Company Sheet PDF Generator", sub: "Generate comprehensive and authentic placement preparation sheets in PDF format using real-time search context" },
         "relocation": { title: "AI Relocation Assistant", sub: "Analyze rental indexes, food costs, transit routes, and corporate office parks for any target city" },
+        "cheatsheet": { title: "1-Page Company Cheat Sheet", sub: "Quick 2-minute revision key metrics, tech stacks, and news before your interview" },
         "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
@@ -2557,6 +2558,76 @@ document.addEventListener("DOMContentLoaded", () => {
         relocCityInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
                 executeRelocationAnalysis();
+            }
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: 1-Page Company Cheat Sheet Handlers
+    // ----------------------------------------------------
+    const cheatInput = document.getElementById("cheatsheet-company-input");
+    const cheatSearchBtn = document.getElementById("cheatsheet-search-btn");
+    const cheatLoading = document.getElementById("cheatsheet-loading");
+    const cheatResults = document.getElementById("cheatsheet-results");
+    const cheatPdfBtn = document.getElementById("cheatsheet-pdf-btn");
+
+    const cheatHq = document.getElementById("cheat-hq");
+    const cheatCeo = document.getElementById("cheat-ceo");
+    const cheatFounded = document.getElementById("cheat-founded");
+    const cheatProducts = document.getElementById("cheat-products");
+    const cheatNews = document.getElementById("cheat-news");
+    const cheatHiring = document.getElementById("cheat-hiring");
+    const cheatSalary = document.getElementById("cheat-salary");
+    const cheatTech = document.getElementById("cheat-tech");
+
+    function executeCheatSheetAnalysis() {
+        const company = cheatInput.value.trim();
+        if (!company) {
+            alert("Please enter a company name.");
+            return;
+        }
+
+        cheatLoading.style.display = "block";
+        cheatResults.classList.add("hide");
+
+        fetch(`/api/cheatsheet?company=${encodeURIComponent(company)}`)
+        .then(res => res.json())
+        .then(data => {
+            cheatLoading.style.display = "none";
+            if (data.error) {
+                alert("Failed to generate cheat sheet: " + data.error);
+                return;
+            }
+
+            // Populate cards
+            cheatHq.innerText = data.headquarters || "N/A";
+            cheatCeo.innerText = data.ceo || "N/A";
+            cheatFounded.innerText = data.founded || "N/A";
+            cheatProducts.innerText = data.products || "N/A";
+            cheatNews.innerText = data.news || "N/A";
+            cheatHiring.innerText = data.hiring || "N/A";
+            cheatSalary.innerText = data.salary || "N/A";
+            cheatTech.innerText = data.tech_stack || "N/A";
+
+            // Update PDF download link
+            cheatPdfBtn.href = `/api/cheatsheet/pdf?company=${encodeURIComponent(company)}`;
+
+            cheatResults.classList.remove("hide");
+        })
+        .catch(err => {
+            console.error("Cheat sheet analysis error:", err);
+            cheatLoading.style.display = "none";
+            alert("An error occurred during cheat sheet generation.");
+        });
+    }
+
+    if (cheatSearchBtn) {
+        cheatSearchBtn.addEventListener("click", executeCheatSheetAnalysis);
+    }
+    if (cheatInput) {
+        cheatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                executeCheatSheetAnalysis();
             }
         });
     }

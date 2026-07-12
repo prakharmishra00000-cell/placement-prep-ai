@@ -3374,6 +3374,214 @@ def get_relocation_pdf():
     
     return send_from_directory(sheets_dir, filename, as_attachment=True)
 
+@app.route("/api/cheatsheet", methods=["GET"])
+def get_company_cheatsheet():
+    company = request.args.get("company", "").strip()
+    if not company:
+        return jsonify({"error": "Company name is required"}), 400
+        
+    api_key = get_backend_gemini_key()
+    
+    # 1. Fetch live search contents for each aspect
+    hq_context = fetch_google_search_snippets(f"{company} company headquarters location office")
+    ceo_context = fetch_google_search_snippets(f"{company} current chief executive officer CEO name")
+    founded_context = fetch_google_search_snippets(f"{company} founding date year founded history")
+    products_context = fetch_google_search_snippets(f"{company} key products services business lines")
+    news_context = fetch_google_search_snippets(f"{company} latest news developments press release 2026")
+    hiring_context = fetch_google_search_snippets(f"{company} recruitment process hiring pattern selection rounds")
+    salary_context = fetch_google_search_snippets(f"{company} average salary package CTC BTech graduate")
+    tech_context = fetch_google_search_snippets(f"{company} developer tech stack technologies programming languages used")
+    
+    # Combined contexts
+    web_context = f"""
+    HQ: {" ".join(hq_context)}
+    CEO: {" ".join(ceo_context)}
+    FOUNDED: {" ".join(founded_context)}
+    PRODUCTS: {" ".join(products_context)}
+    NEWS: {" ".join(news_context)}
+    HIRING: {" ".join(hiring_context)}
+    SALARY: {" ".join(salary_context)}
+    TECH STACK: {" ".join(tech_context)}
+    """
+    
+    # Default fallbacks
+    data = {
+        "company": company,
+        "headquarters": hq_context[0] if hq_context else "N/A",
+        "ceo": ceo_context[0] if ceo_context else "N/A",
+        "founded": founded_context[0] if founded_context else "N/A",
+        "products": ", ".join(products_context[:3]) if products_context else "N/A",
+        "news": " ".join(news_context[:2]) if news_context else "N/A",
+        "hiring": " ".join(hiring_context[:2]) if hiring_context else "N/A",
+        "salary": salary_context[0] if salary_context else "N/A",
+        "tech_stack": ", ".join(tech_context[:3]) if tech_context else "N/A"
+    }
+    
+    # 2. Synthesize using AI if key is present
+    if api_key:
+        prompt = f"""
+        You are an AI Interview Coach. Based on the following live search context about the company '{company}', generate a highly concise and accurate 1-page cheatsheet summary.
+        Provide the output in strict JSON format. Do not add markdown backticks. Just return a raw JSON object with these exact keys:
+        {{
+            "headquarters": "Concise headquarters location (under 10 words).",
+            "ceo": "Full name of the current CEO.",
+            "founded": "Founding year (e.g. 1998) and founders.",
+            "products": "List of 3-4 key products, services, or business divisions (comma separated).",
+            "news": "Bullet points or sentence summarizing 1-2 major developments/milestones in 2025/2026.",
+            "hiring": "Quick overview of the selection rounds (aptitude, coding, tech interviews).",
+            "salary": "Typical CTC packages for entry-level and experienced roles (in LPA or USD).",
+            "tech_stack": "Key programming languages, frameworks, cloud platforms, or engineering tools used."
+        }}
+        
+        Live Search Context:
+        ---
+        {web_context}
+        ---
+        """
+        try:
+            resp = call_gemini_api(prompt, api_key)
+            if resp:
+                cleaned = resp.strip()
+                if cleaned.startswith("```json"):
+                    cleaned = cleaned[7:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                
+                parsed = json.loads(cleaned)
+                data["headquarters"] = parsed.get("headquarters", data["headquarters"])
+                data["ceo"] = parsed.get("ceo", data["ceo"])
+                data["founded"] = parsed.get("founded", data["founded"])
+                data["products"] = parsed.get("products", data["products"])
+                data["news"] = parsed.get("news", data["news"])
+                data["hiring"] = parsed.get("hiring", data["hiring"])
+                data["salary"] = parsed.get("salary", data["salary"])
+                data["tech_stack"] = parsed.get("tech_stack", data["tech_stack"])
+        except Exception as e:
+            print("Gemini cheatsheet synthesis error:", e)
+            
+    return jsonify(data)
+
+@app.route("/api/cheatsheet/pdf", methods=["GET"])
+def get_company_cheatsheet_pdf():
+    from flask import send_from_directory
+    company = request.args.get("company", "").strip()
+    if not company:
+        return "Company name is required", 400
+        
+    res = get_company_cheatsheet()
+    if res.status_code != 200:
+        return "Failed to generate cheatsheet", 500
+    data = res.get_json()
+    
+    # ReportLab single-page PDF generation
+    import html
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    
+    static_folder = app.static_folder if app.static_folder else "static"
+    sheets_dir = os.path.join(static_folder, "sheets")
+    os.makedirs(sheets_dir, exist_ok=True)
+    filename = f"{company.lower().replace(' ', '_')}_cheatsheet.pdf"
+    file_path = os.path.join(sheets_dir, filename)
+    
+    # Tight margins to force 1-page layout
+    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=35, leftMargin=35, topMargin=35, bottomMargin=35)
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=18,
+        textColor=colors.HexColor('#0f172a'),
+        spaceAfter=10
+    )
+    
+    h2_style = ParagraphStyle(
+        'H2Style',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        textColor=colors.HexColor('#eab308'), # Gold accent
+        spaceBefore=8,
+        spaceAfter=3
+    )
+    
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=8.5,
+        leading=12.5,
+        textColor=colors.HexColor('#334155')
+    )
+    
+    story = []
+    story.append(Paragraph(html.escape(f"PrepOS AI - {company.upper()} 1-Page Cheat Sheet"), title_style))
+    story.append(Paragraph(html.escape("2-Minute Interview Revision Guide"), body_style))
+    story.append(Spacer(1, 4))
+    
+    # Divider line
+    divider = Table([['']], colWidths=[540], rowHeights=[2])
+    divider.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#eab308')),
+        ('TOPPADDING', (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+    ]))
+    story.append(divider)
+    story.append(Spacer(1, 8))
+    
+    # Build a dense 2-column table grid
+    grid_data = [
+        [
+            Paragraph("🏢 <b>Headquarters</b>", h2_style),
+            Paragraph("👤 <b>CEO</b>", h2_style)
+        ],
+        [
+            Paragraph(html.escape(data.get("headquarters", "N/A")), body_style),
+            Paragraph(html.escape(data.get("ceo", "N/A")), body_style)
+        ],
+        [
+            Paragraph("📅 <b>Founded</b>", h2_style),
+            Paragraph("📦 <b>Key Products & Services</b>", h2_style)
+        ],
+        [
+            Paragraph(html.escape(data.get("founded", "N/A")), body_style),
+            Paragraph(html.escape(data.get("products", "N/A")), body_style)
+        ],
+        [
+            Paragraph("📰 <b>Latest Developments (2026)</b>", h2_style),
+            Paragraph("📈 <b>Hiring Pattern</b>", h2_style)
+        ],
+        [
+            Paragraph(html.escape(data.get("news", "N/A")), body_style),
+            Paragraph(html.escape(data.get("hiring", "N/A")), body_style)
+        ],
+        [
+            Paragraph("💰 <b>Average Salaries (CTC)</b>", h2_style),
+            Paragraph("💻 <b>Tech Stack</b>", h2_style)
+        ],
+        [
+            Paragraph(html.escape(data.get("salary", "N/A")), body_style),
+            Paragraph(html.escape(data.get("tech_stack", "N/A")), body_style)
+        ]
+    ]
+    
+    grid_table = Table(grid_data, colWidths=[265, 265])
+    grid_table.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('TOPPADDING', (0,0), (-1,-1), 2),
+    ]))
+    story.append(grid_table)
+    
+    doc.build(story)
+    
+    return send_from_directory(sheets_dir, filename, as_attachment=True)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 9876))
     app.run(host="0.0.0.0", port=port)
