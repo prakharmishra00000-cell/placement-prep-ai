@@ -2649,14 +2649,21 @@ def get_interview_questions():
         f"Finally, tell me about a time you resolved a major logic deadlock in your project. How did you diagnose it?"
     ]
     
+    # Fetch live search experiences for company and role (tech or core)
+    search_query = f"{company} {role} interview questions technical test process round"
+    search_results = fetch_google_search_snippets(search_query)
+    web_context = " ".join(search_results) if search_results else "No live search context available."
+
     if api_key:
         try:
             genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
             model = genai.GenerativeModel("gemini-1.5-flash")
             prompt = f"""
             You are an expert technical interviewer at {company} interviewing for the role of "{role}" at a "{difficulty}" difficulty tier.
-            Generate a list of exactly 3 highly realistic, role-specific, and technical questions that you would ask this candidate in an interview.
-            Make the questions specific to {company}'s interview history if possible.
+            Use the following real-time Google search context as a reference to frame exactly 3 highly realistic, role-specific, and branch-dedicated questions representing actual interview experiences at {company}:
+            ---
+            {web_context}
+            ---
             
             Return the output in strict JSON format. Do not use markdown wrappers or backticks. Return a raw JSON array containing exactly 3 strings:
             [
