@@ -2698,20 +2698,8 @@ class Solution {
     const piqGap = document.getElementById("placeiq-gap");
     const piqRoadmap = document.getElementById("placeiq-roadmap");
 
-    // Company probability elements
-    const probGoogle = document.getElementById("prob-google");
-    const barGoogle = document.getElementById("bar-google");
-    const probAmazon = document.getElementById("prob-amazon");
-    const barAmazon = document.getElementById("bar-amazon");
-    const probTcs = document.getElementById("prob-tcs");
-    const barTcs = document.getElementById("bar-tcs");
-    const probInfosys = document.getElementById("prob-infosys");
-    const barInfosys = document.getElementById("bar-infosys");
-    const probAccenture = document.getElementById("prob-accenture");
-    const barAccenture = document.getElementById("bar-accenture");
-    const probCore = document.getElementById("prob-core");
-    const barCore = document.getElementById("bar-core");
-    const nameCore = document.getElementById("name-core");
+    // Dynamic engine container
+    const piqEngineContainer = document.getElementById("placeiq-engine-container");
 
     function executePlaceIQPrediction() {
         const college = piqCollege.value.trim();
@@ -2766,39 +2754,30 @@ class Solution {
             piqGap.innerText = data.skills_gap || "None";
             piqRoadmap.innerText = data.milestones || "None";
 
-            // Render Company probability bars
-            const engine = data.probability_engine || {};
-            
-            if (probGoogle && barGoogle) {
-                const val = engine["Google"] || 0;
-                probGoogle.innerText = `${val}%`;
-                barGoogle.style.width = `${val}%`;
-            }
-            if (probAmazon && barAmazon) {
-                const val = engine["Amazon"] || 0;
-                probAmazon.innerText = `${val}%`;
-                barAmazon.style.width = `${val}%`;
-            }
-            if (probTcs && barTcs) {
-                const val = engine["TCS"] || 0;
-                probTcs.innerText = `${val}%`;
-                barTcs.style.width = `${val}%`;
-            }
-            if (probInfosys && barInfosys) {
-                const val = engine["Infosys"] || 0;
-                probInfosys.innerText = `${val}%`;
-                barInfosys.style.width = `${val}%`;
-            }
-            if (probAccenture && barAccenture) {
-                const val = engine["Accenture"] || 0;
-                probAccenture.innerText = `${val}%`;
-                barAccenture.style.width = `${val}%`;
-            }
-            if (probCore && barCore && nameCore) {
-                const coreData = engine["Core"] || { name: "Branch Core Company", score: 0 };
-                nameCore.innerText = `${coreData.name} (Branch Core)`;
-                probCore.innerText = `${coreData.score}%`;
-                barCore.style.width = `${coreData.score}%`;
+            // Render Company probability bars dynamically
+            if (piqEngineContainer) {
+                piqEngineContainer.innerHTML = "";
+                const engine = data.probability_engine || [];
+                engine.forEach(comp => {
+                    const row = document.createElement("div");
+                    row.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                            <span>${comp.name}</span>
+                            <span style="color: ${comp.tier === 'core' ? 'var(--neon-yellow)' : comp.tier === 'product' ? 'var(--neon-cyan)' : 'var(--neon-purple)'}; font-weight: 700;">${comp.score}%</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 0%; height: 100%; background: ${comp.tier === 'core' ? 'var(--neon-yellow)' : comp.tier === 'product' ? 'var(--neon-cyan)' : 'var(--neon-purple)'}; transition: width 0.8s ease;" class="engine-bar" data-width="${comp.score}"></div>
+                        </div>
+                    `;
+                    piqEngineContainer.appendChild(row);
+                });
+                
+                // Trigger animation width
+                setTimeout(() => {
+                    document.querySelectorAll(".engine-bar").forEach(bar => {
+                        bar.style.width = `${bar.getAttribute("data-width")}%`;
+                    });
+                }, 100);
             }
 
             // Update PDF Link

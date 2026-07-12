@@ -3656,46 +3656,55 @@ def get_placeiq_prediction():
     search_results = fetch_google_search_snippets(search_query)
     web_context = " ".join(search_results) if search_results else "No live search context available."
     
-    # 2. Compute company-specific probabilities (Addictively exact formulas)
+    # 2. Compute branch-aware company probabilities
     cgpa_factor = max(min(cgpa, 10.0), 1.0)
     backlog_penalty = 25 if backlogs > 0 else 0
-    
-    google_score = int((dsa / 400.0) * 50 + (cgpa_factor * 3) + (communication * 1.5) - backlog_penalty + 10)
-    amazon_score = int((dsa / 350.0) * 50 + (cgpa_factor * 3) + (aptitude * 1.5) - backlog_penalty + 8)
-    tcs_score = int((cgpa_factor * 5) + (communication * 3.5) + (aptitude * 1.5) - backlog_penalty + 15)
-    infosys_score = int((cgpa_factor * 5) + (communication * 3.2) + (aptitude * 1.8) - backlog_penalty + 12)
-    accenture_score = int((cgpa_factor * 4.8) + (communication * 3.4) + (aptitude * 1.8) - backlog_penalty + 14)
-    
-    # Branch core calculations
-    core_mapping = {
-        "cse": {"name": "Microsoft", "score": int((dsa / 450.0) * 50 + (cgpa_factor * 3) + 12 - backlog_penalty)},
-        "ece": {"name": "Qualcomm", "score": int((subjects * 4.5) + (cgpa_factor * 3.5) + (communication * 1.5) - backlog_penalty + 5)},
-        "mechanical": {"name": "Tata Motors", "score": int((subjects * 5) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty + 5)},
-        "electrical": {"name": "Siemens", "score": int((subjects * 4.8) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty + 5)},
-        "civil": {"name": "L&T (Larsen & Toubro)", "score": int((subjects * 5.2) + (cgpa_factor * 3.5) - backlog_penalty + 5)},
-        "chemical": {"name": "Reliance Industries", "score": int((subjects * 5) + (cgpa_factor * 3.8) - backlog_penalty + 5)}
-    }
-    
-    core_comp = core_mapping.get(branch, {"name": "Branch Core Industry", "score": 60})
     
     # Clamping function
     def clamp_prob(val):
         return max(min(val, 99), 5)
         
-    engine_data = {
-        "Google": clamp_prob(google_score),
-        "Amazon": clamp_prob(amazon_score),
-        "TCS": clamp_prob(tcs_score),
-        "Infosys": clamp_prob(infosys_score),
-        "Accenture": clamp_prob(accenture_score),
-        "Core": {
-            "name": core_comp["name"],
-            "score": clamp_prob(core_comp["score"])
-        }
-    }
+    engine_list = []
     
-    # Calculate overall base probability as weighted average
-    overall_prob = int((engine_data["Google"] + engine_data["Amazon"] + engine_data["TCS"] + engine_data["Core"]["score"]) / 4)
+    # Define branch companies mapping
+    if branch == "cse":
+        # 3 Tech, 3 Service
+        engine_list.append({"name": "Google (Tier-1 Product)", "score": clamp_prob(int((dsa / 400.0) * 55 + cgpa_factor * 3 + communication * 1.5 - backlog_penalty)), "tier": "product"})
+        engine_list.append({"name": "Amazon (Tier-1 Product)", "score": clamp_prob(int((dsa / 350.0) * 55 + cgpa_factor * 3 + aptitude * 1.5 - backlog_penalty)), "tier": "product"})
+        engine_list.append({"name": "Microsoft (Tier-1 Product)", "score": clamp_prob(int((dsa / 450.0) * 55 + cgpa_factor * 3 + communication * 1.5 - backlog_penalty)), "tier": "product"})
+    elif branch == "ece":
+        # 3 ECE Core, 3 Service
+        engine_list.append({"name": "Qualcomm (Core VLSI/Embedded)", "score": clamp_prob(int((subjects * 5) + (cgpa_factor * 3.5) + (communication * 1.5) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "Texas Instruments (Core Hardware)", "score": clamp_prob(int((subjects * 4.8) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "Intel (Core Semiconductor)", "score": clamp_prob(int((subjects * 4.6) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty)), "tier": "core"})
+    elif branch == "mechanical":
+        # 3 Mech Core, 3 Service
+        engine_list.append({"name": "Tata Motors (Core Automobile)", "score": clamp_prob(int((subjects * 5.2) + (cgpa_factor * 3.5) + (aptitude * 1.3) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "Mahindra & Mahindra (Core Mfg)", "score": clamp_prob(int((subjects * 5) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "L&T Heavy Engineering (Core)", "score": clamp_prob(int((subjects * 4.8) + (cgpa_factor * 3.8) + 5 - backlog_penalty)), "tier": "core"})
+    elif branch == "electrical":
+        # 3 Elec Core, 3 Service
+        engine_list.append({"name": "Siemens (Core Power Automation)", "score": clamp_prob(int((subjects * 5) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "BHEL (Core Electrical PSU)", "score": clamp_prob(int((subjects * 4.8) + (cgpa_factor * 4) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "ABB (Core Electricals)", "score": clamp_prob(int((subjects * 4.8) + (cgpa_factor * 3.5) + (communication * 1.5) - backlog_penalty)), "tier": "core"})
+    elif branch == "civil":
+        # 3 Civil Core, 3 Service
+        engine_list.append({"name": "L&T Infrastructure (Core)", "score": clamp_prob(int((subjects * 5.2) + (cgpa_factor * 3.5) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "Tata Projects (Core Infra)", "score": clamp_prob(int((subjects * 5) + (cgpa_factor * 3.8) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "DLF (Core Real Estate)", "score": clamp_prob(int((subjects * 4.8) + (cgpa_factor * 3.5) + (communication * 1.5) - backlog_penalty)), "tier": "core"})
+    else:
+        # 3 Chem Core, 3 Service
+        engine_list.append({"name": "Reliance Industries (Core Petrochem)", "score": clamp_prob(int((subjects * 5) + (cgpa_factor * 3.8) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "Tata Chemicals (Core Chemical)", "score": clamp_prob(int((subjects * 4.8) + (cgpa_factor * 3.8) - backlog_penalty)), "tier": "core"})
+        engine_list.append({"name": "ONGC (Core Energy PSU)", "score": clamp_prob(int((subjects * 5.2) + (cgpa_factor * 3.5) - backlog_penalty)), "tier": "core"})
+
+    # Always append the 3 standard Service-based giants to the end
+    engine_list.append({"name": "TCS (Service-based Giant)", "score": clamp_prob(int((cgpa_factor * 5) + (communication * 3.5) + (aptitude * 1.5) - backlog_penalty + 15)), "tier": "service"})
+    engine_list.append({"name": "Infosys (Service-based Giant)", "score": clamp_prob(int((cgpa_factor * 5) + (communication * 3.2) + (aptitude * 1.8) - backlog_penalty + 12)), "tier": "service"})
+    engine_list.append({"name": "Accenture (Service-based Giant)", "score": clamp_prob(int((cgpa_factor * 4.8) + (communication * 3.4) + (aptitude * 1.8) - backlog_penalty + 14)), "tier": "service"})
+
+    # Calculate overall base probability as average of all 6 scores
+    overall_prob = int(sum(comp["score"] for comp in engine_list) / len(engine_list))
     
     # Grade assignments
     if overall_prob >= 90:
@@ -3721,7 +3730,7 @@ def get_placeiq_prediction():
         "probability": overall_prob,
         "grade": grade,
         "percentile": percentile,
-        "probability_engine": engine_data,
+        "probability_engine": engine_list,
         "benchmark_info": f"Placements at {college} are benchmarked against national averages. Graduates from {branch.upper()} with CGPA {cgpa} generally experience a competitive profile standing.",
         "skills_gap": "Based on target role, practice system design concepts and learn cloud containerization (Docker, AWS).",
         "milestones": "Day 1-10: Revise core DSA. Day 11-20: Build 2 robust github projects. Day 21-30: Take mock interview simulator runs."
@@ -3887,13 +3896,11 @@ def get_placeiq_pdf():
     
     # Probability Engine List
     story.append(Paragraph("AI Placement Probability Engine Predictions", h2_style))
-    engine = data.get("probability_engine", {})
-    core_c = engine.get("Core", {})
-    engine_text = (
-        f"Google: {engine.get('Google', 0)}%  |  Amazon: {engine.get('Amazon', 0)}%  |  "
-        f"TCS: {engine.get('TCS', 0)}%  |  Infosys: {engine.get('Infosys', 0)}%  |  "
-        f"Accenture: {engine.get('Accenture', 0)}%  |  {core_c.get('name', 'Core Company')}: {core_c.get('score', 0)}%"
-    )
+    engine = data.get("probability_engine", [])
+    engine_parts = []
+    for comp in engine:
+        engine_parts.append(f"{comp.get('name')}: {comp.get('score', 0)}%")
+    engine_text = "  |  ".join(engine_parts)
     story.append(Paragraph(html.escape(sanitize_for_pdf(engine_text)), body_style))
     story.append(Spacer(1, 8))
     
