@@ -3047,6 +3047,18 @@ def fetch_google_search_snippets(query):
         print("DuckDuckGo free search fallback error:", e)
     return []
 
+def sanitize_for_pdf(text):
+    if not text:
+        return ""
+    # Replace Rupee symbol first
+    text = text.replace("₹", "Rs. ").replace("\u20b9", "Rs. ")
+    # Replace unicode quotes and dashes
+    text = text.replace("—", "-").replace("–", "-")
+    text = text.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
+    # Remove non-ASCII characters (which filters out emojis and other unsupported symbols)
+    text = "".join(c for c in text if ord(c) < 128)
+    return text
+
 def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
     import os
     import html
@@ -3115,8 +3127,10 @@ def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
     ]
 
     for title, content in sections:
-        story.append(Paragraph(html.escape(title), h2_style))
-        escaped_content = html.escape(content)
+        clean_title = sanitize_for_pdf(title)
+        clean_content = sanitize_for_pdf(content)
+        story.append(Paragraph(html.escape(clean_title), h2_style))
+        escaped_content = html.escape(clean_content)
         formatted_content = escaped_content.replace('\n', '<br/>')
         story.append(Paragraph(formatted_content, body_style))
         story.append(Spacer(1, 8))
@@ -3366,8 +3380,10 @@ def get_relocation_pdf():
     ]
     
     for title, text in sections:
-        story.append(Paragraph(html.escape(title), h2_style))
-        story.append(Paragraph(html.escape(text), body_style))
+        clean_title = sanitize_for_pdf(title)
+        clean_text = sanitize_for_pdf(text)
+        story.append(Paragraph(html.escape(clean_title), h2_style))
+        story.append(Paragraph(html.escape(clean_text), body_style))
         story.append(Spacer(1, 8))
         
     doc.build(story)
@@ -3537,36 +3553,36 @@ def get_company_cheatsheet_pdf():
     # Build a dense 2-column table grid
     grid_data = [
         [
-            Paragraph("🏢 <b>Headquarters</b>", h2_style),
-            Paragraph("👤 <b>CEO</b>", h2_style)
+            Paragraph("<b>Headquarters</b>", h2_style),
+            Paragraph("<b>CEO</b>", h2_style)
         ],
         [
-            Paragraph(html.escape(data.get("headquarters", "N/A")), body_style),
-            Paragraph(html.escape(data.get("ceo", "N/A")), body_style)
+            Paragraph(html.escape(sanitize_for_pdf(data.get("headquarters", "N/A"))), body_style),
+            Paragraph(html.escape(sanitize_for_pdf(data.get("ceo", "N/A"))), body_style)
         ],
         [
-            Paragraph("📅 <b>Founded</b>", h2_style),
-            Paragraph("📦 <b>Key Products & Services</b>", h2_style)
+            Paragraph("<b>Founded</b>", h2_style),
+            Paragraph("<b>Key Products & Services</b>", h2_style)
         ],
         [
-            Paragraph(html.escape(data.get("founded", "N/A")), body_style),
-            Paragraph(html.escape(data.get("products", "N/A")), body_style)
+            Paragraph(html.escape(sanitize_for_pdf(data.get("founded", "N/A"))), body_style),
+            Paragraph(html.escape(sanitize_for_pdf(data.get("products", "N/A"))), body_style)
         ],
         [
-            Paragraph("📰 <b>Latest Developments (2026)</b>", h2_style),
-            Paragraph("📈 <b>Hiring Pattern</b>", h2_style)
+            Paragraph("<b>Latest Developments (2026)</b>", h2_style),
+            Paragraph("<b>Hiring Pattern</b>", h2_style)
         ],
         [
-            Paragraph(html.escape(data.get("news", "N/A")), body_style),
-            Paragraph(html.escape(data.get("hiring", "N/A")), body_style)
+            Paragraph(html.escape(sanitize_for_pdf(data.get("news", "N/A"))), body_style),
+            Paragraph(html.escape(sanitize_for_pdf(data.get("hiring", "N/A"))), body_style)
         ],
         [
-            Paragraph("💰 <b>Average Salaries (CTC)</b>", h2_style),
-            Paragraph("💻 <b>Tech Stack</b>", h2_style)
+            Paragraph("<b>Average Salaries (CTC)</b>", h2_style),
+            Paragraph("<b>Tech Stack</b>", h2_style)
         ],
         [
-            Paragraph(html.escape(data.get("salary", "N/A")), body_style),
-            Paragraph(html.escape(data.get("tech_stack", "N/A")), body_style)
+            Paragraph(html.escape(sanitize_for_pdf(data.get("salary", "N/A"))), body_style),
+            Paragraph(html.escape(sanitize_for_pdf(data.get("tech_stack", "N/A"))), body_style)
         ]
     ]
     
