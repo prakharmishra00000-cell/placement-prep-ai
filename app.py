@@ -2671,7 +2671,26 @@ def get_interview_questions():
             if resp.endswith("```"):
                 resp = resp[:-3]
             resp = resp.strip()
-            return jsonify(json.loads(resp))
+            parsed = json.loads(resp)
+            
+            # Normalize dictionary payloads to list
+            if isinstance(parsed, dict):
+                found_list = None
+                for val in parsed.values():
+                    if isinstance(val, list):
+                        found_list = val
+                        break
+                if found_list:
+                    parsed = found_list
+                else:
+                    parsed = [str(v) for v in parsed.values()]
+                    
+            if isinstance(parsed, list):
+                parsed = [str(x) for x in parsed]
+                while len(parsed) < 3:
+                    parsed.append("Can you describe a challenging technical problem you solved recently?")
+                parsed = parsed[:3]
+                return jsonify(parsed)
         except Exception as e:
             print("Gemini get_interview_questions error:", e)
             
