@@ -1050,7 +1050,7 @@ def analyze_resume():
     api_key = get_backend_gemini_key()
     if api_key:
         try:
-            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
+            genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-1.5-flash")
             
             prompt = f"""
@@ -2656,7 +2656,7 @@ def get_interview_questions():
 
     if api_key:
         try:
-            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
+            genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-1.5-flash")
             prompt = f"""
             You are an expert technical interviewer at {company} interviewing for the role of "{role}" at a "{difficulty}" difficulty tier.
@@ -2722,7 +2722,7 @@ def evaluate_interview():
     
     if api_key and len(questions) == len(responses):
         try:
-            genai.configure(api_key=api_key, client_options={'api_endpoint': 'generativelanguage.googleapis.com/v1'})
+            genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-1.5-flash")
             
             transcript_str = ""
