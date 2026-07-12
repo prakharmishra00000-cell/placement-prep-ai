@@ -1053,7 +1053,7 @@ class Solution {
         const experience = jobExpFilter.value;
         const qualification = jobQualFilter.value;
 
-        fetch(`/api/jobs?branch=${branch}&experience=${experience}&qualification=${qualification}`)
+        fetch(`/api/jobs?branch=${branch}&experience=${experience}&qualification=${qualification}&_=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
             jobsLoading.style.display = "none";
@@ -1129,7 +1129,7 @@ class Solution {
         const experience = abroadExpFilter.value;
         const qualification = abroadQualFilter.value;
 
-        fetch(`/api/abroad?branch=${branch}&country=${country}&experience=${experience}&qualification=${qualification}`)
+        fetch(`/api/abroad?branch=${branch}&country=${country}&experience=${experience}&qualification=${qualification}&_=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
             abroadLoading.style.display = "none";
@@ -1204,7 +1204,7 @@ class Solution {
         const experience = examExpFilter.value;
         const qualification = examQualFilter.value;
 
-        fetch(`/api/exams?branch=${branch}&experience=${experience}&qualification=${qualification}`)
+        fetch(`/api/exams?branch=${branch}&experience=${experience}&qualification=${qualification}&_=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
             examsLoading.style.display = "none";
