@@ -3216,6 +3216,164 @@ def generate_company_sheet():
     except Exception as e:
         return jsonify({"error": f"Failed to compile PDF sheet: {str(e)}"}), 500
 
+@app.route("/api/relocation", methods=["GET"])
+def get_relocation_assistant():
+    city = request.args.get("city", "").strip()
+    if not city:
+        return jsonify({"error": "City name is required"}), 400
+        
+    api_key = get_backend_gemini_key()
+    
+    # 1. Fetch live search contents for each aspect
+    rent_context = fetch_google_search_snippets(f"{city} average rent rates PG cost price index 2026")
+    food_context = fetch_google_search_snippets(f"{city} cost of living food mess tiffin restaurant prices")
+    pg_context = fetch_google_search_snippets(f"{city} paying guest accommodations pg student areas rent cost")
+    weather_context = fetch_google_search_snippets(f"{city} current weather temperature climate conditions forecast")
+    transport_context = fetch_google_search_snippets(f"{city} public transport metro local bus options prices")
+    offices_context = fetch_google_search_snippets(f"{city} top companies offices tech parks factories industrial manufacturing hubs core sectors")
+    
+    # Fallback to simple joined string if Gemini is not present
+    rent_txt = " ".join(rent_context) if rent_context else "Information currently unavailable."
+    food_txt = " ".join(food_context) if food_context else "Information currently unavailable."
+    pg_txt = " ".join(pg_context) if pg_context else "Information currently unavailable."
+    weather_txt = " ".join(weather_context) if weather_context else "Information currently unavailable."
+    transport_txt = " ".join(transport_context) if transport_context else "Information currently unavailable."
+    offices_txt = " ".join(offices_context) if offices_context else "Information currently unavailable."
+    
+    # 2. Synthesize using AI if key is present
+    if api_key:
+        topics = {
+            "rent": ("average monthly rent for 1BHK, 2BHK, and PG rates in different areas", rent_context),
+            "food": ("typical monthly food expenditure, local cuisine, and mess/tiffin options", food_context),
+            "pgs": ("paying guest accommodations, recommended student and professional areas, and amenities", pg_context),
+            "weather": ("general climate, seasonal temperatures, and current weather patterns", weather_context),
+            "transport": ("metro systems, local bus frequencies, auto rickshaws, and daily commute tips", transport_context),
+            "offices": ("major corporate offices, IT parks, R&D centers, and core engineering industrial hubs (manufacturing, automobile, electronics, chemical, pharma) located in or near the city", offices_context)
+        }
+        
+        for key, (details, ctx) in topics.items():
+            if ctx:
+                prompt = f"""
+                You are an AI Career Relocation Assistant. Given the following live search snippets about the city of '{city}', synthesize a highly professional, realistic, and clear summary (in English) of the {details}. Highlight exact price ranges, locations, and sector-specific companies if mentioned.
+                Keep the output under 3-4 sentences. Avoid generic placeholders.
+                
+                Live Search Context:
+                ---
+                {" ".join(ctx)}
+                ---
+                """
+                try:
+                    resp = call_gemini_api(prompt, api_key)
+                    if resp:
+                        summary = resp.strip()
+                        if key == "rent": rent_txt = summary
+                        elif key == "food": food_txt = summary
+                        elif key == "pgs": pg_txt = summary
+                        elif key == "weather": weather_txt = summary
+                        elif key == "transport": transport_txt = summary
+                        elif key == "offices": offices_txt = summary
+                except Exception as e:
+                    print(f"Gemini relocation synthesis error for {key}: {e}")
+                    
+    return jsonify({
+        "city": city,
+        "rent": rent_txt,
+        "food": food_txt,
+        "pgs": pg_txt,
+        "weather": weather_txt,
+        "transport": transport_txt,
+        "offices": offices_txt
+    })
+
+@app.route("/api/relocation/pdf", methods=["GET"])
+def get_relocation_pdf():
+    from flask import send_from_directory
+    city = request.args.get("city", "").strip()
+    if not city:
+        return "City name is required", 400
+        
+    # Re-fetch data to generate PDF
+    res = get_relocation_assistant()
+    if res.status_code != 200:
+        return "Failed to analyze city", 500
+    data = res.get_json()
+    
+    # ReportLab PDF compile
+    import html
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    
+    static_folder = app.static_folder if app.static_folder else "static"
+    sheets_dir = os.path.join(static_folder, "sheets")
+    os.makedirs(sheets_dir, exist_ok=True)
+    filename = f"{city.lower().replace(' ', '_')}_relocation_guide.pdf"
+    file_path = os.path.join(sheets_dir, filename)
+    
+    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=18,
+        textColor=colors.HexColor('#0f172a'),
+        spaceAfter=12
+    )
+    
+    h2_style = ParagraphStyle(
+        'H2Style',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=11,
+        textColor=colors.HexColor('#0284c7'),
+        spaceBefore=10,
+        spaceAfter=4
+    )
+    
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        leading=13.5,
+        textColor=colors.HexColor('#334155')
+    )
+    
+    story = []
+    story.append(Paragraph(html.escape(f"PrepOS AI - {city.upper()} Relocation Guide"), title_style))
+    story.append(Spacer(1, 6))
+    
+    # Divider line
+    divider = Table([['']], colWidths=[530], rowHeights=[2])
+    divider.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#0284c7')),
+        ('TOPPADDING', (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+    ]))
+    story.append(divider)
+    story.append(Spacer(1, 10))
+    
+    sections = [
+        ("🏠 Rent Estimates (1BHK/2BHK/PGs)", data.get("rent", "")),
+        ("🍲 Food & Living Costs", data.get("food", "")),
+        ("🏢 Recommended PGs & Student Hostels", data.get("pgs", "")),
+        ("🌤️ Weather & Climate", data.get("weather", "")),
+        ("🚌 Public Transport & Commute", data.get("transport", "")),
+        ("🏢 Tech & Core Sector Corporate Offices", data.get("offices", ""))
+    ]
+    
+    for title, text in sections:
+        story.append(Paragraph(html.escape(title), h2_style))
+        story.append(Paragraph(html.escape(text), body_style))
+        story.append(Spacer(1, 8))
+        
+    doc.build(story)
+    
+    return send_from_directory(sheets_dir, filename, as_attachment=True)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 9876))
     app.run(host="0.0.0.0", port=port)

@@ -83,6 +83,10 @@
                     <i class="fa-solid fa-calculator"></i>
                     <span>Tax & Salary Advisor</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="relocation">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>Relocation Assistant</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="roadmap">
                     <i class="fa-solid fa-route"></i>
                     <span>Roadmap Generator</span>
@@ -1867,6 +1871,72 @@
                                     <i class="fa-solid fa-download"></i> Open & Download PDF Sheet
                                 </a>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Relocation Assistant -->
+            <div class="tab-content" id="tab-relocation">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-map-location-dot text-neon-blue"></i> AI Relocation Assistant</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Input any target city. The assistant will search the web in real-time to analyze rent rates, food costs, paying guest accommodations, transit options, and corporate offices across IT and core industrial sectors.</p>
+                    
+                    <!-- Search Input Bar -->
+                    <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+                        <input type="text" id="relocation-city-input" placeholder="Enter target city (e.g., Bangalore, Pune, Noida, Chennai)..." style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.75rem 1rem; font-size: 0.9rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--neon-blue)'" onblur="this.style.borderColor='var(--border-color)'">
+                        <button id="relocation-search-btn" class="glow-btn" style="height: 46px; padding: 0 1.5rem; font-size: 0.9rem; font-weight: 600; justify-content: center; border-radius: 8px;">
+                            <i class="fa-solid fa-magnifying-glass-location"></i> Analyze City
+                        </button>
+                    </div>
+
+                    <!-- Loading Indicator -->
+                    <div id="relocation-loading" style="display: none; text-align: center; padding: 2rem;">
+                        <i class="fa-solid fa-circle-notch fa-spin text-neon-blue" style="font-size: 2.2rem; margin-bottom: 0.75rem;"></i>
+                        <p style="font-size: 0.9rem; color: #fff; margin-bottom: 0.25rem;">Querying Live Google Search Indexes...</p>
+                        <span class="text-muted" style="font-size: 0.75rem;">Crawling rent indexes, transit routes, and core/IT industrial office parks...</span>
+                    </div>
+
+                    <!-- Results Output Panel -->
+                    <div id="relocation-results" class="hide" style="margin-top: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <!-- Rent Card -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h4 style="color: var(--neon-cyan); margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-house-user"></i> Average Rent Estimates</h4>
+                                <p id="reloc-rent" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);"></p>
+                            </div>
+                            <!-- Food Card -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h4 style="color: var(--neon-purple); margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-utensils"></i> Food & Living Cost</h4>
+                                <p id="reloc-food" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);"></p>
+                            </div>
+                            <!-- PG suggestions -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h4 style="color: var(--neon-green-glow); margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-bed"></i> Recommended PG & Hostels</h4>
+                                <p id="reloc-pg" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);"></p>
+                            </div>
+                            <!-- Weather -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h4 style="color: var(--neon-yellow); margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-cloud-sun-rain"></i> Weather & Climate</h4>
+                                <p id="reloc-weather" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);"></p>
+                            </div>
+                            <!-- Transport -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h4 style="color: var(--neon-blue); margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-bus"></i> Transport & Commuting</h4>
+                                <p id="reloc-transport" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);"></p>
+                            </div>
+                            <!-- Company Offices (IT and Core) -->
+                            <div class="glass-card" style="padding: 1.25rem; border: 1px solid var(--border-color);">
+                                <h4 style="color: var(--neon-pink); margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-building-circle-check"></i> Tech & Core Sector Corporate Offices</h4>
+                                <p id="reloc-offices" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);"></p>
+                            </div>
+                        </div>
+
+                        <!-- PDF Compilation Link -->
+                        <div id="relocation-pdf-wrapper" style="text-align: center;">
+                            <a id="relocation-pdf-btn" href="#" target="_blank" class="glow-btn" style="width: 100%; height: 46px; justify-content: center; text-decoration: none; font-weight: 700;">
+                                <i class="fa-solid fa-file-pdf"></i> Compile & Download Premium Relocation PDF
+                            </a>
                         </div>
                     </div>
                 </div>

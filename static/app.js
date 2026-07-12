@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "books": { title: "AI Book Store & Placement Library (Only Competitive Exam Books)", sub: "Search, fetch, and download reference engineering textbooks and guides instantly" },
         "portfolio": { title: "AI Portfolio Generator", sub: "Build a beautiful, modern, shareable developer portfolio website from your links and resume instantly" },
         "sheet-generator": { title: "Company Sheet PDF Generator", sub: "Generate comprehensive and authentic placement preparation sheets in PDF format using real-time search context" },
+        "relocation": { title: "AI Relocation Assistant", sub: "Analyze rental indexes, food costs, transit routes, and corporate office parks for any target city" },
         "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
@@ -2493,6 +2494,72 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // ----------------------------------------------------
+    // Tab: Relocation Assistant Handlers
+    // ----------------------------------------------------
+    const relocCityInput = document.getElementById("relocation-city-input");
+    const relocSearchBtn = document.getElementById("relocation-search-btn");
+    const relocLoading = document.getElementById("relocation-loading");
+    const relocResults = document.getElementById("relocation-results");
+    const relocPdfBtn = document.getElementById("relocation-pdf-btn");
+
+    const relocRent = document.getElementById("reloc-rent");
+    const relocFood = document.getElementById("reloc-food");
+    const relocPg = document.getElementById("reloc-pg");
+    const relocWeather = document.getElementById("reloc-weather");
+    const relocTransport = document.getElementById("reloc-transport");
+    const relocOffices = document.getElementById("reloc-offices");
+
+    function executeRelocationAnalysis() {
+        const city = relocCityInput.value.trim();
+        if (!city) {
+            alert("Please enter a valid city name.");
+            return;
+        }
+
+        relocLoading.style.display = "block";
+        relocResults.classList.add("hide");
+
+        fetch(`/api/relocation?city=${encodeURIComponent(city)}`)
+        .then(res => res.json())
+        .then(data => {
+            relocLoading.style.display = "none";
+            if (data.error) {
+                alert("Failed to analyze city: " + data.error);
+                return;
+            }
+
+            // Populate cards
+            relocRent.innerText = data.rent || "N/A";
+            relocFood.innerText = data.food || "N/A";
+            relocPg.innerText = data.pgs || "N/A";
+            relocWeather.innerText = data.weather || "N/A";
+            relocTransport.innerText = data.transport || "N/A";
+            relocOffices.innerText = data.offices || "N/A";
+
+            // Update PDF download link
+            relocPdfBtn.href = `/api/relocation/pdf?city=${encodeURIComponent(city)}`;
+
+            relocResults.classList.remove("hide");
+        })
+        .catch(err => {
+            console.error("Relocation analysis error:", err);
+            relocLoading.style.display = "none";
+            alert("An error occurred during relocation analysis.");
+        });
+    }
+
+    if (relocSearchBtn) {
+        relocSearchBtn.addEventListener("click", executeRelocationAnalysis);
+    }
+    if (relocCityInput) {
+        relocCityInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                executeRelocationAnalysis();
+            }
+        });
+    }
 
     // Initialize first load
     fetchCompanyDetails("TCS", "technical");
