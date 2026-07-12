@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "relocation": { title: "AI Relocation Assistant", sub: "Analyze rental indexes, food costs, transit routes, and corporate office parks for any target city" },
         "cheatsheet": { title: "1-Page Company Cheat Sheet", sub: "Quick 2-minute revision key metrics, tech stacks, and news before your interview" },
         "placeiq": { title: "PlaceIQ Placement Predictor", sub: "Calculate your campus placement probability, match matching companies, and audit skill gaps" },
-        "home": { title: "PrepOS AI Workspace Hub", sub: "Welcome Prakhar Mishra! Select any flagship career intelligence tool to get started." },
         "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
