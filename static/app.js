@@ -888,6 +888,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const ideConsole = document.getElementById("ide-console");
     const ideOptimization = document.getElementById("ide-optimization");
 
+    const ideLangSelect = document.getElementById("ide-language");
+    const ideTemplates = {
+        "python": `def trapping_rain_water(height):
+    # Write your code here
+    # Return the total trapped water
+    return 0`,
+        "cpp": `#include <vector>
+using namespace std;
+
+int trap(vector<int>& height) {
+    // Write your code here
+    // Return the total trapped water
+    return 0;
+}`,
+        "java": `import java.util.*;
+
+class Solution {
+    public int trap(int[] height) {
+        // Write your code here
+        // Return the total trapped water
+        return 0;
+    }
+}`,
+        "javascript": `function trap(height) {
+    // Write your code here
+    // Return the total trapped water
+    return 0;
+}`
+    };
+
+    if (ideLangSelect && ideEditor) {
+        ideLangSelect.addEventListener("change", () => {
+            const selected = ideLangSelect.value;
+            if (ideTemplates[selected]) {
+                ideEditor.value = ideTemplates[selected];
+            }
+        });
+    }
+
     ideRunBtn.addEventListener("click", () => {
         const code = ideEditor.value;
         const lang = document.getElementById("ide-language").value;
