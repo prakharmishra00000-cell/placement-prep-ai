@@ -2032,10 +2032,10 @@
             <div class="tab-content" id="tab-placeiq">
                 <div class="glass-card panel-card">
                     <h3 class="panel-title"><i class="fa-solid fa-chart-line text-neon-cyan"></i> PlaceIQ Placement Intelligence Predictor</h3>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Determine your campus placement probability, benchmark your college's parameters against national averages, identify skill gaps, and explore matched hiring companies.</p>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Determine your campus placement probability, benchmark your college's parameters against national averages, identify skill gaps, and explore matching target companies using the AI Placement Probability Engine.</p>
                     
                     <!-- Form Container -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                         <div>
                             <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">College Name</label>
                             <input type="text" id="placeiq-college" placeholder="e.g. MMMUT Gorakhpur, HBTU" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
@@ -2066,6 +2066,22 @@
                         <div>
                             <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Target Job Role</label>
                             <input type="text" id="placeiq-role" placeholder="e.g. Software Engineer" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">DSA Skill (LeetCode count)</label>
+                            <input type="number" id="placeiq-dsa" value="0" placeholder="e.g. 150" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Core Subjects Grade (1-10)</label>
+                            <input type="number" id="placeiq-subjects" min="1" max="10" value="7" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Aptitude Score (1-10)</label>
+                            <input type="number" id="placeiq-aptitude" min="1" max="10" value="7" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Communication (1-10)</label>
+                            <input type="number" id="placeiq-communication" min="1" max="10" value="7" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
                         </div>
                     </div>
 
@@ -2113,10 +2129,71 @@
                             <p id="placeiq-benchmark" style="font-size: 0.85rem; line-height: 1.4; color: var(--text-muted);"></p>
                         </div>
 
-                        <!-- Matching Companies Grid -->
+                        <!-- AI Placement Probability Engine (Progress Bars) -->
                         <div class="glass-card" style="padding: 1.25rem; border-color: var(--border-color); margin-bottom: 1.5rem;">
-                            <h4 style="color: #fff; margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-building text-neon-cyan"></i> Matching Target Companies</h4>
-                            <div id="placeiq-companies" style="font-size: 0.85rem; line-height: 1.4; color: var(--text-muted);"></div>
+                            <h4 style="color: #fff; margin-bottom: 1rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-building text-neon-cyan"></i> AI Placement Probability Engine</h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <!-- Google -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                        <span>Google (Tier-1 Product)</span>
+                                        <span id="prob-google" style="color: var(--neon-cyan); font-weight: 700;">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="bar-google" style="width: 0%; height: 100%; background: var(--neon-cyan); transition: width 0.8s ease;"></div>
+                                    </div>
+                                </div>
+                                <!-- Amazon -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                        <span>Amazon (Tier-1 Product)</span>
+                                        <span id="prob-amazon" style="color: var(--neon-cyan); font-weight: 700;">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="bar-amazon" style="width: 0%; height: 100%; background: var(--neon-cyan); transition: width 0.8s ease;"></div>
+                                    </div>
+                                </div>
+                                <!-- TCS -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                        <span>TCS (Service-based Giant)</span>
+                                        <span id="prob-tcs" style="color: var(--neon-purple); font-weight: 700;">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="bar-tcs" style="width: 0%; height: 100%; background: var(--neon-purple); transition: width 0.8s ease;"></div>
+                                    </div>
+                                </div>
+                                <!-- Infosys -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                        <span>Infosys (Service-based Giant)</span>
+                                        <span id="prob-infosys" style="color: var(--neon-purple); font-weight: 700;">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="bar-infosys" style="width: 0%; height: 100%; background: var(--neon-purple); transition: width 0.8s ease;"></div>
+                                    </div>
+                                </div>
+                                <!-- Accenture -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                        <span>Accenture (Service-based Giant)</span>
+                                        <span id="prob-accenture" style="color: var(--neon-purple); font-weight: 700;">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="bar-accenture" style="width: 0%; height: 100%; background: var(--neon-purple); transition: width 0.8s ease;"></div>
+                                    </div>
+                                </div>
+                                <!-- Branch Core Target Company -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                        <span id="name-core">Branch Core Company</span>
+                                        <span id="prob-core" style="color: var(--neon-yellow); font-weight: 700;">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                        <div id="bar-core" style="width: 0%; height: 100%; background: var(--neon-yellow); transition: width 0.8s ease;"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Skill Gap & Roadmap -->

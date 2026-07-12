@@ -3641,6 +3641,10 @@ def get_placeiq_prediction():
     backlogs = int(data.get("backlogs", 0))
     skills = data.get("skills", "").strip()
     role = data.get("role", "").strip()
+    dsa = int(data.get("dsa", 0))
+    subjects = int(data.get("subjects", 7))
+    aptitude = int(data.get("aptitude", 7))
+    communication = int(data.get("communication", 7))
     
     if not college:
         return jsonify({"error": "College Name is required."}), 400
@@ -3652,62 +3656,77 @@ def get_placeiq_prediction():
     search_results = fetch_google_search_snippets(search_query)
     web_context = " ".join(search_results) if search_results else "No live search context available."
     
-    # 2. Rule-based base probability calculation
-    prob = 75
-    if cgpa >= 9.0:
-        prob += 15
-    elif cgpa >= 8.0:
-        prob += 5
-    elif cgpa < 7.0:
-        prob -= 15
-        
-    if backlogs > 0:
-        prob -= 20
-        
-    # Skills count adjustment
-    skill_list = [s.strip() for s in skills.split(",") if s.strip()]
-    prob += min(len(skill_list) * 4, 12)
+    # 2. Compute company-specific probabilities (Addictively exact formulas)
+    cgpa_factor = max(min(cgpa, 10.0), 1.0)
+    backlog_penalty = 25 if backlogs > 0 else 0
     
-    # Bound probability
-    prob = max(min(prob, 99), 25)
+    google_score = int((dsa / 400.0) * 50 + (cgpa_factor * 3) + (communication * 1.5) - backlog_penalty + 10)
+    amazon_score = int((dsa / 350.0) * 50 + (cgpa_factor * 3) + (aptitude * 1.5) - backlog_penalty + 8)
+    tcs_score = int((cgpa_factor * 5) + (communication * 3.5) + (aptitude * 1.5) - backlog_penalty + 15)
+    infosys_score = int((cgpa_factor * 5) + (communication * 3.2) + (aptitude * 1.8) - backlog_penalty + 12)
+    accenture_score = int((cgpa_factor * 4.8) + (communication * 3.4) + (aptitude * 1.8) - backlog_penalty + 14)
+    
+    # Branch core calculations
+    core_mapping = {
+        "cse": {"name": "Microsoft", "score": int((dsa / 450.0) * 50 + (cgpa_factor * 3) + 12 - backlog_penalty)},
+        "ece": {"name": "Qualcomm", "score": int((subjects * 4.5) + (cgpa_factor * 3.5) + (communication * 1.5) - backlog_penalty + 5)},
+        "mechanical": {"name": "Tata Motors", "score": int((subjects * 5) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty + 5)},
+        "electrical": {"name": "Siemens", "score": int((subjects * 4.8) + (cgpa_factor * 3.5) + (aptitude * 1.5) - backlog_penalty + 5)},
+        "civil": {"name": "L&T (Larsen & Toubro)", "score": int((subjects * 5.2) + (cgpa_factor * 3.5) - backlog_penalty + 5)},
+        "chemical": {"name": "Reliance Industries", "score": int((subjects * 5) + (cgpa_factor * 3.8) - backlog_penalty + 5)}
+    }
+    
+    core_comp = core_mapping.get(branch, {"name": "Branch Core Industry", "score": 60})
+    
+    # Clamping function
+    def clamp_prob(val):
+        return max(min(val, 99), 5)
+        
+    engine_data = {
+        "Google": clamp_prob(google_score),
+        "Amazon": clamp_prob(amazon_score),
+        "TCS": clamp_prob(tcs_score),
+        "Infosys": clamp_prob(infosys_score),
+        "Accenture": clamp_prob(accenture_score),
+        "Core": {
+            "name": core_comp["name"],
+            "score": clamp_prob(core_comp["score"])
+        }
+    }
+    
+    # Calculate overall base probability as weighted average
+    overall_prob = int((engine_data["Google"] + engine_data["Amazon"] + engine_data["TCS"] + engine_data["Core"]["score"]) / 4)
     
     # Grade assignments
-    if prob >= 90:
+    if overall_prob >= 90:
         grade = "A+"
         percentile = 96
-    elif prob >= 80:
+    elif overall_prob >= 80:
         grade = "A"
         percentile = 88
-    elif prob >= 70:
+    elif overall_prob >= 70:
         grade = "B"
         percentile = 76
-    elif prob >= 60:
+    elif overall_prob >= 60:
         grade = "C"
         percentile = 60
-    elif prob >= 50:
+    elif overall_prob >= 50:
         grade = "D"
         percentile = 45
     else:
         grade = "F"
         percentile = 20
         
-    # Default fallbacks
     res_data = {
-        "probability": prob,
+        "probability": overall_prob,
         "grade": grade,
         "percentile": percentile,
+        "probability_engine": engine_data,
         "benchmark_info": f"Placements at {college} are benchmarked against national averages. Graduates from {branch.upper()} with CGPA {cgpa} generally experience a competitive profile standing.",
-        "companies": {
-            "Tier-1 Product-based": ["Google", "Microsoft", "Amazon"],
-            "Tier-2 Product/Fintech": ["Adobe", "Paytm", "InMobi"],
-            "Core / Sector-Specific": ["Qualcomm", "Intel", "Tata Motors"],
-            "Service-Based Giants": ["TCS", "Infosys", "Wipro"]
-        },
         "skills_gap": "Based on target role, practice system design concepts and learn cloud containerization (Docker, AWS).",
         "milestones": "Day 1-10: Revise core DSA. Day 11-20: Build 2 robust github projects. Day 21-30: Take mock interview simulator runs."
     }
     
-    # 3. Synthesize using AI if key is present
     if api_key:
         prompt = f"""
         You are a Placement Cell Intelligence Expert. Based on this candidate's profile:
@@ -3717,7 +3736,11 @@ def get_placeiq_prediction():
         - Backlogs: {backlogs}
         - Current Skills: {skills}
         - Target Role: {role}
-        - Base calculated probability: {prob}%
+        - Leetcode Solved Count: {dsa}
+        - Core Subjects Level: {subjects}/10
+        - Aptitude: {aptitude}/10
+        - Communication: {communication}/10
+        - Calculated overall probability: {overall_prob}%
         
         Using the following live placement search context for {college}:
         ---
@@ -3727,16 +3750,10 @@ def get_placeiq_prediction():
         Generate a detailed Placement Readiness Scorecard in strict JSON format. Do not use markdown wrappers.
         Return a raw JSON object with these exact keys:
         {{
-            "probability": {prob},
+            "probability": {overall_prob},
             "grade": "{grade}",
             "percentile": {percentile},
             "benchmark_info": "Detailed paragraph benchmarking {college}'s average packages and NIRF placement metrics against national averages for {branch.upper()}.",
-            "companies": {{
-                "Tier-1 Product-based": ["Company A", "Company B"],
-                "Tier-2 Product/Fintech": ["Company C", "Company D"],
-                "Core / Sector-Specific": ["Company E", "Company F"],
-                "Service-Based Giants": ["Company G", "Company H"]
-            }},
             "skills_gap": "Descriptive sentence listing specific tools, programming paradigms, or methodologies missing from the student's current skills to crack the target role.",
             "milestones": "30-day preparation roadmap overview categorized in steps."
         }}
@@ -3756,7 +3773,6 @@ def get_placeiq_prediction():
                 res_data["grade"] = parsed.get("grade", res_data["grade"])
                 res_data["percentile"] = parsed.get("percentile", res_data["percentile"])
                 res_data["benchmark_info"] = parsed.get("benchmark_info", res_data["benchmark_info"])
-                res_data["companies"] = parsed.get("companies", res_data["companies"])
                 res_data["skills_gap"] = parsed.get("skills_gap", res_data["skills_gap"])
                 res_data["milestones"] = parsed.get("milestones", res_data["milestones"])
         except Exception as e:
@@ -3773,6 +3789,10 @@ def get_placeiq_pdf():
     backlogs = request.args.get("backlogs", "0")
     skills = request.args.get("skills", "").strip()
     role = request.args.get("role", "").strip()
+    dsa = request.args.get("dsa", "0")
+    subjects = request.args.get("subjects", "7")
+    aptitude = request.args.get("aptitude", "7")
+    communication = request.args.get("communication", "7")
     
     if not college:
         return "College name is required", 400
@@ -3784,7 +3804,11 @@ def get_placeiq_pdf():
         "cgpa": float(cgpa),
         "backlogs": int(backlogs),
         "skills": skills,
-        "role": role
+        "role": role,
+        "dsa": int(dsa),
+        "subjects": int(subjects),
+        "aptitude": int(aptitude),
+        "communication": int(communication)
     }):
         res = get_placeiq_prediction()
         if res.status_code != 200:
@@ -3852,7 +3876,7 @@ def get_placeiq_pdf():
     
     # Score metrics row
     story.append(Paragraph("Readiness Metrics", h2_style))
-    metrics_text = f"Placement Probability: {data.get('probability', 0)}%  |  Readiness Grade: {data.get('grade', 'C')}  |  National Percentile: {data.get('percentile', 0)}th"
+    metrics_text = f"Overall Placement Probability: {data.get('probability', 0)}%  |  Readiness Grade: {data.get('grade', 'C')}  |  National Percentile: {data.get('percentile', 0)}th"
     story.append(Paragraph(html.escape(metrics_text), body_style))
     story.append(Spacer(1, 8))
     
@@ -3861,13 +3885,16 @@ def get_placeiq_pdf():
     story.append(Paragraph(html.escape(sanitize_for_pdf(data.get("benchmark_info", ""))), body_style))
     story.append(Spacer(1, 8))
     
-    # Matched companies
-    story.append(Paragraph("Matched Companies", h2_style))
-    comps = data.get("companies", {})
-    comps_lines = []
-    for tier, list_c in comps.items():
-        comps_lines.append(f"{tier}: {', '.join(list_c)}")
-    story.append(Paragraph(html.escape(sanitize_for_pdf("  |  ".join(comps_lines))), body_style))
+    # Probability Engine List
+    story.append(Paragraph("AI Placement Probability Engine Predictions", h2_style))
+    engine = data.get("probability_engine", {})
+    core_c = engine.get("Core", {})
+    engine_text = (
+        f"Google: {engine.get('Google', 0)}%  |  Amazon: {engine.get('Amazon', 0)}%  |  "
+        f"TCS: {engine.get('TCS', 0)}%  |  Infosys: {engine.get('Infosys', 0)}%  |  "
+        f"Accenture: {engine.get('Accenture', 0)}%  |  {core_c.get('name', 'Core Company')}: {core_c.get('score', 0)}%"
+    )
+    story.append(Paragraph(html.escape(sanitize_for_pdf(engine_text)), body_style))
     story.append(Spacer(1, 8))
     
     # Skill gap and roadmap

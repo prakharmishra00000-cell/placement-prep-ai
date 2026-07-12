@@ -2681,6 +2681,11 @@ class Solution {
     const piqBacklogs = document.getElementById("placeiq-backlogs");
     const piqSkills = document.getElementById("placeiq-skills");
     const piqRole = document.getElementById("placeiq-role");
+    const piqDsa = document.getElementById("placeiq-dsa");
+    const piqSubjects = document.getElementById("placeiq-subjects");
+    const piqAptitude = document.getElementById("placeiq-aptitude");
+    const piqCommunication = document.getElementById("placeiq-communication");
+    
     const piqPredictBtn = document.getElementById("placeiq-predict-btn");
     const piqLoading = document.getElementById("placeiq-loading");
     const piqResults = document.getElementById("placeiq-results");
@@ -2690,9 +2695,23 @@ class Solution {
     const piqGradeVal = document.getElementById("placeiq-grade-val");
     const piqPercentileVal = document.getElementById("placeiq-percentile-val");
     const piqBenchmark = document.getElementById("placeiq-benchmark");
-    const piqCompanies = document.getElementById("placeiq-companies");
     const piqGap = document.getElementById("placeiq-gap");
     const piqRoadmap = document.getElementById("placeiq-roadmap");
+
+    // Company probability elements
+    const probGoogle = document.getElementById("prob-google");
+    const barGoogle = document.getElementById("bar-google");
+    const probAmazon = document.getElementById("prob-amazon");
+    const barAmazon = document.getElementById("bar-amazon");
+    const probTcs = document.getElementById("prob-tcs");
+    const barTcs = document.getElementById("bar-tcs");
+    const probInfosys = document.getElementById("prob-infosys");
+    const barInfosys = document.getElementById("bar-infosys");
+    const probAccenture = document.getElementById("prob-accenture");
+    const barAccenture = document.getElementById("bar-accenture");
+    const probCore = document.getElementById("prob-core");
+    const barCore = document.getElementById("bar-core");
+    const nameCore = document.getElementById("name-core");
 
     function executePlaceIQPrediction() {
         const college = piqCollege.value.trim();
@@ -2701,6 +2720,10 @@ class Solution {
         const backlogs = piqBacklogs.value.trim();
         const skills = piqSkills.value.trim();
         const role = piqRole.value.trim();
+        const dsa = piqDsa ? piqDsa.value.trim() : "0";
+        const subjects = piqSubjects ? piqSubjects.value.trim() : "7";
+        const aptitude = piqAptitude ? piqAptitude.value.trim() : "7";
+        const communication = piqCommunication ? piqCommunication.value.trim() : "7";
 
         if (!college || !cgpa || !skills || !role) {
             alert("Please fill in College Name, CGPA, Core Skills, and Target Job Role.");
@@ -2719,7 +2742,11 @@ class Solution {
                 cgpa: parseFloat(cgpa),
                 backlogs: parseInt(backlogs) || 0,
                 skills: skills,
-                role: role
+                role: role,
+                dsa: parseInt(dsa) || 0,
+                subjects: parseInt(subjects) || 7,
+                aptitude: parseInt(aptitude) || 7,
+                communication: parseInt(communication) || 7
             })
         })
         .then(res => res.json())
@@ -2739,21 +2766,43 @@ class Solution {
             piqGap.innerText = data.skills_gap || "None";
             piqRoadmap.innerText = data.milestones || "None";
 
-            // Populate Matching Companies Grid
-            piqCompanies.innerHTML = "";
-            if (data.companies && typeof data.companies === "object") {
-                for (const [tier, list] of Object.entries(data.companies)) {
-                    const block = document.createElement("div");
-                    block.style.marginBottom = "0.75rem";
-                    block.innerHTML = `<strong>${tier}:</strong> <span style="color: var(--neon-cyan);">${list.join(", ")}</span>`;
-                    piqCompanies.appendChild(block);
-                }
-            } else {
-                piqCompanies.innerText = "No matched companies identified.";
+            // Render Company probability bars
+            const engine = data.probability_engine || {};
+            
+            if (probGoogle && barGoogle) {
+                const val = engine["Google"] || 0;
+                probGoogle.innerText = `${val}%`;
+                barGoogle.style.width = `${val}%`;
+            }
+            if (probAmazon && barAmazon) {
+                const val = engine["Amazon"] || 0;
+                probAmazon.innerText = `${val}%`;
+                barAmazon.style.width = `${val}%`;
+            }
+            if (probTcs && barTcs) {
+                const val = engine["TCS"] || 0;
+                probTcs.innerText = `${val}%`;
+                barTcs.style.width = `${val}%`;
+            }
+            if (probInfosys && barInfosys) {
+                const val = engine["Infosys"] || 0;
+                probInfosys.innerText = `${val}%`;
+                barInfosys.style.width = `${val}%`;
+            }
+            if (probAccenture && barAccenture) {
+                const val = engine["Accenture"] || 0;
+                probAccenture.innerText = `${val}%`;
+                barAccenture.style.width = `${val}%`;
+            }
+            if (probCore && barCore && nameCore) {
+                const coreData = engine["Core"] || { name: "Branch Core Company", score: 0 };
+                nameCore.innerText = `${coreData.name} (Branch Core)`;
+                probCore.innerText = `${coreData.score}%`;
+                barCore.style.width = `${coreData.score}%`;
             }
 
             // Update PDF Link
-            piqPdfBtn.href = `/api/placeiq/pdf?college=${encodeURIComponent(college)}&branch=${encodeURIComponent(branch)}&cgpa=${cgpa}&backlogs=${backlogs}&skills=${encodeURIComponent(skills)}&role=${encodeURIComponent(role)}`;
+            piqPdfBtn.href = `/api/placeiq/pdf?college=${encodeURIComponent(college)}&branch=${encodeURIComponent(branch)}&cgpa=${cgpa}&backlogs=${backlogs}&skills=${encodeURIComponent(skills)}&role=${encodeURIComponent(role)}&dsa=${dsa}&subjects=${subjects}&aptitude=${aptitude}&communication=${communication}`;
 
             piqResults.classList.remove("hide");
         })
