@@ -3860,7 +3860,7 @@ def get_placeiq_pdf():
     )
     
     story = []
-    story.append(Paragraph(html.escape(f"PlaceIQ Placement Readiness Scorecard"), title_style))
+    story.append(Paragraph(html.escape(f"PrepOS Placement Readiness Scorecard"), title_style))
     story.append(Paragraph(html.escape(f"Student: {role} Candidate | College: {college} | Branch: {branch.upper()} | CGPA: {cgpa}"), body_style))
     story.append(Spacer(1, 4))
     
