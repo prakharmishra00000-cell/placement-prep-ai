@@ -1464,3 +1464,151 @@ body {
         --border-glow: rgba(123, 44, 191, 0.35);
     }
 }
+
+/* ==========================================================================
+   SaaS Top Navigation & Premium UI Layout Styles
+   ========================================================================== */
+
+.saas-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(3, 0, 8, 0.85);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3rem;
+}
+
+.saas-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.saas-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.saas-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.saas-dropdown-trigger {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.saas-dropdown-trigger:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.saas-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(10, 3, 20, 0.95);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    min-width: 220px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    backdrop-filter: blur(15px);
+    padding: 0.5rem;
+    z-index: 110;
+    margin-top: 5px;
+}
+
+.saas-dropdown:hover .saas-dropdown-menu {
+    display: block;
+}
+
+.saas-dropdown-menu .nav-item {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+
+.saas-dropdown-menu .nav-item:hover {
+    background: rgba(157, 78, 221, 0.12);
+    color: #fff;
+}
+
+/* Home Grid Card Hover & Layout */
+.saas-card {
+    padding: 2rem 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.saas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.saas-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 10px 25px rgba(123, 44, 191, 0.15);
+}
+
+.saas-card:hover::before {
+    opacity: 1;
+}
+
+.saas-card .card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.saas-card:hover .card-icon {
+    transform: scale(1.1);
+}
+
+.saas-card h3 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #fff;
+    margin: 0;
+}
+
+.saas-card p {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    margin: 0;
+}
+
