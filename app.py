@@ -3632,6 +3632,256 @@ def get_company_cheatsheet_pdf():
     
     return send_from_directory(sheets_dir, filename, as_attachment=True)
 
+@app.route("/api/placeiq/predict", methods=["POST"])
+def get_placeiq_prediction():
+    data = request.get_json() or {}
+    college = data.get("college", "").strip()
+    branch = data.get("branch", "cse").strip().lower()
+    cgpa = float(data.get("cgpa", 7.5))
+    backlogs = int(data.get("backlogs", 0))
+    skills = data.get("skills", "").strip()
+    role = data.get("role", "").strip()
+    
+    if not college:
+        return jsonify({"error": "College Name is required."}), 400
+        
+    api_key = get_backend_gemini_key()
+    
+    # 1. Fetch live search statistics for college placement
+    search_query = f"{college} average package placement rate statistics NIRF"
+    search_results = fetch_google_search_snippets(search_query)
+    web_context = " ".join(search_results) if search_results else "No live search context available."
+    
+    # 2. Rule-based base probability calculation
+    prob = 75
+    if cgpa >= 9.0:
+        prob += 15
+    elif cgpa >= 8.0:
+        prob += 5
+    elif cgpa < 7.0:
+        prob -= 15
+        
+    if backlogs > 0:
+        prob -= 20
+        
+    # Skills count adjustment
+    skill_list = [s.strip() for s in skills.split(",") if s.strip()]
+    prob += min(len(skill_list) * 4, 12)
+    
+    # Bound probability
+    prob = max(min(prob, 99), 25)
+    
+    # Grade assignments
+    if prob >= 90:
+        grade = "A+"
+        percentile = 96
+    elif prob >= 80:
+        grade = "A"
+        percentile = 88
+    elif prob >= 70:
+        grade = "B"
+        percentile = 76
+    elif prob >= 60:
+        grade = "C"
+        percentile = 60
+    elif prob >= 50:
+        grade = "D"
+        percentile = 45
+    else:
+        grade = "F"
+        percentile = 20
+        
+    # Default fallbacks
+    res_data = {
+        "probability": prob,
+        "grade": grade,
+        "percentile": percentile,
+        "benchmark_info": f"Placements at {college} are benchmarked against national averages. Graduates from {branch.upper()} with CGPA {cgpa} generally experience a competitive profile standing.",
+        "companies": {
+            "Tier-1 Product-based": ["Google", "Microsoft", "Amazon"],
+            "Tier-2 Product/Fintech": ["Adobe", "Paytm", "InMobi"],
+            "Core / Sector-Specific": ["Qualcomm", "Intel", "Tata Motors"],
+            "Service-Based Giants": ["TCS", "Infosys", "Wipro"]
+        },
+        "skills_gap": "Based on target role, practice system design concepts and learn cloud containerization (Docker, AWS).",
+        "milestones": "Day 1-10: Revise core DSA. Day 11-20: Build 2 robust github projects. Day 21-30: Take mock interview simulator runs."
+    }
+    
+    # 3. Synthesize using AI if key is present
+    if api_key:
+        prompt = f"""
+        You are a Placement Cell Intelligence Expert. Based on this candidate's profile:
+        - College: {college}
+        - Branch: {branch.upper()}
+        - CGPA: {cgpa}
+        - Backlogs: {backlogs}
+        - Current Skills: {skills}
+        - Target Role: {role}
+        - Base calculated probability: {prob}%
+        
+        Using the following live placement search context for {college}:
+        ---
+        {web_context}
+        ---
+        
+        Generate a detailed Placement Readiness Scorecard in strict JSON format. Do not use markdown wrappers.
+        Return a raw JSON object with these exact keys:
+        {{
+            "probability": {prob},
+            "grade": "{grade}",
+            "percentile": {percentile},
+            "benchmark_info": "Detailed paragraph benchmarking {college}'s average packages and NIRF placement metrics against national averages for {branch.upper()}.",
+            "companies": {{
+                "Tier-1 Product-based": ["Company A", "Company B"],
+                "Tier-2 Product/Fintech": ["Company C", "Company D"],
+                "Core / Sector-Specific": ["Company E", "Company F"],
+                "Service-Based Giants": ["Company G", "Company H"]
+            }},
+            "skills_gap": "Descriptive sentence listing specific tools, programming paradigms, or methodologies missing from the student's current skills to crack the target role.",
+            "milestones": "30-day preparation roadmap overview categorized in steps."
+        }}
+        """
+        try:
+            resp = call_gemini_api(prompt, api_key)
+            if resp:
+                cleaned = resp.strip()
+                if cleaned.startswith("```json"):
+                    cleaned = cleaned[7:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                
+                parsed = json.loads(cleaned)
+                res_data["probability"] = parsed.get("probability", res_data["probability"])
+                res_data["grade"] = parsed.get("grade", res_data["grade"])
+                res_data["percentile"] = parsed.get("percentile", res_data["percentile"])
+                res_data["benchmark_info"] = parsed.get("benchmark_info", res_data["benchmark_info"])
+                res_data["companies"] = parsed.get("companies", res_data["companies"])
+                res_data["skills_gap"] = parsed.get("skills_gap", res_data["skills_gap"])
+                res_data["milestones"] = parsed.get("milestones", res_data["milestones"])
+        except Exception as e:
+            print("Gemini PlaceIQ prediction error:", e)
+            
+    return jsonify(res_data)
+
+@app.route("/api/placeiq/pdf", methods=["GET"])
+def get_placeiq_pdf():
+    from flask import send_from_directory
+    college = request.args.get("college", "").strip()
+    branch = request.args.get("branch", "cse").strip()
+    cgpa = request.args.get("cgpa", "7.5")
+    backlogs = request.args.get("backlogs", "0")
+    skills = request.args.get("skills", "").strip()
+    role = request.args.get("role", "").strip()
+    
+    if not college:
+        return "College name is required", 400
+        
+    # Query simulation via JSON post helper
+    with app.test_request_context(method="POST", json={
+        "college": college,
+        "branch": branch,
+        "cgpa": float(cgpa),
+        "backlogs": int(backlogs),
+        "skills": skills,
+        "role": role
+    }):
+        res = get_placeiq_prediction()
+        if res.status_code != 200:
+            return "Failed to analyze profile", 500
+        data = res.get_json()
+        
+    # ReportLab single-page PDF generation
+    import html
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    
+    static_folder = app.static_folder if app.static_folder else "static"
+    sheets_dir = os.path.join(static_folder, "sheets")
+    os.makedirs(sheets_dir, exist_ok=True)
+    filename = f"{college.lower().replace(' ', '_')}_placeiq_scorecard.pdf"
+    file_path = os.path.join(sheets_dir, filename)
+    
+    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=35, leftMargin=35, topMargin=35, bottomMargin=35)
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=16,
+        textColor=colors.HexColor('#0f172a'),
+        spaceAfter=10
+    )
+    
+    h2_style = ParagraphStyle(
+        'H2Style',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        textColor=colors.HexColor('#0284c7'), # Cyan/blue accent
+        spaceBefore=8,
+        spaceAfter=3
+    )
+    
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=8.5,
+        leading=12.5,
+        textColor=colors.HexColor('#334155')
+    )
+    
+    story = []
+    story.append(Paragraph(html.escape(f"PlaceIQ Placement Readiness Scorecard"), title_style))
+    story.append(Paragraph(html.escape(f"Student: {role} Candidate | College: {college} | Branch: {branch.upper()} | CGPA: {cgpa}"), body_style))
+    story.append(Spacer(1, 4))
+    
+    # Divider line
+    divider = Table([['']], colWidths=[540], rowHeights=[2])
+    divider.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#0284c7')),
+        ('TOPPADDING', (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+    ]))
+    story.append(divider)
+    story.append(Spacer(1, 8))
+    
+    # Score metrics row
+    story.append(Paragraph("Readiness Metrics", h2_style))
+    metrics_text = f"Placement Probability: {data.get('probability', 0)}%  |  Readiness Grade: {data.get('grade', 'C')}  |  National Percentile: {data.get('percentile', 0)}th"
+    story.append(Paragraph(html.escape(metrics_text), body_style))
+    story.append(Spacer(1, 8))
+    
+    # NIRF Benchmarking
+    story.append(Paragraph("NIRF Benchmarking & Analytics", h2_style))
+    story.append(Paragraph(html.escape(sanitize_for_pdf(data.get("benchmark_info", ""))), body_style))
+    story.append(Spacer(1, 8))
+    
+    # Matched companies
+    story.append(Paragraph("Matched Companies", h2_style))
+    comps = data.get("companies", {})
+    comps_lines = []
+    for tier, list_c in comps.items():
+        comps_lines.append(f"{tier}: {', '.join(list_c)}")
+    story.append(Paragraph(html.escape(sanitize_for_pdf("  |  ".join(comps_lines))), body_style))
+    story.append(Spacer(1, 8))
+    
+    # Skill gap and roadmap
+    story.append(Paragraph("Identified Skill Gaps", h2_style))
+    story.append(Paragraph(html.escape(sanitize_for_pdf(data.get("skills_gap", ""))), body_style))
+    story.append(Spacer(1, 8))
+    
+    story.append(Paragraph("Actionable Roadmap & Milestones", h2_style))
+    story.append(Paragraph(html.escape(sanitize_for_pdf(data.get("milestones", ""))), body_style))
+    
+    doc.build(story)
+    
+    return send_from_directory(sheets_dir, filename, as_attachment=True)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 9876))
     app.run(host="0.0.0.0", port=port)

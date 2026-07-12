@@ -87,6 +87,10 @@
                     <i class="fa-solid fa-map-location-dot"></i>
                     <span>Relocation Assistant</span>
                 </a>
+                <a href="#" class="nav-item" data-tab="placeiq">
+                    <i class="fa-solid fa-chart-line text-neon-cyan"></i>
+                    <span>PlaceIQ Predictor</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="cheatsheet">
                     <i class="fa-solid fa-bolt text-neon-yellow"></i>
                     <span>1-Page Cheat Sheet</span>
@@ -2016,6 +2020,121 @@
                         <div id="cheatsheet-pdf-wrapper" style="text-align: center;">
                             <a id="cheatsheet-pdf-btn" href="#" target="_blank" class="glow-btn" style="width: 100%; height: 46px; justify-content: center; text-decoration: none; font-weight: 700; border-color: var(--neon-yellow); color: var(--neon-yellow);">
                                 <i class="fa-solid fa-file-pdf"></i> Compile & Download 1-Page Cheat Sheet PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+
+            <!-- Tab Content: PlaceIQ Predictor -->
+            <div class="tab-content" id="tab-placeiq">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-chart-line text-neon-cyan"></i> PlaceIQ Placement Intelligence Predictor</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">Determine your campus placement probability, benchmark your college's parameters against national averages, identify skill gaps, and explore matched hiring companies.</p>
+                    
+                    <!-- Form Container -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">College Name</label>
+                            <input type="text" id="placeiq-college" placeholder="e.g. MMMUT Gorakhpur, HBTU" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Engineering Branch</label>
+                            <select id="placeiq-branch" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none; height: 38px;">
+                                <option value="cse">Computer Science (CSE / IT)</option>
+                                <option value="ece">Electronics & Comm (ECE)</option>
+                                <option value="mechanical">Mechanical Engineering</option>
+                                <option value="electrical">Electrical Engineering</option>
+                                <option value="civil">Civil Engineering</option>
+                                <option value="chemical">Chemical Engineering</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Current CGPA</label>
+                            <input type="number" step="0.1" min="1" max="10" id="placeiq-cgpa" placeholder="e.g. 8.5" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Active Backlogs</label>
+                            <input type="number" min="0" id="placeiq-backlogs" value="0" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Core Skills (comma separated)</label>
+                            <input type="text" id="placeiq-skills" placeholder="e.g. Python, SQL, React" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Target Job Role</label>
+                            <input type="text" id="placeiq-role" placeholder="e.g. Software Engineer" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none;">
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <button id="placeiq-predict-btn" class="glow-btn" style="height: 44px; padding: 0 2rem; font-size: 0.9rem; font-weight: 600; justify-content: center;">
+                            <i class="fa-solid fa-calculator"></i> Predict Placement Readiness
+                        </button>
+                    </div>
+
+                    <!-- Loading Indicator -->
+                    <div id="placeiq-loading" style="display: none; text-align: center; padding: 2rem;">
+                        <i class="fa-solid fa-circle-notch fa-spin text-neon-cyan" style="font-size: 2.2rem; margin-bottom: 0.75rem;"></i>
+                        <p style="font-size: 0.9rem; color: #fff;">Crawling NIRF placement histories and hiring trends...</p>
+                        <span class="text-muted" style="font-size: 0.75rem;">Mapping skills data and preparing scorecard...</span>
+                    </div>
+
+                    <!-- Output Container -->
+                    <div id="placeiq-results" class="hide" style="margin-top: 1.5rem;">
+                        
+                        <!-- KPIs Row -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                            <!-- Probability -->
+                            <div class="glass-card" style="padding: 1rem; text-align: center; border-color: var(--neon-cyan);">
+                                <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Placement Probability</span>
+                                <h3 id="placeiq-prob-val" style="font-size: 2.2rem; font-weight: 800; color: var(--neon-cyan); margin: 0.4rem 0;">0%</h3>
+                                <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">Calculated Readiness Score</p>
+                            </div>
+                            <!-- Grade -->
+                            <div class="glass-card" style="padding: 1rem; text-align: center; border-color: var(--neon-purple);">
+                                <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Readiness Grade</span>
+                                <h3 id="placeiq-grade-val" style="font-size: 2.2rem; font-weight: 800; color: var(--neon-purple); margin: 0.4rem 0;">F</h3>
+                                <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">Employability Index Rating</p>
+                            </div>
+                            <!-- Percentile -->
+                            <div class="glass-card" style="padding: 1rem; text-align: center; border-color: var(--neon-yellow);">
+                                <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">National Percentile</span>
+                                <h3 id="placeiq-percentile-val" style="font-size: 2.2rem; font-weight: 800; color: var(--neon-yellow); margin: 0.4rem 0;">0th</h3>
+                                <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">Compared to all Indian graduates</p>
+                            </div>
+                        </div>
+
+                        <!-- Benchmarking Info -->
+                        <div class="glass-card" style="padding: 1.25rem; border-color: var(--border-color); margin-bottom: 1.5rem;">
+                            <h4 style="color: #fff; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-university text-neon-blue"></i> NIRF College Benchmarking</h4>
+                            <p id="placeiq-benchmark" style="font-size: 0.85rem; line-height: 1.4; color: var(--text-muted);"></p>
+                        </div>
+
+                        <!-- Matching Companies Grid -->
+                        <div class="glass-card" style="padding: 1.25rem; border-color: var(--border-color); margin-bottom: 1.5rem;">
+                            <h4 style="color: #fff; margin-bottom: 0.75rem; font-size: 0.95rem; font-weight: 600;"><i class="fa-solid fa-building text-neon-cyan"></i> Matching Target Companies</h4>
+                            <div id="placeiq-companies" style="font-size: 0.85rem; line-height: 1.4; color: var(--text-muted);"></div>
+                        </div>
+
+                        <!-- Skill Gap & Roadmap -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="glass-card" style="padding: 1.25rem; border-color: var(--border-color);">
+                                <h4 style="color: var(--neon-pink); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600;"><i class="fa-solid fa-circle-exclamation"></i> Identified Skill Gaps</h4>
+                                <p id="placeiq-gap" style="font-size: 0.85rem; line-height: 1.4; color: var(--text-muted);"></p>
+                            </div>
+                            <div class="glass-card" style="padding: 1.25rem; border-color: var(--border-color);">
+                                <h4 style="color: var(--neon-green-glow); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600;"><i class="fa-solid fa-list-check"></i> Actionable Prep Roadmaps</h4>
+                                <p id="placeiq-roadmap" style="font-size: 0.85rem; line-height: 1.4; color: var(--text-muted);"></p>
+                            </div>
+                        </div>
+
+                        <!-- PDF Compilation Link -->
+                        <div id="placeiq-pdf-wrapper" style="text-align: center;">
+                            <a id="placeiq-pdf-btn" href="#" target="_blank" class="glow-btn" style="width: 100%; height: 46px; justify-content: center; text-decoration: none; font-weight: 700; border-color: var(--neon-cyan); color: var(--neon-cyan);">
+                                <i class="fa-solid fa-file-pdf"></i> Download Premium PlaceIQ Scorecard PDF
                             </a>
                         </div>
                     </div>

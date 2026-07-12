@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "sheet-generator": { title: "Company Sheet PDF Generator", sub: "Generate comprehensive and authentic placement preparation sheets in PDF format using real-time search context" },
         "relocation": { title: "AI Relocation Assistant", sub: "Analyze rental indexes, food costs, transit routes, and corporate office parks for any target city" },
         "cheatsheet": { title: "1-Page Company Cheat Sheet", sub: "Quick 2-minute revision key metrics, tech stacks, and news before your interview" },
+        "placeiq": { title: "PlaceIQ Placement Predictor", sub: "Calculate your campus placement probability, match matching companies, and audit skill gaps" },
         "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
@@ -2669,6 +2670,102 @@ class Solution {
                 executeCheatSheetAnalysis();
             }
         });
+    }
+
+    // ----------------------------------------------------
+    // Tab: PlaceIQ Placement Readiness Predictor
+    // ----------------------------------------------------
+    const piqCollege = document.getElementById("placeiq-college");
+    const piqBranch = document.getElementById("placeiq-branch");
+    const piqCgpa = document.getElementById("placeiq-cgpa");
+    const piqBacklogs = document.getElementById("placeiq-backlogs");
+    const piqSkills = document.getElementById("placeiq-skills");
+    const piqRole = document.getElementById("placeiq-role");
+    const piqPredictBtn = document.getElementById("placeiq-predict-btn");
+    const piqLoading = document.getElementById("placeiq-loading");
+    const piqResults = document.getElementById("placeiq-results");
+    const piqPdfBtn = document.getElementById("placeiq-pdf-btn");
+
+    const piqProbVal = document.getElementById("placeiq-prob-val");
+    const piqGradeVal = document.getElementById("placeiq-grade-val");
+    const piqPercentileVal = document.getElementById("placeiq-percentile-val");
+    const piqBenchmark = document.getElementById("placeiq-benchmark");
+    const piqCompanies = document.getElementById("placeiq-companies");
+    const piqGap = document.getElementById("placeiq-gap");
+    const piqRoadmap = document.getElementById("placeiq-roadmap");
+
+    function executePlaceIQPrediction() {
+        const college = piqCollege.value.trim();
+        const branch = piqBranch.value;
+        const cgpa = piqCgpa.value.trim();
+        const backlogs = piqBacklogs.value.trim();
+        const skills = piqSkills.value.trim();
+        const role = piqRole.value.trim();
+
+        if (!college || !cgpa || !skills || !role) {
+            alert("Please fill in College Name, CGPA, Core Skills, and Target Job Role.");
+            return;
+        }
+
+        piqLoading.style.display = "block";
+        piqResults.classList.add("hide");
+
+        fetch("/api/placeiq/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                college: college,
+                branch: branch,
+                cgpa: parseFloat(cgpa),
+                backlogs: parseInt(backlogs) || 0,
+                skills: skills,
+                role: role
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            piqLoading.style.display = "none";
+            if (data.error) {
+                alert("Prediction failed: " + data.error);
+                return;
+            }
+
+            // Populate dashboard metrics
+            piqProbVal.innerText = `${data.probability}%`;
+            piqGradeVal.innerText = data.grade || "C";
+            piqPercentileVal.innerText = `${data.percentile}th`;
+
+            piqBenchmark.innerText = data.benchmark_info || "N/A";
+            piqGap.innerText = data.skills_gap || "None";
+            piqRoadmap.innerText = data.milestones || "None";
+
+            // Populate Matching Companies Grid
+            piqCompanies.innerHTML = "";
+            if (data.companies && typeof data.companies === "object") {
+                for (const [tier, list] of Object.entries(data.companies)) {
+                    const block = document.createElement("div");
+                    block.style.marginBottom = "0.75rem";
+                    block.innerHTML = `<strong>${tier}:</strong> <span style="color: var(--neon-cyan);">${list.join(", ")}</span>`;
+                    piqCompanies.appendChild(block);
+                }
+            } else {
+                piqCompanies.innerText = "No matched companies identified.";
+            }
+
+            // Update PDF Link
+            piqPdfBtn.href = `/api/placeiq/pdf?college=${encodeURIComponent(college)}&branch=${encodeURIComponent(branch)}&cgpa=${cgpa}&backlogs=${backlogs}&skills=${encodeURIComponent(skills)}&role=${encodeURIComponent(role)}`;
+
+            piqResults.classList.remove("hide");
+        })
+        .catch(err => {
+            console.error("PlaceIQ analysis error:", err);
+            piqLoading.style.display = "none";
+            alert("An error occurred during placement readiness analysis.");
+        });
+    }
+
+    if (piqPredictBtn) {
+        piqPredictBtn.addEventListener("click", executePlaceIQPrediction);
     }
 
     // Initialize first load
