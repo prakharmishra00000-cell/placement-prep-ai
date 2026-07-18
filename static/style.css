@@ -15,29 +15,29 @@
 }
 @property --border-color {
   syntax: '<color>';
-  initial-value: rgba(255, 255, 255, 0.14);
+  initial-value: rgba(0, 242, 254, 0.15);
   inherits: true;
 }
 @property --border-glow {
   syntax: '<color>';
-  initial-value: rgba(255, 106, 0, 0.25);
+  initial-value: rgba(0, 242, 254, 0.3);
   inherits: true;
 }
 
 :root {
-    --bg-dark: #050300;
-    --card-bg: rgba(12, 10, 24, 0.78);
-    --border-color: rgba(255, 255, 255, 0.14);
-    --border-glow: rgba(255, 106, 0, 0.25);
-    --text-primary: #fff8ef;
-    --text-muted: #d9bea0;
+    --bg-dark: #070913;
+    --card-bg: rgba(13, 17, 23, 0.65);
+    --border-color: rgba(0, 242, 254, 0.15);
+    --border-glow: rgba(0, 242, 254, 0.3);
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
     --sidebar-width: 270px;
-    --neon-blue: #ff6a00;
-    --neon-purple: #ff8a00;
-    --neon-green-glow: #47e39b;
-    --neon-yellow: #ffd166;
-    --neon-pink: #ff5573;
-    --neon-cyan: #ff6a00;
+    --neon-blue: #0070f3;
+    --neon-purple: #9d4ede;
+    --neon-green-glow: #00e676;
+    --neon-yellow: #ffd700;
+    --neon-pink: #ff007f;
+    --neon-cyan: #00f2fe;
     --font-heading: 'Outfit', sans-serif;
     --font-body: 'Inter', sans-serif;
 }
@@ -57,17 +57,6 @@ body {
     position: relative;
 }
 
-body::before {
-    content: "";
-    pointer-events: none;
-    z-index: -3;
-    background: radial-gradient(circle at 15% 0, rgba(255, 122, 26, 0.22), rgba(0,0,0,0) 28%),
-                radial-gradient(circle at 85% 16%, rgba(255, 106, 0, 0.15), rgba(0,0,0,0) 26%),
-                linear-gradient(#050300 0%, #120804 48%, #050300 100%);
-    position: fixed;
-    inset: 0;
-}
-
 /* Floating Ambient Background Balls */
 .glow-bg {
     position: fixed;
@@ -81,7 +70,6 @@ body::before {
 }
 
 .ball {
-    display: none;
     position: absolute;
     border-radius: 50%;
     filter: blur(140px);
@@ -212,14 +200,14 @@ body::before {
 
 .nav-item.active {
     color: #fff;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    background: rgba(157, 78, 221, 0.15);
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    box-shadow: 0 0 15px rgba(157, 78, 221, 0.15);
 }
 
 .nav-item.active i {
-    color: #fff;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    color: var(--neon-purple);
+    text-shadow: 0 0 8px rgba(157, 78, 221, 0.5);
 }
 
 .sidebar-footer {
@@ -248,11 +236,9 @@ body::before {
 
 .header-title h1 {
     font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 2.2rem;
-    letter-spacing: -0.03em;
+    font-weight: 800;
+    font-size: 1.8rem;
     margin-bottom: 0.25rem;
-    color: #ffffff;
 }
 
 .header-title p {
@@ -362,18 +348,18 @@ body::before {
 }
 
 .radio-card.active {
-    background: rgba(255, 106, 0, 0.15);
-    border-color: var(--neon-blue);
+    background: rgba(157, 78, 221, 0.15);
+    border-color: var(--neon-purple);
     color: #fff;
 }
 
 .radio-card.active i {
-    color: var(--neon-blue);
+    color: var(--neon-purple);
 }
 
 .glow-btn {
     width: 100%;
-    background: linear-gradient(135deg, #ff6a00 0%, #ff8a00 48%, #ffd166 100%);
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
     border: none;
     border-radius: 8px;
     padding: 0.85rem;
@@ -391,7 +377,7 @@ body::before {
 
 .glow-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 18px 42px rgba(255, 138, 0, 0.35);
+    box-shadow: 0 8px 25px rgba(0, 112, 243, 0.45);
 }
 
 /* Tab Switching Layout */
@@ -749,8 +735,8 @@ body::before {
 }
 
 .user-msg .msg-body {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(157, 78, 221, 0.1);
+    border-color: rgba(157, 78, 221, 0.2);
 }
 
 .chat-input-bar {
@@ -836,8 +822,8 @@ body::before {
 }
 
 .feedback-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(157, 78, 221, 0.05);
+    border: 1px solid rgba(157, 78, 221, 0.25);
     border-radius: 10px;
     padding: 1rem;
     margin-top: 1rem;
@@ -1478,3 +1464,151 @@ body::before {
         --border-glow: rgba(123, 44, 191, 0.35);
     }
 }
+
+/* ==========================================================================
+   SaaS Top Navigation & Premium UI Layout Styles
+   ========================================================================== */
+
+.saas-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(3, 0, 8, 0.85);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3rem;
+}
+
+.saas-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.saas-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.saas-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.saas-dropdown-trigger {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.saas-dropdown-trigger:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.saas-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(10, 3, 20, 0.95);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    min-width: 220px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    backdrop-filter: blur(15px);
+    padding: 0.5rem;
+    z-index: 110;
+    margin-top: 5px;
+}
+
+.saas-dropdown:hover .saas-dropdown-menu {
+    display: block;
+}
+
+.saas-dropdown-menu .nav-item {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+
+.saas-dropdown-menu .nav-item:hover {
+    background: rgba(157, 78, 221, 0.12);
+    color: #fff;
+}
+
+/* Home Grid Card Hover & Layout */
+.saas-card {
+    padding: 2rem 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.saas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.saas-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 10px 25px rgba(123, 44, 191, 0.15);
+}
+
+.saas-card:hover::before {
+    opacity: 1;
+}
+
+.saas-card .card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.saas-card:hover .card-icon {
+    transform: scale(1.1);
+}
+
+.saas-card h3 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #fff;
+    margin: 0;
+}
+
+.saas-card p {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    margin: 0;
+}
+
