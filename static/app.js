@@ -2908,7 +2908,7 @@ class Solution {
                     role: role,
                     superpower: superpower,
                     vibe: vibe,
-                    context: context
+                    context: ""
                 })
             })
             .then(response => response.json())
@@ -2955,10 +2955,10 @@ class Solution {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: "negotiation",
-                    company: company,
-                    base: base,
+                    company: "Unknown",
+                    base: situation,
                     leverage: leverage,
-                    context: context
+                    context: "" 
                 })
             })
             .then(response => response.json())
@@ -3002,10 +3002,10 @@ class Solution {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: "cold_mail",
-                    role: role,
+                    role: recipient,
                     connection: connection,
                     ask: ask,
-                    context: context
+                    context: custom
                 })
             })
             .then(response => response.json())
@@ -3054,7 +3054,7 @@ class Solution {
                     type: "email_doctor",
                     draft: draft,
                     tone: tone,
-                    context: context
+                    context: ""
                 })
             })
             .then(response => response.json())
@@ -3104,7 +3104,7 @@ class Solution {
                 body: JSON.stringify({
                     type: "skill_radar",
                     role: role,
-                    stack: stack
+                    stack: skillsRaw
                 })
             })
             .then(response => response.json())
@@ -3152,7 +3152,7 @@ class Solution {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: "ghost_detector",
-                    company: company,
+                    company: "Unknown",
                     size: size,
                     days: days,
                     context: context
