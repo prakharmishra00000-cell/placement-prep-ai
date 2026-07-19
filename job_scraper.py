@@ -28,34 +28,8 @@ def get_scraper_credential(key_name):
     return ""
 
 def merge_and_save_cache(cache_file, new_items, unique_keys):
-    existing_items = []
-    if os.path.exists(cache_file):
-        try:
-            with open(cache_file, "r") as f:
-                existing_items = json.load(f)
-        except Exception as e:
-            print(f"Error loading existing cache {cache_file}: {e}")
-            
-    # Merge items preventing duplicates based on unique_keys
-    seen = set()
-    merged = []
-    
-    # Process new items first so they are at the top (latest hourly scrape)
-    for item in new_items:
-        key_tuple = tuple(str(item.get(k, "")).lower().strip() for k in unique_keys)
-        if key_tuple not in seen:
-            seen.add(key_tuple)
-            merged.append(item)
-            
-    # Add existing items (old items get pushed to the bottom)
-    for item in existing_items:
-        key_tuple = tuple(str(item.get(k, "")).lower().strip() for k in unique_keys)
-        if key_tuple not in seen:
-            seen.add(key_tuple)
-            merged.append(item)
-            
-    # Cap size at 100 items to prevent cache bloating
-    merged = merged[:100]
+    # Overwrite the cache entirely to purge old corrupted duplicates
+    merged = new_items[:100]
     
     try:
         with open(cache_file, "w") as f:
