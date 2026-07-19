@@ -45,53 +45,13 @@
     <!-- Sticky Top Navigation Bar -->
     <header class="saas-navbar">
         <div class="saas-nav-left">
-            <div class="logo" style="cursor: pointer;" onclick="document.getElementById('nav-home').click();">
+            <div class="logo" style="cursor: pointer;" onclick="document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.getElementById('tab-home').classList.add('active'); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); document.getElementById('tab-heading').textContent = 'PrepOS AI Hub'; document.getElementById('tab-subheading').textContent = 'Select any flagship intelligence tool below to begin your career preparation workspace.';">
                 <i class="fa-solid fa-brain-circuit neon-icon" style="color: var(--neon-blue); font-size: 1.6rem; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4);"></i>
                 <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 1.35rem; display: flex; align-items: center; gap: 0.25rem;">PrepOS <span style="background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span></h2>
             </div>
-            <nav class="saas-nav-links">
-                <a href="#" class="nav-item active" id="nav-home" data-tab="home" style="background: none; border: none; box-shadow: none; padding: 0.5rem 0.8rem; height: auto;"><i class="fa-solid fa-house"></i> Home Dashboard</a>
-                
-                <!-- Dropdown 1: AI Agents & Compilers -->
-                <div class="saas-dropdown">
-                    <span class="saas-dropdown-trigger"><i class="fa-solid fa-robot"></i> AI Workspaces <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; margin-left: 2px;"></i></span>
-                    <div class="saas-dropdown-menu">
-                        <a href="#" class="nav-item" data-tab="twin"><i class="fa-solid fa-user-gear"></i> Digital Twin</a>
-                        <a href="#" class="nav-item" data-tab="interview"><i class="fa-solid fa-headset"></i> Interview Simulator</a>
-                        <a href="#" class="nav-item" data-tab="coding"><i class="fa-solid fa-code"></i> Coding IDE</a>
-                        <a href="#" class="nav-item" data-tab="copilot"><i class="fa-solid fa-robot"></i> Doubt Solver</a>
-                    </div>
-                </div>
-
-                <!-- Dropdown 2: Analysis & Generators -->
-                <div class="saas-dropdown">
-                    <span class="saas-dropdown-trigger"><i class="fa-solid fa-magnifying-glass-chart"></i> Analyzers <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; margin-left: 2px;"></i></span>
-                    <div class="saas-dropdown-menu">
-                        <a href="#" class="nav-item" data-tab="resume"><i class="fa-solid fa-file-invoice"></i> Resume JD Match</a>
-                        <a href="#" class="nav-item" data-tab="portfolio"><i class="fa-solid fa-globe"></i> Portfolio Builder</a>
-                        <a href="#" class="nav-item" data-tab="sheet-generator"><i class="fa-solid fa-file-pdf"></i> Company Sheets</a>
-                        <a href="#" class="nav-item" data-tab="placeiq"><i class="fa-solid fa-chart-line text-neon-cyan"></i> PrepOS Predictor</a>
-                        <a href="#" class="nav-item" data-tab="hiring"><i class="fa-solid fa-chart-line"></i> Hiring Analyzer</a>
-                    </div>
-                </div>
-
-                <!-- Dropdown 3: Utilities & Guides -->
-                <div class="saas-dropdown">
-                    <span class="saas-dropdown-trigger"><i class="fa-solid fa-circle-info"></i> Guides & Feeds <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; margin-left: 2px;"></i></span>
-                    <div class="saas-dropdown-menu">
-                        <a href="#" class="nav-item" data-tab="guide"><i class="fa-solid fa-graduation-cap"></i> Guide & PYQs</a>
-                        <a href="#" class="nav-item" data-tab="relocation"><i class="fa-solid fa-map-location-dot"></i> Relocation Hub</a>
-                        <a href="#" class="nav-item" data-tab="tax-advisor"><i class="fa-solid fa-calculator"></i> Tax Calculator</a>
-                        <a href="#" class="nav-item" data-tab="cheatsheet"><i class="fa-solid fa-bolt text-neon-yellow"></i> 1-Page Cheats</a>
-                        <a href="#" class="nav-item" data-tab="roadmap"><i class="fa-solid fa-route"></i> Domain Roadmaps</a>
-                        <a href="#" class="nav-item" data-tab="jobs"><i class="fa-solid fa-bullhorn"></i> Domestic Jobs</a>
-                        <a href="#" class="nav-item" data-tab="abroad"><i class="fa-solid fa-globe"></i> Abroad Jobs</a>
-                        <a href="#" class="nav-item" data-tab="exams"><i class="fa-solid fa-clipboard-list"></i> Gov Exams</a>
-                        <a href="#" class="nav-item" data-tab="books"><i class="fa-solid fa-book"></i> Reference Books</a>
-                        <a href="#" class="nav-item" data-tab="mmmut"><i class="fa-solid fa-chart-column"></i> MMMUT Placement</a>
-                    </div>
-                </div>
-            </nav>
+            <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+                <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px;"><i class="fa-solid fa-server" style="color: var(--neon-cyan); margin-right: 4px;"></i> Enterprise Career Hub Workspace</span>
+            </div>
         </div>
         <div class="saas-nav-right">
             <div class="developer-tag" style="background: rgba(0, 230, 118, 0.08); border: 1px solid var(--neon-cyan); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: var(--neon-cyan); letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(0, 230, 118, 0.1); display: flex; align-items: center; gap: 0.4rem; backdrop-filter: blur(5px);">
@@ -102,7 +62,61 @@
 
     <!-- Main Workspace Container -->
     <div class="app-layout" style="padding-top: 75px; min-height: 100vh;">
-        <main class="app-main" style="margin-left: 0; max-width: 100vw; padding: 2rem 3rem;">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar" style="position: fixed; top: 75px; height: calc(100vh - 75px); width: var(--sidebar-width); background: rgba(7, 9, 19, 0.85); border-right: 1px solid var(--border-color); backdrop-filter: blur(15px); display: flex; flex-direction: column; padding: 1.5rem; left: 0; z-index: 10; overflow-y: auto;">
+            <div class="sidebar-nav" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                
+                <!-- Category 1: AI Workspaces -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--neon-cyan); margin-bottom: 0.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-solid fa-robot"></i> AI Workspaces</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <a href="#" class="nav-item" data-tab="twin"><i class="fa-solid fa-user-gear"></i> Digital Twin</a>
+                        <a href="#" class="nav-item" data-tab="interview"><i class="fa-solid fa-headset"></i> Interview Simulator</a>
+                        <a href="#" class="nav-item" data-tab="coding"><i class="fa-solid fa-code"></i> Coding IDE</a>
+                        <a href="#" class="nav-item" data-tab="copilot"><i class="fa-solid fa-brain-circuit"></i> Doubt Solver</a>
+                    </div>
+                </div>
+
+                <!-- Category 2: Analyzers -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--neon-blue); margin-bottom: 0.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-solid fa-chart-line"></i> Core Analyzers</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <a href="#" class="nav-item" data-tab="placeiq"><i class="fa-solid fa-chart-line text-neon-cyan"></i> PrepOS Predictor</a>
+                        <a href="#" class="nav-item" data-tab="resume"><i class="fa-solid fa-file-invoice"></i> Resume JD Match</a>
+                        <a href="#" class="nav-item" data-tab="portfolio"><i class="fa-solid fa-globe"></i> Portfolio Builder</a>
+                        <a href="#" class="nav-item" data-tab="sheet-generator"><i class="fa-solid fa-file-pdf"></i> Company Sheets</a>
+                        <a href="#" class="nav-item" data-tab="hiring"><i class="fa-solid fa-chart-line"></i> Hiring Analyzer</a>
+                    </div>
+                </div>
+
+                <!-- Category 3: Guides & resources -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--neon-yellow); margin-bottom: 0.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-solid fa-book"></i> Guides & Revision</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <a href="#" class="nav-item" data-tab="guide"><i class="fa-solid fa-graduation-cap"></i> Guide & PYQs</a>
+                        <a href="#" class="nav-item" data-tab="cheatsheet"><i class="fa-solid fa-bolt text-neon-yellow"></i> 1-Page Cheats</a>
+                        <a href="#" class="nav-item" data-tab="roadmap"><i class="fa-solid fa-route"></i> Domain Roadmaps</a>
+                        <a href="#" class="nav-item" data-tab="books"><i class="fa-solid fa-book"></i> Reference Books</a>
+                        <a href="#" class="nav-item" data-tab="relocation"><i class="fa-solid fa-map-location-dot"></i> Relocation Hub</a>
+                        <a href="#" class="nav-item" data-tab="tax-advisor"><i class="fa-solid fa-calculator"></i> Tax Calculator</a>
+                    </div>
+                </div>
+
+                <!-- Category 4: Careers & Off-campus -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--neon-pink); margin-bottom: 0.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-solid fa-bullhorn"></i> Career Ports</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <a href="#" class="nav-item" data-tab="jobs"><i class="fa-solid fa-bullhorn"></i> Domestic Jobs</a>
+                        <a href="#" class="nav-item" data-tab="abroad"><i class="fa-solid fa-globe"></i> Abroad Jobs</a>
+                        <a href="#" class="nav-item" data-tab="exams"><i class="fa-solid fa-clipboard-list"></i> Gov Exams</a>
+                        <a href="#" class="nav-item" data-tab="mmmut"><i class="fa-solid fa-chart-column"></i> MMMUT Placement</a>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <main class="app-main" style="margin-left: var(--sidebar-width); max-width: calc(100vw - var(--sidebar-width)); padding: 2rem 3rem; width: 100%;">
             
             <!-- Global Page Heading -->
             <header class="main-header" style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
