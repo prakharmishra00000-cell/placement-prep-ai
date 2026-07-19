@@ -6,3 +6,4 @@ gunicorn
 telethon
 reportlab
 
+markdown
