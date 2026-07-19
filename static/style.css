@@ -1612,3 +1612,20 @@ body {
     margin: 0;
 }
 
+@media (max-width: 992px) {
+    .app-sidebar {
+        display: none !important;
+    }
+    .app-main {
+        margin-left: 0 !important;
+        max-width: 100vw !important;
+        padding: 1.5rem !important;
+    }
+    .saas-navbar {
+        padding: 0 1.5rem !important;
+    }
+    .saas-navbar div[style*="justify-content: center"] {
+        display: none !important;
+    }
+}
+
