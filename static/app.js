@@ -25,6 +25,15 @@ document.addEventListener("DOMContentLoaded", () => {
         "relocation": { title: "AI Relocation Assistant", sub: "Analyze rental indexes, food costs, transit routes, and corporate office parks for any target city" },
         "cheatsheet": { title: "1-Page Company Cheat Sheet", sub: "Quick 2-minute revision key metrics, tech stacks, and news before your interview" },
         "placeiq": { title: "PrepOS Predictor", sub: "Calculate your campus placement probability, match matching companies, and audit skill gaps" },
+        "script-doctor": { title: "Script Doctor (60-Second Elevator Pitch)", sub: "Generate a perfectly timed, 130-word conversational pitch based on your profile" },
+        "negotiation": { title: "Negotiation Arena", sub: "HR Counter-Offer Scripting & Strategy" },
+        "cold-mail": { title: "Cold Mail Generator", sub: "1-Click Outreach Templates & Strategies" },
+        "email-doctor": { title: "Email Etiquette Doctor", sub: "Professional Tone Polisher" },
+        "skill-radar": { title: "Skill Gap Radar", sub: "Target Role vs. Current Stack Matcher" },
+        "ghost-detector": { title: "Ghost Detector", sub: "Application Health & Follow-Up Analyzer" },
+        "linkedin-studio": { title: "LinkedIn Studio", sub: "1-Click Headline & Bio Makeover" },
+        "lor-builder": { title: "Endorsement Scripting", sub: "Faculty & Manager LoR Request Builder" },
+        "referral-gen": { title: "Referral Request Generator", sub: "Cold Outreach Scripts" },
         "home": { title: "PrepOS AI Workspace Hub", sub: "Welcome Prakhar Mishra! Select any flagship career intelligence tool to get started." },
         "mmmut": { title: "MMMUT Placement Statistics", sub: "Official Placement Brochure & Recruitment Dashboard 2026-27" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
@@ -329,7 +338,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const interviewInputContainer = document.getElementById("interview-input-container");
     const interviewResponseInput = document.getElementById("interview-response-input");
     const submitResponseBtn = document.getElementById("submit-response-btn");
+    const micRecordBtn = document.getElementById("mic-record-btn");
+    const vocalVisualizer = document.getElementById("vocal-visualizer");
     const interviewFeedbackScore = document.getElementById("interview-feedback-score");
+    let heatmapChart = null;
 
     let interviewStep = 0;
     let interviewQuestions = [];
@@ -356,6 +368,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 interviewFeedbackScore.classList.add("hide");
                 interviewStep = 0;
                 responses = [];
+                if (window.vocalAnalyzer) {
+                    window.vocalAnalyzer.metrics.topicData = [];
+                }
                 interviewChatMessages.innerHTML = "";
 
                 appendInterviewMsg("system", interviewQuestions[0]);
@@ -368,7 +383,28 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
+    if (micRecordBtn) {
+        micRecordBtn.addEventListener("click", () => {
+            if (window.vocalAnalyzer && window.vocalAnalyzer.isRecording) {
+                window.vocalAnalyzer.stopRecording();
+                micRecordBtn.style.color = "var(--text-muted)";
+                vocalVisualizer.style.display = "none";
+            } else if (window.vocalAnalyzer) {
+                const topic = interviewQuestions.length > interviewStep ? `Q${interviewStep+1}` : "General";
+                window.vocalAnalyzer.startRecording(topic, vocalVisualizer);
+                micRecordBtn.style.color = "#ff4d4d"; // Red to indicate recording
+                vocalVisualizer.style.display = "inline-block";
+            }
+        });
+    }
+
     submitResponseBtn.addEventListener("click", () => {
+        if (window.vocalAnalyzer && window.vocalAnalyzer.isRecording) {
+            window.vocalAnalyzer.stopRecording();
+            if (micRecordBtn) micRecordBtn.style.color = "var(--text-muted)";
+            if (vocalVisualizer) vocalVisualizer.style.display = "none";
+        }
+
         const text = interviewResponseInput.value.trim();
         if (!text) return;
 
@@ -411,6 +447,67 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.querySelector("#score-vocab span").style.width = `${evaluation.vocab}%`;
 
                 document.getElementById("interview-remarks").textContent = evaluation.remarks;
+
+                // Render Heatmap
+                if (window.vocalAnalyzer && window.vocalAnalyzer.metrics.topicData.length > 0) {
+                    const ctx = document.getElementById('vocal-heatmap-canvas');
+                    if (ctx) {
+                        if (heatmapChart) heatmapChart.destroy();
+                        
+                        const labels = window.vocalAnalyzer.metrics.topicData.map(d => d.topic);
+                        const latencies = window.vocalAnalyzer.metrics.topicData.map(d => parseFloat(d.latency));
+                        const wpms = window.vocalAnalyzer.metrics.topicData.map(d => d.wpm);
+                        const stresses = window.vocalAnalyzer.metrics.topicData.map(d => d.stressIndex);
+                        const fillers = window.vocalAnalyzer.metrics.topicData.map(d => d.fillerCount);
+
+                        heatmapChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: 'Latency (s)',
+                                        data: latencies,
+                                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                                        yAxisID: 'y'
+                                    },
+                                    {
+                                        label: 'WPM',
+                                        data: wpms,
+                                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                                        yAxisID: 'y1'
+                                    },
+                                    {
+                                        label: 'Stress Index',
+                                        data: stresses,
+                                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                                        yAxisID: 'y2'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Latency (s)', color: 'rgba(255,255,255,0.7)'}, ticks: {color: 'rgba(255,255,255,0.7)'} },
+                                    y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'WPM', color: 'rgba(255,255,255,0.7)'}, grid: {drawOnChartArea: false}, ticks: {color: 'rgba(255,255,255,0.7)'} },
+                                    y2: { type: 'linear', display: false, position: 'right', max: 100 }
+                                },
+                                plugins: {
+                                    legend: { labels: { color: 'rgba(255,255,255,0.8)' } },
+                                    tooltip: {
+                                        callbacks: {
+                                            afterBody: function(context) {
+                                                const idx = context[0].dataIndex;
+                                                return `Filler Words: ${fillers[idx]}`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
             })
             .catch(err => {
                 console.error(err);
@@ -2799,4 +2896,520 @@ class Solution {
 
     // Initialize first load
     fetchCompanyDetails("TCS", "technical");
+    // ----------------------------------------------------
+    // Tab: Script Doctor
+    // ----------------------------------------------------
+    const generateScriptBtn = document.getElementById("generate-script-btn");
+    if (generateScriptBtn) {
+        generateScriptBtn.addEventListener("click", () => {
+            const role = document.getElementById("script-role").value;
+            const superpower = document.getElementById("script-superpower").value.toLowerCase();
+            const vibe = document.getElementById("script-vibe").value;
+
+            const btnOriginal = generateScriptBtn.innerHTML;
+            generateScriptBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+            generateScriptBtn.disabled = true;
+
+            setTimeout(() => {
+                let intro = "";
+                let body = "";
+                let conclusion = "";
+
+                if (vibe === "Corporate Professional") {
+                    intro = `Hello, I'm Prakhar Mishra, and I specialize in driving technical excellence as a ${role}. <strong>[pause]</strong><br><br>`;
+                    body = `Throughout my engineering journey, I've consistently demonstrated a strong capacity for ${superpower}. My core focus has been aligning robust technical architectures with overarching business goals, ensuring scalable and maintainable solutions. <strong>[pause]</strong><br><br>`;
+                    conclusion = `I'm eager to bring my strategic mindset and disciplined execution to your team, aiming to create impactful solutions that align with your corporate objectives.`;
+                } else if (vibe === "Fast-paced Startup") {
+                    intro = `Hey! I'm Prakhar, an agile and outcome-driven ${role} who thrives in high-velocity environments. <strong>[pause]</strong><br><br>`;
+                    body = `I'm deeply passionate about building things from 0 to 1, and my true superpower lies in ${superpower}. I love tackling ambiguous problems and rapidly iterating to ship products that users genuinely love. <strong>[pause]</strong><br><br>`;
+                    conclusion = `I'm looking for a dynamic team where I can wear multiple hats, move fast, and make a measurable impact from day one.`;
+                } else if (vibe === "Academic/Research focused") {
+                    intro = `Greetings. My name is Prakhar Mishra. I am a deeply analytical ${role} with a strong foundation in first-principles thinking. <strong>[pause]</strong><br><br>`;
+                    body = `My academic background has instilled in me a rigorous approach to problem-solving, particularly when it comes to ${superpower}. I enjoy diving deep into complex algorithmic challenges and optimizing systems at a foundational level. <strong>[pause]</strong><br><br>`;
+                    conclusion = `I am eager to contribute my research-oriented methodology and technical depth to innovative projects within your organization.`;
+                } else {
+                    intro = `Hi there! I'm Prakhar, an enthusiastic and visionary ${role}. <strong>[pause]</strong><br><br>`;
+                    body = `I believe that technology should not just solve problems, but inspire users. That's why I focus heavily on ${superpower}. I'm always looking for unconventional solutions to bridge the gap between engineering and user experience. <strong>[pause]</strong><br><br>`;
+                    conclusion = `I would love to bring my creative energy and technical skills to your team to help build the next generation of innovative products.`;
+                }
+
+                let filler = `Over the past few years, I have honed my skills across various domains, consistently seeking out challenges that push me to grow. For instance, in one of my recent major projects, I took ownership of the end-to-end development cycle, ensuring we met our critical milestones on time. <strong>[pause]</strong><br><br>I believe that effective communication and a proactive mindset are just as crucial as technical prowess. By fostering collaboration and embracing continuous learning, I strive to elevate both my own work and the output of my peers. <strong>[pause]</strong><br><br>`;
+
+                const fullScript = `${intro}${filler}${body}${conclusion}`;
+                
+                document.getElementById("script-output-container").style.display = "block";
+                document.getElementById("script-output-body").innerHTML = `<p>${fullScript}</p>`;
+                
+                generateScriptBtn.innerHTML = btnOriginal;
+                generateScriptBtn.disabled = false;
+            }, 800);
+        });
+    }
+    
+    // ----------------------------------------------------
+    // Tab: Negotiation Arena
+    // ----------------------------------------------------
+    const generateNegoBtn = document.getElementById("generate-nego-btn");
+    if (generateNegoBtn) {
+        generateNegoBtn.addEventListener("click", () => {
+            const situation = document.getElementById("nego-situation").value.trim();
+            const leverage = document.getElementById("nego-leverage").value;
+            
+            if (!situation) {
+                alert("Please describe your exact situation to generate scripts.");
+                return;
+            }
+
+            const btnOriginal = generateNegoBtn.innerHTML;
+            generateNegoBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Strategizing...';
+            generateNegoBtn.disabled = true;
+
+            setTimeout(() => {
+                let strategyTitle = "";
+                let strategyDesc = "";
+                let emailScript = "";
+                let phoneScript = "";
+
+                if (leverage === "Competing Offer") {
+                    strategyTitle = "The Firm Comparator";
+                    strategyDesc = "Use the competing offer to validate your market worth without sounding like you're issuing an ultimatum. Emphasize that THIS company is your first choice.";
+                    
+                    emailScript = `Dear [HR Manager's Name],<br><br>
+Thank you so much for the offer to join [Company Name] as a [Role]. I am incredibly excited about the opportunity and the team.<br><br>
+Regarding the compensation, I wanted to address my situation: <em>"${situation}"</em>. I currently hold another offer that provides [Insert Amount/Benefit]. However, [Company Name] remains my top choice because of [Specific Reason you like the company].<br><br>
+Would you be able to match the base pay of [Target Salary]? If we can bridge this gap, I am ready to sign the offer today.<br><br>
+Best regards,<br>
+[Your Name]`;
+
+                    phoneScript = `<strong>You:</strong> Hi [HR Name], thank you again for the offer. I'm really excited about joining.<br><br>
+<strong>You:</strong> I wanted to discuss the compensation package. As I mentioned in my situation: <em>"${situation}"</em>. While the other offer is higher at [Amount], I strongly prefer your team and the work you're doing here.<br><br>
+<strong>You:</strong> Is there any flexibility on the base salary to bring it closer to [Target Salary]? If we can make those numbers work, I'm ready to accept immediately.`;
+                    
+                } else if (leverage === "Top Scores") {
+                    strategyTitle = "The Enthusiastic Value-Add";
+                    strategyDesc = "Since you performed exceptionally well in interviews, pivot the conversation to the immediate ROI and value you bring to the team on Day 1.";
+                    
+                    emailScript = `Dear [HR Manager's Name],<br><br>
+I am thrilled to receive the offer for the [Role] position. During the interview process, I was excited to learn about [Project/Team goal], and I am confident my technical skills will allow me to contribute immediately.<br><br>
+Regarding the compensation, I have a specific goal: <em>"${situation}"</em>. Based on my strong interview feedback and the immediate value I plan to bring to the [Specific Team], I was hoping we could discuss adjusting the starting salary to [Target Salary] or exploring a sign-on bonus of [Bonus Amount].<br><br>
+I am very eager to join and get started.<br><br>
+Best regards,<br>
+[Your Name]`;
+
+                    phoneScript = `<strong>You:</strong> Hi [HR Name], I'm so excited about the offer and really enjoyed speaking with the engineering team.<br><br>
+<strong>You:</strong> Based on the positive feedback from my interviews and how well my skills align with the role, I wanted to discuss my goal: <em>"${situation}"</em>.<br><br>
+<strong>You:</strong> Is there room to increase the base salary to [Target Salary] or add a sign-on bonus? I'm fully committed to bringing value on Day 1 and would love to make this work.`;
+                } else {
+                    strategyTitle = "The Collaborative Problem Solver";
+                    strategyDesc = "Approach the negotiation as a mutual problem to solve, demonstrating that you are excited but need a specific issue (like relocation or market rate) addressed to comfortably accept.";
+                    
+                    emailScript = `Dear [HR Manager's Name],<br><br>
+Thank you for extending this offer. I am very excited about the prospect of joining the team.<br><br>
+Before signing, I wanted to discuss one aspect of the offer. Specifically: <em>"${situation}"</em>.<br><br>
+Would it be possible to adjust the [Base Salary / Relocation Bonus / Sign-on] to [Target Amount] to help accommodate this? This adjustment would make it incredibly easy for me to accept the offer and fully focus on bringing my best work to [Company Name].<br><br>
+Looking forward to your thoughts.<br><br>
+Best regards,<br>
+[Your Name]`;
+
+                    phoneScript = `<strong>You:</strong> Hi [HR Name], thank you for the offer. I'm very excited about the opportunity.<br><br>
+<strong>You:</strong> I did want to see if we could find a middle ground on one detail. Basically: <em>"${situation}"</em>.<br><br>
+<strong>You:</strong> If we could adjust [Specific Item] to [Target Amount], I would be ready to sign today. Is there any flexibility there?`;
+                }
+
+                document.getElementById("nego-strategy-title").textContent = strategyTitle;
+                document.getElementById("nego-strategy-desc").textContent = strategyDesc;
+                document.getElementById("nego-email-body").innerHTML = emailScript;
+                document.getElementById("nego-phone-body").innerHTML = phoneScript;
+                
+                document.getElementById("nego-output-container").style.display = "block";
+                
+                generateNegoBtn.innerHTML = btnOriginal;
+                generateNegoBtn.disabled = false;
+            }, 1000);
+        });
+    }
+    
+    // ----------------------------------------------------
+    // Tab: Cold Mail Generator
+    // ----------------------------------------------------
+    const generateColdBtn = document.getElementById("generate-cold-btn");
+    if (generateColdBtn) {
+        generateColdBtn.addEventListener("click", () => {
+            const recipient = document.getElementById("cold-recipient").value;
+            const connection = document.getElementById("cold-connection").value;
+            const ask = document.getElementById("cold-ask").value;
+            const custom = document.getElementById("cold-custom").value.trim();
+
+            const btnOriginal = generateColdBtn.innerHTML;
+            generateColdBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+            generateColdBtn.disabled = true;
+
+            setTimeout(() => {
+                let intro = "";
+                let body = "";
+                let callToAction = "";
+
+                // Intro logic
+                if (connection === "Same College") {
+                    intro = `Hi [Name],<br><br>I'm a fellow [College Name] student/alum and saw your profile. I really admire your trajectory at [Company].`;
+                } else if (connection === "Met at Hackathon") {
+                    intro = `Hi [Name],<br><br>We briefly connected at [Event/Hackathon]. It was great hearing your thoughts on [Topic].`;
+                } else if (connection === "Mutual Connection") {
+                    intro = `Hi [Name],<br><br>[Mutual Connection Name] recommended I reach out. I've been following your work at [Company] with great interest.`;
+                } else {
+                    intro = `Hi [Name],<br><br>I've been following your work at [Company] and really admire your recent contributions to [Project/Post].`;
+                }
+
+                // Body logic
+                body = `<br><br>I'm currently exploring opportunities in [Domain] and ${custom ? 'wanted to mention: ' + custom + '. ' : ''}I'd love to bring my experience in <strong style="color: var(--neon-yellow);">[Insert your top achievement from Portfolio Builder here, e.g. scaling a microservice to 10k users]</strong> to a team like yours.`;
+
+                // CTA logic
+                if (ask === "15-min Coffee Chat") {
+                    callToAction = `<br><br>Would you be open to a quick 10-15 minute virtual coffee chat this week? I'd love to hear your advice on breaking into the industry.<br><br>Best,<br>[Your Name]`;
+                } else if (ask === "Referral for Specific Job") {
+                    callToAction = `<br><br>I'm planning to apply for the [Role Name] position (ID: [Job ID]) and was wondering if you might be open to briefly reviewing my resume and potentially submitting a referral?<br><br>Best,<br>[Your Name]`;
+                } else if (ask === "Resume Review") {
+                    callToAction = `<br><br>If you have 2 minutes, I'd deeply appreciate any quick feedback on my attached resume to ensure I'm hitting the right technical benchmarks.<br><br>Best,<br>[Your Name]`;
+                } else {
+                    callToAction = `<br><br>I'd love to learn more about the engineering culture on your team. Do you have 10 minutes to chat next week?<br><br>Best,<br>[Your Name]`;
+                }
+
+                const fullScript = `${intro}${body}${callToAction}`;
+                
+                document.getElementById("cold-output-container").style.display = "block";
+                document.getElementById("cold-output-body").innerHTML = `<p>${fullScript}</p>`;
+                
+                generateColdBtn.innerHTML = btnOriginal;
+                generateColdBtn.disabled = false;
+            }, 600);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Email Etiquette Doctor
+    // ----------------------------------------------------
+    const generateEmailBtn = document.getElementById("generate-email-btn");
+    if (generateEmailBtn) {
+        generateEmailBtn.addEventListener("click", () => {
+            const draft = document.getElementById("email-draft").value.trim();
+            const tone = document.getElementById("email-tone").value;
+
+            if (!draft) {
+                alert("Please paste your rough draft email to polish.");
+                return;
+            }
+
+            const btnOriginal = generateEmailBtn.innerHTML;
+            generateEmailBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Polishing...';
+            generateEmailBtn.disabled = true;
+
+            setTimeout(() => {
+                let polished = draft;
+                let explanation = "";
+
+                // Very basic heuristic replacements to simulate NLP tone polishing
+                if (tone === "Polite & Professional") {
+                    polished = polished.replace(/ASAP/gi, "at your earliest convenience");
+                    polished = polished.replace(/Hey/gi, "Dear");
+                    polished = polished.replace(/can't/gi, "am unable to");
+                    polished = polished.replace(/can we/gi, "would it be possible to");
+                    explanation = `We removed informal greetings ("Hey") and urgent acronyms ("ASAP") and replaced them with "Dear" and "at your earliest convenience" to establish a respectful, professional boundary. Formalized contractions for a cleaner tone.`;
+                } else if (tone === "Confident & Assertive") {
+                    polished = polished.replace(/I think/gi, "I believe");
+                    polished = polished.replace(/maybe/gi, "certainly");
+                    polished = polished.replace(/just wanted to/gi, "I am reaching out to");
+                    polished = polished.replace(/sorry for/gi, "thank you for your patience regarding");
+                    explanation = `Removed passive filler words ("just", "maybe", "I think") to project confidence. Swapped apologies ("sorry for") with gratitude ("thank you for your patience") to maintain strong positioning.`;
+                } else if (tone === "Gratitude & Acceptance") {
+                    polished = polished.replace(/thanks/gi, "Thank you sincerely");
+                    polished = polished.replace(/I want to accept/gi, "I am thrilled to formally accept");
+                    polished = polished.replace(/let me know/gi, "Please advise on the next steps");
+                    explanation = `Elevated basic thanks to formal gratitude ("Thank you sincerely"). Strengthened the acceptance phrasing to show enthusiasm, and replaced casual sign-offs ("let me know") with professional calls to action.`;
+                } else {
+                    polished = polished.replace(/can't make it/gi, "need to request a reschedule");
+                    polished = polished.replace(/sorry/gi, "I apologize for the inconvenience");
+                    polished = polished.replace(/ASAP/gi, "as soon as possible");
+                    explanation = `Softened the cancellation language to be polite but clear. Added a formal apology for the inconvenience and maintained a collaborative tone for rescheduling.`;
+                }
+
+                // Append the polished text safely
+                document.getElementById("email-output-body").textContent = polished;
+                document.getElementById("email-explanation").textContent = explanation;
+                document.getElementById("email-output-container").style.display = "block";
+                
+                generateEmailBtn.innerHTML = btnOriginal;
+                generateEmailBtn.disabled = false;
+            }, 800);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Skill Gap Radar
+    // ----------------------------------------------------
+    const generateRadarBtn = document.getElementById("generate-radar-btn");
+    if (generateRadarBtn) {
+        generateRadarBtn.addEventListener("click", () => {
+            const role = document.getElementById("radar-role").value;
+            const skillsRaw = document.getElementById("radar-skills").value.toLowerCase();
+            
+            if (!skillsRaw) {
+                alert("Please enter some of your current skills.");
+                return;
+            }
+
+            const btnOriginal = generateRadarBtn.innerHTML;
+            generateRadarBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Scanning...';
+            generateRadarBtn.disabled = true;
+
+            setTimeout(() => {
+                const idealStacks = {
+                    "Frontend Engineer": ["html", "css", "javascript", "react", "typescript", "tailwind", "next"],
+                    "Backend Engineer": ["node", "python", "java", "sql", "mongodb", "docker", "redis", "aws"],
+                    "Full Stack Engineer": ["javascript", "react", "node", "sql", "mongodb", "docker", "typescript", "aws"],
+                    "Data Scientist": ["python", "sql", "pandas", "machine learning", "tensorflow", "pytorch", "statistics"],
+                    "DevOps Engineer": ["linux", "bash", "docker", "kubernetes", "aws", "ci/cd", "terraform"]
+                };
+
+                const targetStack = idealStacks[role] || idealStacks["Full Stack Engineer"];
+                let matchCount = 0;
+                let missingSkills = [];
+
+                targetStack.forEach(skill => {
+                    if (skillsRaw.includes(skill)) {
+                        matchCount++;
+                    } else {
+                        missingSkills.push(skill);
+                    }
+                });
+
+                const percentage = Math.round((matchCount / targetStack.length) * 100);
+                const radarScoreEl = document.getElementById("radar-score");
+                radarScoreEl.textContent = `${percentage}%`;
+
+                // Color coding based on percentage
+                if (percentage > 75) {
+                    radarScoreEl.style.color = "var(--neon-cyan)";
+                    radarScoreEl.parentElement.style.borderColor = "var(--neon-cyan)";
+                } else if (percentage > 40) {
+                    radarScoreEl.style.color = "var(--neon-yellow)";
+                    radarScoreEl.parentElement.style.borderColor = "var(--neon-yellow)";
+                } else {
+                    radarScoreEl.style.color = "var(--neon-pink)";
+                    radarScoreEl.parentElement.style.borderColor = "var(--neon-pink)";
+                }
+
+                let insight = "";
+                if (missingSkills.length > 0) {
+                    const topMissing = missingSkills[0].toUpperCase();
+                    insight = `You are a ${percentage}% match for ${role} roles. However, 80% of job descriptions in this tier currently require basic <strong>${topMissing}</strong> knowledge. Spend 3-5 days learning ${topMissing} basics to push your resume match rate to over 90%.`;
+                } else {
+                    insight = `You have a near-perfect tech stack match for ${role} roles! Your focus should now be on building complex portfolio projects combining these tools rather than learning new syntaxes.`;
+                }
+
+                document.getElementById("radar-insight").innerHTML = insight;
+                document.getElementById("radar-output-container").style.display = "block";
+                
+                generateRadarBtn.innerHTML = btnOriginal;
+                generateRadarBtn.disabled = false;
+            }, 1000);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Ghost Detector
+    // ----------------------------------------------------
+    const generateGhostBtn = document.getElementById("generate-ghost-btn");
+    if (generateGhostBtn) {
+        generateGhostBtn.addEventListener("click", () => {
+            const size = document.getElementById("ghost-size").value;
+            const days = parseInt(document.getElementById("ghost-days").value, 10);
+            const context = document.getElementById("ghost-context").value.trim();
+
+            if (isNaN(days) || days < 1) {
+                alert("Please enter a valid number of days.");
+                return;
+            }
+
+            const btnOriginal = generateGhostBtn.innerHTML;
+            generateGhostBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Diagnosing...';
+            generateGhostBtn.disabled = true;
+
+            setTimeout(() => {
+                let medianThreshold = 14;
+                if (size === "Early Startup") medianThreshold = 7;
+                else if (size === "Mid-size Growth") medianThreshold = 10;
+                else if (size === "Large MNC") medianThreshold = 16;
+
+                const statusBox = document.getElementById("ghost-status-box");
+                const statusTitle = document.getElementById("ghost-status-title");
+                const statusDesc = document.getElementById("ghost-status-desc");
+                const scriptBody = document.getElementById("ghost-script-body");
+
+                let isStalled = days >= medianThreshold;
+
+                if (isStalled) {
+                    statusBox.style.background = "rgba(255, 77, 77, 0.1)";
+                    statusBox.style.borderLeft = "4px solid var(--neon-pink)";
+                    statusTitle.style.color = "var(--neon-pink)";
+                    statusTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Application Status: Stalled`;
+                    statusDesc.textContent = `You have been waiting ${days} days. The industry median for a ${size} to respond is ${medianThreshold} days. It is highly recommended that you send a polite follow-up immediately to force a resolution.`;
+
+                    scriptBody.innerHTML = `Hi [Recruiter/Manager Name],<br><br>I hope you're having a great week.<br><br>I'm following up on my application for the [Role Name] position. ${context ? context + '. ' : ''}I wanted to check if there are any updates regarding the next steps or if you need any additional information from my end.<br><br>I remain very interested in the opportunity to join the team at [Company Name].<br><br>Best regards,<br>[Your Name]`;
+                } else {
+                    statusBox.style.background = "rgba(100, 255, 218, 0.1)";
+                    statusBox.style.borderLeft = "4px solid var(--neon-cyan)";
+                    statusTitle.style.color = "var(--neon-cyan)";
+                    statusTitle.innerHTML = `<i class="fa-solid fa-circle-check"></i> Application Status: Normal / Processing`;
+                    statusDesc.textContent = `You have been waiting ${days} days. The industry median for a ${size} to respond is ${medianThreshold} days. You are well within the normal processing window. Do not double-text them yet.`;
+
+                    scriptBody.innerHTML = `<em>No follow-up required yet. Wait until Day ${medianThreshold} before sending an email. If you must send one due to a competing deadline, use this:</em><br><br>Hi [Recruiter Name],<br><br>I'm writing to let you know that I am still very interested in the [Role] position. ${context ? context + '. ' : ''}I am currently navigating another offer deadline but [Company] remains my top choice. Is there any timeline update you can share?<br><br>Best,<br>[Your Name]`;
+                }
+                
+                document.getElementById("ghost-output-container").style.display = "block";
+                
+                generateGhostBtn.innerHTML = btnOriginal;
+                generateGhostBtn.disabled = false;
+            }, 900);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: LinkedIn Studio
+    // ----------------------------------------------------
+    const generateLiBtn = document.getElementById("generate-li-btn");
+    if (generateLiBtn) {
+        generateLiBtn.addEventListener("click", () => {
+            const domain = document.getElementById("li-domain").value;
+            const skills = document.getElementById("li-skills").value.trim() || "Modern Tech Stack";
+            const tone = document.getElementById("li-tone").value;
+            const context = document.getElementById("li-context").value.trim();
+
+            const btnOriginal = generateLiBtn.innerHTML;
+            generateLiBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+            generateLiBtn.disabled = true;
+
+            setTimeout(() => {
+                let headline = "";
+                let about = "";
+
+                // Headline generation
+                headline = `${domain} | Building Scalable Systems with ${skills} | Seeking 2027 Opportunities`;
+                if (tone === "Action-Oriented") {
+                    headline = `Building high-performance ${domain} solutions with ${skills} | CS Undergrad`;
+                } else if (tone === "Thought Leader") {
+                    headline = `Aspiring ${domain} Leader | Passionate about ${skills} & Product Innovation`;
+                }
+
+                // About generation
+                let intro = `I am a Computer Science student deeply passionate about ${domain}. My technical foundation is built on ${skills}, and I love tackling complex engineering challenges.`;
+                if (context) intro += ` ${context}.`;
+                
+                let body = "";
+                if (tone === "Action-Oriented") {
+                    body = `\n\nWhat I bring to the table:\n🚀 Fast learner who thrives in agile environments.\n💻 Hands-on experience building full-stack applications.\n🔧 Obsessed with clean code and performance optimization.`;
+                } else if (tone === "Tech-Forward") {
+                    body = `\n\nCore Competencies:\n⚡ Deep expertise in building robust architectures.\n🧠 Strong foundation in Data Structures and Algorithms.\n🛠 Constantly exploring edge technologies and open-source ecosystems.`;
+                } else {
+                    body = `\n\nMy Philosophy:\n💡 I believe in building technology that solves real-world human problems.\n🤝 Strong collaborator bridging the gap between engineering and user experience.\n📈 Always looking for the "why" behind the code.`;
+                }
+
+                let cta = `\n\nI am currently looking for summer internship opportunities where I can contribute to impactful projects. Let's connect!`;
+                
+                about = intro + body + cta;
+
+                document.getElementById("li-headline-body").textContent = headline;
+                document.getElementById("li-about-body").textContent = about;
+                document.getElementById("li-output-container").style.display = "block";
+                
+                generateLiBtn.innerHTML = btnOriginal;
+                generateLiBtn.disabled = false;
+            }, 800);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Endorsement Scripting (LoR Builder)
+    // ----------------------------------------------------
+    const generateLorBtn = document.getElementById("generate-lor-btn");
+    if (generateLorBtn) {
+        generateLorBtn.addEventListener("click", () => {
+            const relationship = document.getElementById("lor-relationship").value;
+            const platform = document.getElementById("lor-platform").value;
+            const achievements = document.getElementById("lor-achievements").value.trim();
+
+            const btnOriginal = generateLorBtn.innerHTML;
+            generateLorBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Drafting...';
+            generateLorBtn.disabled = true;
+
+            setTimeout(() => {
+                let intro = "";
+                let snippet = "";
+                
+                if (relationship === "Professor") {
+                    intro = `Dear Professor [Name],\n\nI hope this email finds you well. I greatly enjoyed taking your [Course Name] class this past semester and learned a tremendous amount.`;
+                    snippet = `I am writing to highly recommend [Your Name]. In my [Course] class, they demonstrated exceptional analytical skills, specifically when they ${achievements || 'excelled in the final project'}. They are a dedicated and sharp student.`;
+                } else if (relationship === "Manager") {
+                    intro = `Hi [Name],\n\nI hope you're having a great week! I really valued my time working under your guidance at [Company] and learned so much from your mentorship.`;
+                    snippet = `It is my pleasure to recommend [Your Name]. During their time at [Company], they were an invaluable asset to the team, notably when they ${achievements || 'shipped critical features on time'}. They are highly proactive and a fast learner.`;
+                } else {
+                    intro = `Hi [Name],\n\nHope you're doing well! It was fantastic collaborating with you on [Project/Hackathon].`;
+                    snippet = `I highly recommend working with [Your Name]. We collaborated closely, and their technical execution was top-notch, especially when we ${achievements || 'built our core MVP'}. Great team player!`;
+                }
+
+                let ask = `\n\nI am currently applying for a ${platform} and was wondering if you would be open to writing a brief endorsement for me? I know you are incredibly busy, so to save you time, I’ve drafted a short snippet below that you are welcome to use, edit, or ignore entirely:`;
+                
+                let draftedSnippet = `\n\n---\n"To whom it may concern,\n\n${snippet}"\n---`;
+                
+                let signoff = `\n\nThank you so much for your time and support.\n\nBest regards,\n[Your Name]`;
+
+                const fullScript = intro + ask + draftedSnippet + signoff;
+
+                document.getElementById("lor-output-body").textContent = fullScript;
+                document.getElementById("lor-output-container").style.display = "block";
+                
+                generateLorBtn.innerHTML = btnOriginal;
+                generateLorBtn.disabled = false;
+            }, 700);
+        });
+    }
+
+    // ----------------------------------------------------
+    // Tab: Referral Request Generator
+    // ----------------------------------------------------
+    const generateRefBtn = document.getElementById("generate-ref-btn");
+    if (generateRefBtn) {
+        generateRefBtn.addEventListener("click", () => {
+            const role = document.getElementById("ref-role").value.trim() || "[Target Role]";
+            const connection = document.getElementById("ref-connection").value;
+            const goal = document.getElementById("ref-goal").value.trim() || "[Job ID]";
+            const context = document.getElementById("ref-context").value.trim();
+
+            const btnOriginal = generateRefBtn.innerHTML;
+            generateRefBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+            generateRefBtn.disabled = true;
+
+            setTimeout(() => {
+                let sentence1 = "";
+                if (connection === "Company Alum") {
+                    sentence1 = `Hi [Name], I'm a fellow [College] student and have been closely following your great work at [Company].`;
+                } else if (connection === "Former Intern") {
+                    sentence1 = `Hi [Name], it was great connecting during my previous stint, and I've been keeping up with the amazing things the team is building.`;
+                } else {
+                    sentence1 = `Hi [Name], I've been following your engineering contributions at [Company] and really admire your team's approach.`;
+                }
+
+                let sentence2 = `I'm reaching out because I would love to bring my experience to the ${role} role (${goal}), specifically utilizing my background in ${context || '[insert your top skill]'}.`;
+                
+                let sentence3 = `If you have 2 minutes, I'd be incredibly grateful if you'd review my <a href="#" style="color: var(--neon-blue);">[Portfolio Sandbox Link]</a> and consider submitting a brief referral for my application.`;
+                
+                const fullScript = `<p>${sentence1}</p><p>${sentence2}</p><p>${sentence3}<br><br>Best,<br>[Your Name]</p>`;
+
+                document.getElementById("ref-output-body").innerHTML = fullScript;
+                document.getElementById("ref-output-container").style.display = "block";
+                
+                generateRefBtn.innerHTML = btnOriginal;
+                generateRefBtn.disabled = false;
+            }, 600);
+        });
+    }
 });

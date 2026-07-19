@@ -95,6 +95,13 @@
                     <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                         <a href="#" class="nav-item" data-tab="guide"><i class="fa-solid fa-graduation-cap"></i> Guide & PYQs</a>
                         <a href="#" class="nav-item" data-tab="cheatsheet"><i class="fa-solid fa-bolt text-neon-yellow"></i> 1-Page Cheats</a>
+                        <a href="#" class="nav-item" data-tab="script-doctor"><i class="fa-solid fa-stethoscope text-neon-orange"></i> Script Doctor</a>
+                        <a href="#" class="nav-item" data-tab="negotiation"><i class="fa-solid fa-handshake-angle text-neon-pink"></i> Negotiation Arena</a>
+                        <a href="#" class="nav-item" data-tab="cold-mail"><i class="fa-solid fa-paper-plane text-neon-blue"></i> Cold Mail Gen</a>
+                        <a href="#" class="nav-item" data-tab="email-doctor"><i class="fa-solid fa-envelope-open-text text-neon-yellow"></i> Email Doctor</a>
+                        <a href="#" class="nav-item" data-tab="linkedin-studio"><i class="fa-brands fa-linkedin text-neon-blue"></i> LinkedIn Studio</a>
+                        <a href="#" class="nav-item" data-tab="lor-builder"><i class="fa-solid fa-file-signature text-neon-purple"></i> LoR Builder</a>
+                        <a href="#" class="nav-item" data-tab="referral-gen"><i class="fa-solid fa-handshake text-neon-orange"></i> Referral Gen</a>
                         <a href="#" class="nav-item" data-tab="roadmap"><i class="fa-solid fa-route"></i> Domain Roadmaps</a>
                         <a href="#" class="nav-item" data-tab="books"><i class="fa-solid fa-book"></i> Reference Books</a>
                         <a href="#" class="nav-item" data-tab="relocation"><i class="fa-solid fa-map-location-dot"></i> Relocation Hub</a>
@@ -110,6 +117,8 @@
                         <a href="#" class="nav-item" data-tab="jobs"><i class="fa-solid fa-bullhorn"></i> Domestic Jobs</a>
                         <a href="#" class="nav-item" data-tab="abroad"><i class="fa-solid fa-globe"></i> Abroad Jobs</a>
                         <a href="#" class="nav-item" data-tab="exams"><i class="fa-solid fa-clipboard-list"></i> Gov Exams</a>
+                        <a href="#" class="nav-item" data-tab="skill-radar"><i class="fa-solid fa-satellite-dish text-neon-cyan"></i> Skill Gap Radar</a>
+                        <a href="#" class="nav-item" data-tab="ghost-detector"><i class="fa-solid fa-ghost text-neon-purple"></i> Ghost Detector</a>
                         <a href="#" class="nav-item" data-tab="mmmut"><i class="fa-solid fa-chart-column"></i> MMMUT Placement</a>
                     </div>
                 </div>
@@ -447,8 +456,10 @@
                         </div>
 
                         <div class="interview-input-bar hide" id="interview-input-container">
-                            <input type="text" id="interview-response-input" placeholder="Type your answer here...">
-                            <button id="submit-response-btn" class="send-btn"><i class="fa-solid fa-check"></i> Submit Answer</button>
+                            <button id="mic-record-btn" class="send-btn" style="background: var(--bg-card); color: var(--text-muted);"><i class="fa-solid fa-microphone"></i></button>
+                            <canvas id="vocal-visualizer" width="100" height="30" style="display: none; background: rgba(0,0,0,0.2); border-radius: 4px; margin-right: 0.5rem;"></canvas>
+                            <input type="text" id="interview-response-input" placeholder="Type or speak your answer here...">
+                            <button id="submit-response-btn" class="send-btn"><i class="fa-solid fa-check"></i> Submit</button>
                         </div>
 
                         <!-- Feedback Scorecard -->
@@ -473,6 +484,12 @@
                                 </div>
                             </div>
                             <div class="feedback-remarks" id="interview-remarks"></div>
+                            
+                            <div class="vocal-heatmap-container mt-2" style="background: var(--bg-card-hover); padding: 1rem; border-radius: 8px;">
+                                <h5><i class="fa-solid fa-fire text-neon-orange"></i> Vocal Stress & Hesitation Heatmap</h5>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Map of speaking latency, WPM, filler words, and vocal pitch stress across interview topics.</p>
+                                <canvas id="vocal-heatmap-canvas" style="width: 100%; height: 200px;"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1025,6 +1042,410 @@
                 </div>
             </div>
 
+            <!-- Tab Content: Script Doctor -->
+            <div class="tab-content" id="tab-script-doctor">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-stethoscope text-neon-orange"></i> Script Doctor (60-Second Elevator Pitch)</h3>
+                    
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Generate a perfectly timed, 130-word conversational pitch designed to be spoken aloud in exactly 60 seconds.</p>
+
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="script-role">Target Role</label>
+                            <select id="script-role">
+                                <option value="Backend Developer">Backend Developer</option>
+                                <option value="Frontend Developer">Frontend Developer</option>
+                                <option value="Data Scientist">Data Scientist</option>
+                                <option value="Product Manager">Product Manager</option>
+                                <option value="DevOps Engineer">DevOps Engineer</option>
+                                <option value="Business Analyst">Business Analyst</option>
+                            </select>
+
+                            <label for="script-superpower">Primary Superpower</label>
+                            <select id="script-superpower">
+                                <option value="High-performance coding">High-performance coding & System Design</option>
+                                <option value="Data-driven decision making">Data-driven decision making</option>
+                                <option value="User-centric UI/UX">User-centric UI/UX</option>
+                                <option value="Cross-functional Leadership">Cross-functional Leadership</option>
+                                <option value="Cloud Infrastructure Automation">Cloud Infrastructure Automation</option>
+                                <option value="Agile execution">Agile execution & Delivery</option>
+                            </select>
+
+                            <label for="script-vibe">Pitch Vibe</label>
+                            <select id="script-vibe">
+                                <option value="Corporate Professional">Corporate Professional</option>
+                                <option value="Fast-paced Startup">Fast-paced Startup</option>
+                                <option value="Academic/Research focused">Academic/Research focused</option>
+                                <option value="Creative & Visionary">Creative & Visionary</option>
+                            </select>
+                            
+                            <button id="generate-script-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate 60-Second Script</button>
+                        </div>
+                        
+                        <div id="script-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <div style="background: rgba(255, 77, 77, 0.1); border-left: 4px solid var(--accent-red); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                                <h5 style="color: var(--accent-red); margin-bottom: 0.5rem; font-size: 0.95rem;"><i class="fa-solid fa-triangle-exclamation"></i> Disclaimer</h5>
+                                <p style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin: 0;">This is a foundation script. Please manually adjust and weave in specific metrics, numbers, and project names from your AI Portfolio Builder for maximum impact during the career fair.</p>
+                            </div>
+                            
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-cyan); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-scroll"></i> Your Timed Script (~130 words)
+                            </h4>
+                            <div id="script-output-body" style="font-size: 1rem; line-height: 1.8; color: var(--text-primary); font-family: 'Georgia', serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                                <!-- Script loaded here -->
+                            </div>
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('script-output-body').innerText)"><i class="fa-solid fa-copy"></i> Copy Script</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Negotiation Arena -->
+            <div class="tab-content" id="tab-negotiation">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-handshake-angle text-neon-pink"></i> Negotiation Arena (HR Counter-Offer)</h3>
+                    
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Confidently negotiate your offer. Type your exact situation and we'll generate word-for-word email and phone scripts tailored to your leverage.</p>
+
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="nego-situation">Your Exact Situation / Goal</label>
+                            <textarea id="nego-situation" rows="3" placeholder="e.g. I have a higher competing offer from Wipro, but I want to join your startup if you match the base pay..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; resize: vertical; margin-bottom: 1rem; font-family: inherit;"></textarea>
+
+                            <label for="nego-leverage">Primary Leverage Point</label>
+                            <select id="nego-leverage">
+                                <option value="Competing Offer">I have a competing offer</option>
+                                <option value="Top Scores">Top 10% Interview / Assessment Scores</option>
+                                <option value="Relocation">High relocation costs / Need bonus</option>
+                                <option value="Niche Skills">I possess highly niche / specialized skills</option>
+                                <option value="Market Rate">Current offer is below standard market rate</option>
+                            </select>
+
+                            <button id="generate-nego-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Negotiation Scripts</button>
+                        </div>
+                        
+                        <div id="nego-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <div style="background: rgba(100, 255, 218, 0.1); border-left: 4px solid var(--neon-cyan); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem; font-size: 0.95rem;"><i class="fa-solid fa-lightbulb"></i> Strategic Approach: <span id="nego-strategy-title"></span></h5>
+                                <p id="nego-strategy-desc" style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin: 0;"></p>
+                            </div>
+                            
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-pink); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-envelope"></i> Script Option A: Email Template
+                            </h4>
+                            <div id="nego-email-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 2rem;">
+                            </div>
+                            <div style="text-align: right; margin-top: -1.5rem; margin-bottom: 2rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('nego-email-body').innerText)"><i class="fa-solid fa-copy"></i> Copy Email</button>
+                            </div>
+
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-yellow); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-phone"></i> Script Option B: Phone Call Track
+                            </h4>
+                            <div id="nego-phone-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                            </div>
+                            <div style="text-align: right; margin-top: 0.5rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('nego-phone-body').innerText)"><i class="fa-solid fa-copy"></i> Copy Script</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Cold Mail Generator -->
+            <div class="tab-content" id="tab-cold-mail">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-paper-plane text-neon-blue"></i> Cold Mail Generator (1-Click Outreach)</h3>
+                    
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Generate punchy, 75-word messages optimized for smartphone screens to ask for referrals or coffee chats.</p>
+
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="cold-recipient">Who You're Writing To</label>
+                            <select id="cold-recipient">
+                                <option value="Company Alum">Company Alum</option>
+                                <option value="Engineering Manager">Engineering Manager</option>
+                                <option value="Recruiter">Recruiter</option>
+                                <option value="Senior Software Engineer">Senior Software Engineer</option>
+                                <option value="Product Manager">Product Manager</option>
+                            </select>
+
+                            <label for="cold-connection">Your Connection</label>
+                            <select id="cold-connection">
+                                <option value="Same College">Same College / Alma Mater</option>
+                                <option value="Met at Hackathon">Met at Hackathon / Event</option>
+                                <option value="Mutual Connection">Mutual Connection</option>
+                                <option value="No Connection">No Connection (Completely Cold)</option>
+                            </select>
+
+                            <label for="cold-ask">The Ask / Goal</label>
+                            <select id="cold-ask">
+                                <option value="15-min Coffee Chat">15-min Coffee Chat / Quick advice</option>
+                                <option value="Referral for Specific Job">Referral for a specific Job ID</option>
+                                <option value="Resume Review">Quick Resume Review (1-2 pointers)</option>
+                                <option value="Insights on Team">Insights on their team culture</option>
+                            </select>
+
+                            <label for="cold-custom">Custom Context (Optional)</label>
+                            <input type="text" id="cold-custom" placeholder="e.g. Applying to Job ID #40924 or Interested in your recent post..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <button id="generate-cold-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Outreach Message</button>
+                        </div>
+                        
+                        <div id="cold-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <div style="background: rgba(255, 215, 0, 0.1); border-left: 4px solid var(--neon-yellow); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                                <h5 style="color: var(--neon-yellow); margin-bottom: 0.5rem; font-size: 0.95rem;"><i class="fa-solid fa-triangle-exclamation"></i> Action Required</h5>
+                                <p style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin: 0;">Be sure to replace the bracketed placeholder text with a specific, high-impact metric from your AI Portfolio Builder.</p>
+                            </div>
+                            
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-blue); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-mobile-screen"></i> Your Optimized Message (~75 words)
+                            </h4>
+                            <div id="cold-output-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 3px solid var(--neon-blue);">
+                            </div>
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('cold-output-body').innerText)"><i class="fa-solid fa-copy"></i> Copy Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Email Etiquette Doctor -->
+            <div class="tab-content" id="tab-email-doctor">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-envelope-open-text text-neon-yellow"></i> Email Etiquette Doctor</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Paste your rough draft email and we'll polish it to the perfect professional tone.</p>
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="email-draft">Your Rough Draft</label>
+                            <textarea id="email-draft" rows="4" placeholder="e.g. Hey, I can't make the interview today can we do tomorrow ASAP..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; resize: vertical; margin-bottom: 1rem; font-family: inherit;"></textarea>
+                            
+                            <label for="email-tone">Desired Tone</label>
+                            <select id="email-tone">
+                                <option value="Polite & Professional">Polite & Professional</option>
+                                <option value="Confident & Assertive">Confident & Assertive</option>
+                                <option value="Gratitude & Acceptance">Gratitude & Acceptance</option>
+                                <option value="Apologetic & Rescheduling">Apologetic & Rescheduling</option>
+                            </select>
+
+                            <button id="generate-email-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Polish Email</button>
+                        </div>
+                        
+                        <div id="email-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <div style="background: rgba(100, 255, 218, 0.1); border-left: 4px solid var(--neon-cyan); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                                <h5 style="color: var(--neon-cyan); margin-bottom: 0.5rem; font-size: 0.95rem;"><i class="fa-solid fa-stethoscope"></i> Doctor's Notes</h5>
+                                <p id="email-explanation" style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.5;"></p>
+                            </div>
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-yellow); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-envelope-open"></i> Polished Draft</h4>
+                            <div id="email-output-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px; white-space: pre-wrap;"></div>
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('email-output-body').innerText)"><i class="fa-solid fa-copy"></i> Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Skill Gap Radar -->
+            <div class="tab-content" id="tab-skill-radar">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-satellite-dish text-neon-cyan"></i> Skill Gap Radar (ROI Matcher)</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Compare your current tech stack against your target role to find the highest-ROI skill you are missing.</p>
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="radar-role">Target Role</label>
+                            <select id="radar-role">
+                                <option value="Frontend Engineer">Frontend Engineer</option>
+                                <option value="Backend Engineer">Backend Engineer</option>
+                                <option value="Full Stack Engineer">Full Stack Engineer</option>
+                                <option value="Data Scientist">Data Scientist</option>
+                                <option value="DevOps Engineer">DevOps Engineer</option>
+                            </select>
+                            
+                            <label for="radar-skills">Your Current Mastered Skills (Comma separated)</label>
+                            <input type="text" id="radar-skills" placeholder="e.g. HTML, CSS, JavaScript, React, Python..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <button id="generate-radar-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-radar"></i> Run Radar Scan</button>
+                        </div>
+                        
+                        <div id="radar-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5); text-align: center;">
+                            <div style="width: 150px; height: 150px; border-radius: 50%; border: 8px solid var(--neon-cyan); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; box-shadow: 0 0 20px rgba(100,255,218,0.2);">
+                                <h2 id="radar-score" style="font-size: 2.5rem; color: var(--neon-cyan); margin: 0;">0%</h2>
+                            </div>
+                            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Match Rate</h4>
+                            
+                            <div style="background: rgba(255, 105, 180, 0.1); border-left: 4px solid var(--neon-pink); padding: 1rem; margin-top: 2rem; border-radius: 4px; text-align: left;">
+                                <h5 style="color: var(--neon-pink); margin-bottom: 0.5rem; font-size: 0.95rem;"><i class="fa-solid fa-link-slash"></i> The Missing Link</h5>
+                                <p id="radar-insight" style="font-size: 0.9rem; color: rgba(255,255,255,0.9); margin: 0; line-height: 1.5;"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Ghost Detector -->
+            <div class="tab-content" id="tab-ghost-detector">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-ghost text-neon-purple"></i> Ghost Detector</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Diagnose your wait time and generate a polite follow-up script if your application is stalled.</p>
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="ghost-size">Company Size / Tier</label>
+                            <select id="ghost-size">
+                                <option value="Early Startup">Early Startup (1-50 employees)</option>
+                                <option value="Mid-size Growth">Mid-size Growth (50-500 employees)</option>
+                                <option value="Large MNC">Large MNC / FAANG (500+ employees)</option>
+                            </select>
+                            
+                            <label for="ghost-days">Days Since Last Contact</label>
+                            <input type="number" id="ghost-days" min="1" max="100" value="7" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <label for="ghost-context">Custom Situation (Optional)</label>
+                            <input type="text" id="ghost-context" placeholder="e.g. Completed final HR round, waiting on offer..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <button id="generate-ghost-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-magnifying-glass-chart"></i> Diagnose Application</button>
+                        </div>
+                        
+                        <div id="ghost-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <div id="ghost-status-box" style="padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                                <h5 id="ghost-status-title" style="margin-bottom: 0.5rem; font-size: 1.1rem;"></h5>
+                                <p id="ghost-status-desc" style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.5;"></p>
+                            </div>
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-purple); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-comment-dots"></i> Polite Status Inquiry Script</h4>
+                            <div id="ghost-script-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px; white-space: pre-wrap;"></div>
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('ghost-script-body').innerText)"><i class="fa-solid fa-copy"></i> Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: LinkedIn Studio -->
+            <div class="tab-content" id="tab-linkedin-studio">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-brands fa-linkedin text-neon-blue"></i> LinkedIn Studio (1-Click Makeover)</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Generate a recruiter-optimized, keyword-rich headline and an engaging "About" section to drive inbound messages.</p>
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="li-domain">Target Domain</label>
+                            <select id="li-domain">
+                                <option value="Software Engineering">Software Engineering</option>
+                                <option value="Backend Engineering">Backend Engineering</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="Product Management">Product Management</option>
+                                <option value="UI/UX Design">UI/UX Design</option>
+                            </select>
+                            
+                            <label for="li-skills">Core Skills (2-3 max)</label>
+                            <input type="text" id="li-skills" placeholder="e.g. Node.js & Docker, Python & Machine Learning" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+                            
+                            <label for="li-tone">Tone</label>
+                            <select id="li-tone">
+                                <option value="Action-Oriented">Action-Oriented (Best for Builders)</option>
+                                <option value="Tech-Forward">Tech-Forward (Best for Deep Tech)</option>
+                                <option value="Thought Leader">Thought Leader (Best for PMs/Designers)</option>
+                            </select>
+
+                            <label for="li-context">Custom Context (Optional)</label>
+                            <input type="text" id="li-context" placeholder="e.g. Interned at Amazon, love open-source..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <button id="generate-li-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Profile</button>
+                        </div>
+                        
+                        <div id="li-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--neon-cyan);"><i class="fa-solid fa-heading"></i> Optimized Headline</h4>
+                            <div id="li-headline-body" style="font-size: 1.1rem; font-weight: 600; line-height: 1.4; color: var(--text-primary); padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 1.5rem;"></div>
+                            
+                            <h4 style="margin-bottom: 0.5rem; color: var(--neon-blue);"><i class="fa-solid fa-address-card"></i> Engaging 'About' Section</h4>
+                            <div id="li-about-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px; white-space: pre-wrap;"></div>
+                            
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('li-about-body').innerText)"><i class="fa-solid fa-copy"></i> Copy About</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Endorsement Scripting -->
+            <div class="tab-content" id="tab-lor-builder">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-file-signature text-neon-purple"></i> Endorsement Scripting (LoR Builder)</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Draft a low-friction request for a Letter of Recommendation or LinkedIn Endorsement, including a pre-written "Draft Snippet".</p>
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="lor-relationship">Relationship</label>
+                            <select id="lor-relationship">
+                                <option value="Professor">College Professor</option>
+                                <option value="Manager">Internship Manager</option>
+                                <option value="Teammate">Hackathon/Project Teammate</option>
+                            </select>
+                            
+                            <label for="lor-platform">Target Platform</label>
+                            <select id="lor-platform">
+                                <option value="LinkedIn Endorsement">LinkedIn Recommendation</option>
+                                <option value="Grad School LoR">Grad School LoR</option>
+                                <option value="Company Referral">General Company Referral</option>
+                            </select>
+                            
+                            <label for="lor-achievements">Shared Project / Achievements</label>
+                            <input type="text" id="lor-achievements" placeholder="e.g. Topping the OS class, building the ML attendance system..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <button id="generate-lor-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-pen-nib"></i> Draft Request</button>
+                        </div>
+                        
+                        <div id="lor-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-purple); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-envelope-open-text"></i> Outreach Email with Draft Snippet</h4>
+                            <div id="lor-output-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px; white-space: pre-wrap;"></div>
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('lor-output-body').innerText)"><i class="fa-solid fa-copy"></i> Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Referral Request Generator -->
+            <div class="tab-content" id="tab-referral-gen">
+                <div class="glass-card panel-card">
+                    <h3 class="panel-title"><i class="fa-solid fa-handshake text-neon-orange"></i> Referral Request Generator</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Generate a brief, punchy, 3-sentence message to request a job referral on LinkedIn without sounding transactional.</p>
+                        <div class="interview-setup" style="margin-bottom: 2rem;">
+                            <label for="ref-role">Target Role</label>
+                            <input type="text" id="ref-role" placeholder="e.g. Junior Backend Engineer" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+                            
+                            <label for="ref-connection">Connection Level</label>
+                            <select id="ref-connection">
+                                <option value="Company Alum">College Alum at Company</option>
+                                <option value="Former Intern">Former Intern / Colleague</option>
+                                <option value="No Connection">No Connection (Cold Outreach)</option>
+                            </select>
+                            
+                            <label for="ref-goal">Referral Goal (e.g., Job ID)</label>
+                            <input type="text" id="ref-goal" placeholder="e.g. Job ID #12345" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <label for="ref-context">Custom Value Metric (Optional)</label>
+                            <input type="text" id="ref-context" placeholder="e.g. I scaled a similar microservice in my last internship..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
+
+                            <button id="generate-ref-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-comment-medical"></i> Generate Script</button>
+                        </div>
+                        
+                        <div id="ref-output-container" class="glass-card" style="display: none; padding: 1.5rem; border: 1px solid var(--border-color); background: rgba(2,2,3,0.5);">
+                            <h4 style="margin-bottom: 1rem; color: var(--neon-orange); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-comment-dots"></i> Referral Request Script</h4>
+                            <div id="ref-output-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 8px; white-space: pre-wrap;"></div>
+                            <div style="text-align: right; margin-top: 1rem;">
+                                <button class="send-btn" onclick="navigator.clipboard.writeText(document.getElementById('ref-output-body').innerText)"><i class="fa-solid fa-copy"></i> Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tab Content: User Guide -->
             <div class="tab-content" id="tab-docs">
                 <div class="glass-card panel-card">
@@ -1116,6 +1537,46 @@
                             <div class="docs-card">
                                 <h5>20. PrepOS AI User Guide</h5>
                                 <p>Detailed reference manual explaining how all modules in the career intelligence system operate.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>21. Vocal Stress & Hesitation Heatmap</h5>
+                                <p>Analyzes your speech speed and filler words during the Mock Simulator to map where your communication breaks down technically.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>22. Script Doctor (60-Sec Elevator Pitch)</h5>
+                                <p>Generates a perfectly timed, 130-word conversational pitch based on your profile to answer "Tell me about yourself".</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>23. Negotiation Arena (HR Scripting)</h5>
+                                <p>Drafts highly personalized counter-offer emails to negotiate base pay, sign-on bonuses, or relocation without sounding greedy.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>24. Cold Mail Generator (1-Click Outreach)</h5>
+                                <p>Automatically writes punchy, 75-word outreach emails to alumni or recruiters optimized for smartphone screens.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>25. Email Etiquette Doctor (Tone Polisher)</h5>
+                                <p>Analyzes your rough draft emails and instantly polishes them into Polite, Confident, or Apologetic professional tones.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>26. Skill Gap Radar (ROI Matcher)</h5>
+                                <p>Maps your current tech stack against industry requirements for a target role, identifying the highest-ROI skill you are missing.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>27. Ghost Detector (Application Analyzer)</h5>
+                                <p>Compares your post-interview wait time against company tier medians to determine if you are stalled and drafts polite follow-ups.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>28. LinkedIn Studio (1-Click Makeover)</h5>
+                                <p>Generates recruiter-optimized, keyword-rich headlines and an engaging "About" section based on your Domain and Core Skills.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>29. Endorsement Scripting (LoR Builder)</h5>
+                                <p>Drafts low-friction request emails for Letters of Recommendation or LinkedIn Endorsements, complete with a pre-written Draft Snippet.</p>
+                            </div>
+                            <div class="docs-card">
+                                <h5>30. Referral Request Generator</h5>
+                                <p>Drafts brief, 3-sentence messages targeting job IDs, providing a placeholder to link your Portfolio Sandbox directly to connections.</p>
                             </div>
                         </div>
 
@@ -2427,6 +2888,7 @@
         </main>
     </div>
 
+    <script src="/static/vocal-analysis.js"></script>
     <script src="/static/app.js"></script>
 </body>
 </html>
