@@ -3331,35 +3331,35 @@ Best regards,<br>
             generateLorBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Drafting...';
             generateLorBtn.disabled = true;
 
-            setTimeout(() => {
-                let intro = "";
-                let snippet = "";
-                
-                if (relationship === "Professor") {
-                    intro = `Dear Professor [Name],\n\nI hope this email finds you well. I greatly enjoyed taking your [Course Name] class this past semester and learned a tremendous amount.`;
-                    snippet = `I am writing to highly recommend [Your Name]. In my [Course] class, they demonstrated exceptional analytical skills, specifically when they ${achievements || 'excelled in the final project'}. They are a dedicated and sharp student.`;
-                } else if (relationship === "Manager") {
-                    intro = `Hi [Name],\n\nI hope you're having a great week! I really valued my time working under your guidance at [Company] and learned so much from your mentorship.`;
-                    snippet = `It is my pleasure to recommend [Your Name]. During their time at [Company], they were an invaluable asset to the team, notably when they ${achievements || 'shipped critical features on time'}. They are highly proactive and a fast learner.`;
-                } else {
-                    intro = `Hi [Name],\n\nHope you're doing well! It was fantastic collaborating with you on [Project/Hackathon].`;
-                    snippet = `I highly recommend working with [Your Name]. We collaborated closely, and their technical execution was top-notch, especially when we ${achievements || 'built our core MVP'}. Great team player!`;
-                }
-
-                let ask = `\n\nI am currently applying for a ${platform} and was wondering if you would be open to writing a brief endorsement for me? I know you are incredibly busy, so to save you time, I’ve drafted a short snippet below that you are welcome to use, edit, or ignore entirely:`;
-                
-                let draftedSnippet = `\n\n---\n"To whom it may concern,\n\n${snippet}"\n---`;
-                
-                let signoff = `\n\nThank you so much for your time and support.\n\nBest regards,\n[Your Name]`;
-
-                const fullScript = intro + ask + draftedSnippet + signoff;
-
-                document.getElementById("lor-output-body").textContent = fullScript;
-                document.getElementById("lor-output-container").style.display = "block";
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "lor",
+                    relationship: relationship,
+                    platform: platform,
+                    achievements: achievements
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateLorBtn.innerHTML = btnOriginal;
                 generateLorBtn.disabled = false;
-            }, 700);
+                
+                if (data.error) {
+                    document.getElementById("lor-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                } else {
+                    document.getElementById("lor-output-body").innerHTML = data.result;
+                }
+                document.getElementById("lor-output-container").style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateLorBtn.innerHTML = btnOriginal;
+                generateLorBtn.disabled = false;
+                document.getElementById("lor-output-body").innerHTML = `<span style="color:var(--neon-pink)">An error occurred. Please try again later.</span>`;
+                document.getElementById("lor-output-container").style.display = "block";
+            });
         });
     }
 
@@ -3378,28 +3378,35 @@ Best regards,<br>
             generateRefBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
             generateRefBtn.disabled = true;
 
-            setTimeout(() => {
-                let sentence1 = "";
-                if (connection === "Company Alum") {
-                    sentence1 = `Hi [Name], I'm a fellow [College] student and have been closely following your great work at [Company].`;
-                } else if (connection === "Former Intern") {
-                    sentence1 = `Hi [Name], it was great connecting during my previous stint, and I've been keeping up with the amazing things the team is building.`;
-                } else {
-                    sentence1 = `Hi [Name], I've been following your engineering contributions at [Company] and really admire your team's approach.`;
-                }
-
-                let sentence2 = `I'm reaching out because I would love to bring my experience to the ${role} role (${goal}), specifically utilizing my background in ${context || '[insert your top skill]'}.`;
-                
-                let sentence3 = `If you have 2 minutes, I'd be incredibly grateful if you'd review my <a href="#" style="color: var(--neon-blue);">[Portfolio Sandbox Link]</a> and consider submitting a brief referral for my application.`;
-                
-                const fullScript = `<p>${sentence1}</p><p>${sentence2}</p><p>${sentence3}<br><br>Best,<br>[Your Name]</p>`;
-
-                document.getElementById("ref-output-body").innerHTML = fullScript;
-                document.getElementById("ref-output-container").style.display = "block";
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "referral",
+                    job_id: role + " - " + goal,
+                    connection: connection,
+                    context: context
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateRefBtn.innerHTML = btnOriginal;
                 generateRefBtn.disabled = false;
-            }, 600);
+                
+                if (data.error) {
+                    document.getElementById("ref-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                } else {
+                    document.getElementById("ref-output-body").innerHTML = data.result;
+                }
+                document.getElementById("ref-output-container").style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateRefBtn.innerHTML = btnOriginal;
+                generateRefBtn.disabled = false;
+                document.getElementById("ref-output-body").innerHTML = `<span style="color:var(--neon-pink)">An error occurred. Please try again later.</span>`;
+                document.getElementById("ref-output-container").style.display = "block";
+            });
         });
     }
 });

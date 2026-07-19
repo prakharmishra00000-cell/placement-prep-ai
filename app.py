@@ -3916,6 +3916,76 @@ def get_placeiq_pdf():
     
     return send_from_directory(sheets_dir, filename, as_attachment=True)
 
+
+@app.route("/api/networking/generate", methods=["POST"])
+def generate_networking_message():
+    data = request.get_json() or {}
+    tool_type = data.get("type", "")
+    
+    api_key = get_backend_gemini_key()
+    if not api_key:
+        return jsonify({"error": "Gemini API key is not configured."}), 500
+        
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        prompt = ""
+        
+        if tool_type == "lor":
+            relationship = data.get("relationship", "").strip()
+            platform = data.get("platform", "").strip()
+            achievements = data.get("achievements", "").strip()
+            
+            prompt = f"""You are an expert career strategist and professional copywriter.
+The user needs a highly professional, detailed, and natural Letter of Recommendation (LoR) endorsement script.
+They are asking a connection for an endorsement on the following platform: {platform}.
+Their relationship to the recommender is: {relationship}.
+Their key achievements/highlights are: {achievements}.
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the exact relationship provided (e.g., if they typed "former manager at Google" vs "college professor in Data Structures", tailor the tone, respect level, and focus accordingly).
+2. Ensure the response is highly detailed, extremely professional, and reads like a natural human request. 
+3. Avoid generic templates. Make it specific to the context provided.
+4. Structure the response clearly. You can provide a Subject Line (if applicable for email) and the Message Body.
+
+Output ONLY the final message they should copy-paste. No extra conversational text from you. Format it nicely."""
+
+        elif tool_type == "referral":
+            job_id = data.get("job_id", "").strip()
+            connection = data.get("connection", "").strip()
+            context = data.get("context", "").strip()
+            
+            prompt = f"""You are an expert career strategist and professional copywriter.
+The user needs a highly professional, detailed, and natural Referral Request message to send to a connection.
+The target Job ID / Role is: {job_id}.
+Their relationship/connection to the referrer is: {connection}.
+Additional context provided: {context}.
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the connection type (e.g., "Alumni from same college", "Met at a tech conference", "Cold connection on LinkedIn"). The tone must perfectly match this relationship level (warm for alumni, respectful and concise for cold).
+2. The message should be highly professional, persuasive, and detailed, but still natural and human.
+3. Include placeholders like [Your Name] or [Link to Portfolio] where appropriate.
+4. Ensure it highlights why the user is a strong fit implicitly, based on the context.
+
+Output ONLY the final message they should copy-paste. No extra conversational text from you. Format it nicely."""
+        else:
+            return jsonify({"error": "Invalid tool type."}), 400
+
+        response = model.generate_content(prompt)
+        text = response.text if response.text else "Sorry, I couldn't generate a response."
+        
+        import markdown
+        html_response = markdown.markdown(text)
+        
+        return jsonify({"result": html_response})
+
+    except Exception as e:
+        print(f"Error in generate_networking_message: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 9876))
     app.run(host="0.0.0.0", port=port)
