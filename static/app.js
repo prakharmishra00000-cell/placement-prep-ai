@@ -2900,39 +2900,35 @@ class Solution {
             generateScriptBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
             generateScriptBtn.disabled = true;
 
-            setTimeout(() => {
-                let intro = "";
-                let body = "";
-                let conclusion = "";
-
-                if (vibe === "Corporate Professional") {
-                    intro = `Hello, I'm Prakhar Mishra, and I specialize in driving technical excellence as a ${role}. <strong>[pause]</strong><br><br>`;
-                    body = `Throughout my engineering journey, I've consistently demonstrated a strong capacity for ${superpower}. My core focus has been aligning robust technical architectures with overarching business goals, ensuring scalable and maintainable solutions. <strong>[pause]</strong><br><br>`;
-                    conclusion = `I'm eager to bring my strategic mindset and disciplined execution to your team, aiming to create impactful solutions that align with your corporate objectives.`;
-                } else if (vibe === "Fast-paced Startup") {
-                    intro = `Hey! I'm Prakhar, an agile and outcome-driven ${role} who thrives in high-velocity environments. <strong>[pause]</strong><br><br>`;
-                    body = `I'm deeply passionate about building things from 0 to 1, and my true superpower lies in ${superpower}. I love tackling ambiguous problems and rapidly iterating to ship products that users genuinely love. <strong>[pause]</strong><br><br>`;
-                    conclusion = `I'm looking for a dynamic team where I can wear multiple hats, move fast, and make a measurable impact from day one.`;
-                } else if (vibe === "Academic/Research focused") {
-                    intro = `Greetings. My name is Prakhar Mishra. I am a deeply analytical ${role} with a strong foundation in first-principles thinking. <strong>[pause]</strong><br><br>`;
-                    body = `My academic background has instilled in me a rigorous approach to problem-solving, particularly when it comes to ${superpower}. I enjoy diving deep into complex algorithmic challenges and optimizing systems at a foundational level. <strong>[pause]</strong><br><br>`;
-                    conclusion = `I am eager to contribute my research-oriented methodology and technical depth to innovative projects within your organization.`;
-                } else {
-                    intro = `Hi there! I'm Prakhar, an enthusiastic and visionary ${role}. <strong>[pause]</strong><br><br>`;
-                    body = `I believe that technology should not just solve problems, but inspire users. That's why I focus heavily on ${superpower}. I'm always looking for unconventional solutions to bridge the gap between engineering and user experience. <strong>[pause]</strong><br><br>`;
-                    conclusion = `I would love to bring my creative energy and technical skills to your team to help build the next generation of innovative products.`;
-                }
-
-                let filler = `Over the past few years, I have honed my skills across various domains, consistently seeking out challenges that push me to grow. For instance, in one of my recent major projects, I took ownership of the end-to-end development cycle, ensuring we met our critical milestones on time. <strong>[pause]</strong><br><br>I believe that effective communication and a proactive mindset are just as crucial as technical prowess. By fostering collaboration and embracing continuous learning, I strive to elevate both my own work and the output of my peers. <strong>[pause]</strong><br><br>`;
-
-                const fullScript = `${intro}${filler}${body}${conclusion}`;
-                
-                document.getElementById("script-output-container").style.display = "block";
-                document.getElementById("script-output-body").innerHTML = `<p>${fullScript}</p>`;
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "script",
+                    role: role,
+                    superpower: superpower,
+                    vibe: vibe,
+                    context: context
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateScriptBtn.innerHTML = btnOriginal;
                 generateScriptBtn.disabled = false;
-            }, 800);
+                
+                if (data.error) {
+                    document.getElementById("script-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("script-output-container").style.display = "block";
+                } else {
+                    document.getElementById("script-output-body").innerHTML = data.result;
+                    document.getElementById("script-output-container").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateScriptBtn.innerHTML = btnOriginal;
+                generateScriptBtn.disabled = false;
+            });
         });
     }
     
@@ -2954,68 +2950,35 @@ class Solution {
             generateNegoBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Strategizing...';
             generateNegoBtn.disabled = true;
 
-            setTimeout(() => {
-                let strategyTitle = "";
-                let strategyDesc = "";
-                let emailScript = "";
-                let phoneScript = "";
-
-                if (leverage === "Competing Offer") {
-                    strategyTitle = "The Firm Comparator";
-                    strategyDesc = "Use the competing offer to validate your market worth without sounding like you're issuing an ultimatum. Emphasize that THIS company is your first choice.";
-                    
-                    emailScript = `Dear [HR Manager's Name],<br><br>
-Thank you so much for the offer to join [Company Name] as a [Role]. I am incredibly excited about the opportunity and the team.<br><br>
-Regarding the compensation, I wanted to address my situation: <em>"${situation}"</em>. I currently hold another offer that provides [Insert Amount/Benefit]. However, [Company Name] remains my top choice because of [Specific Reason you like the company].<br><br>
-Would you be able to match the base pay of [Target Salary]? If we can bridge this gap, I am ready to sign the offer today.<br><br>
-Best regards,<br>
-[Your Name]`;
-
-                    phoneScript = `<strong>You:</strong> Hi [HR Name], thank you again for the offer. I'm really excited about joining.<br><br>
-<strong>You:</strong> I wanted to discuss the compensation package. As I mentioned in my situation: <em>"${situation}"</em>. While the other offer is higher at [Amount], I strongly prefer your team and the work you're doing here.<br><br>
-<strong>You:</strong> Is there any flexibility on the base salary to bring it closer to [Target Salary]? If we can make those numbers work, I'm ready to accept immediately.`;
-                    
-                } else if (leverage === "Top Scores") {
-                    strategyTitle = "The Enthusiastic Value-Add";
-                    strategyDesc = "Since you performed exceptionally well in interviews, pivot the conversation to the immediate ROI and value you bring to the team on Day 1.";
-                    
-                    emailScript = `Dear [HR Manager's Name],<br><br>
-I am thrilled to receive the offer for the [Role] position. During the interview process, I was excited to learn about [Project/Team goal], and I am confident my technical skills will allow me to contribute immediately.<br><br>
-Regarding the compensation, I have a specific goal: <em>"${situation}"</em>. Based on my strong interview feedback and the immediate value I plan to bring to the [Specific Team], I was hoping we could discuss adjusting the starting salary to [Target Salary] or exploring a sign-on bonus of [Bonus Amount].<br><br>
-I am very eager to join and get started.<br><br>
-Best regards,<br>
-[Your Name]`;
-
-                    phoneScript = `<strong>You:</strong> Hi [HR Name], I'm so excited about the offer and really enjoyed speaking with the engineering team.<br><br>
-<strong>You:</strong> Based on the positive feedback from my interviews and how well my skills align with the role, I wanted to discuss my goal: <em>"${situation}"</em>.<br><br>
-<strong>You:</strong> Is there room to increase the base salary to [Target Salary] or add a sign-on bonus? I'm fully committed to bringing value on Day 1 and would love to make this work.`;
-                } else {
-                    strategyTitle = "The Collaborative Problem Solver";
-                    strategyDesc = "Approach the negotiation as a mutual problem to solve, demonstrating that you are excited but need a specific issue (like relocation or market rate) addressed to comfortably accept.";
-                    
-                    emailScript = `Dear [HR Manager's Name],<br><br>
-Thank you for extending this offer. I am very excited about the prospect of joining the team.<br><br>
-Before signing, I wanted to discuss one aspect of the offer. Specifically: <em>"${situation}"</em>.<br><br>
-Would it be possible to adjust the [Base Salary / Relocation Bonus / Sign-on] to [Target Amount] to help accommodate this? This adjustment would make it incredibly easy for me to accept the offer and fully focus on bringing my best work to [Company Name].<br><br>
-Looking forward to your thoughts.<br><br>
-Best regards,<br>
-[Your Name]`;
-
-                    phoneScript = `<strong>You:</strong> Hi [HR Name], thank you for the offer. I'm very excited about the opportunity.<br><br>
-<strong>You:</strong> I did want to see if we could find a middle ground on one detail. Basically: <em>"${situation}"</em>.<br><br>
-<strong>You:</strong> If we could adjust [Specific Item] to [Target Amount], I would be ready to sign today. Is there any flexibility there?`;
-                }
-
-                document.getElementById("nego-strategy-title").textContent = strategyTitle;
-                document.getElementById("nego-strategy-desc").textContent = strategyDesc;
-                document.getElementById("nego-email-body").innerHTML = emailScript;
-                document.getElementById("nego-phone-body").innerHTML = phoneScript;
-                
-                document.getElementById("nego-output-container").style.display = "block";
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "negotiation",
+                    company: company,
+                    base: base,
+                    leverage: leverage,
+                    context: context
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateNegoBtn.innerHTML = btnOriginal;
                 generateNegoBtn.disabled = false;
-            }, 1000);
+                
+                if (data.error) {
+                    document.getElementById("nego-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("nego-output-container").style.display = "block";
+                } else {
+                    document.getElementById("nego-output-body").innerHTML = data.result;
+                    document.getElementById("nego-output-container").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateNegoBtn.innerHTML = btnOriginal;
+                generateNegoBtn.disabled = false;
+            });
         });
     }
     
@@ -3034,44 +2997,35 @@ Best regards,<br>
             generateColdBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
             generateColdBtn.disabled = true;
 
-            setTimeout(() => {
-                let intro = "";
-                let body = "";
-                let callToAction = "";
-
-                // Intro logic
-                if (connection === "Same College") {
-                    intro = `Hi [Name],<br><br>I'm a fellow [College Name] student/alum and saw your profile. I really admire your trajectory at [Company].`;
-                } else if (connection === "Met at Hackathon") {
-                    intro = `Hi [Name],<br><br>We briefly connected at [Event/Hackathon]. It was great hearing your thoughts on [Topic].`;
-                } else if (connection === "Mutual Connection") {
-                    intro = `Hi [Name],<br><br>[Mutual Connection Name] recommended I reach out. I've been following your work at [Company] with great interest.`;
-                } else {
-                    intro = `Hi [Name],<br><br>I've been following your work at [Company] and really admire your recent contributions to [Project/Post].`;
-                }
-
-                // Body logic
-                body = `<br><br>I'm currently exploring opportunities in [Domain] and ${custom ? 'wanted to mention: ' + custom + '. ' : ''}I'd love to bring my experience in <strong style="color: var(--neon-yellow);">[Insert your top achievement from Portfolio Builder here, e.g. scaling a microservice to 10k users]</strong> to a team like yours.`;
-
-                // CTA logic
-                if (ask === "15-min Coffee Chat") {
-                    callToAction = `<br><br>Would you be open to a quick 10-15 minute virtual coffee chat this week? I'd love to hear your advice on breaking into the industry.<br><br>Best,<br>[Your Name]`;
-                } else if (ask === "Referral for Specific Job") {
-                    callToAction = `<br><br>I'm planning to apply for the [Role Name] position (ID: [Job ID]) and was wondering if you might be open to briefly reviewing my resume and potentially submitting a referral?<br><br>Best,<br>[Your Name]`;
-                } else if (ask === "Resume Review") {
-                    callToAction = `<br><br>If you have 2 minutes, I'd deeply appreciate any quick feedback on my attached resume to ensure I'm hitting the right technical benchmarks.<br><br>Best,<br>[Your Name]`;
-                } else {
-                    callToAction = `<br><br>I'd love to learn more about the engineering culture on your team. Do you have 10 minutes to chat next week?<br><br>Best,<br>[Your Name]`;
-                }
-
-                const fullScript = `${intro}${body}${callToAction}`;
-                
-                document.getElementById("cold-output-container").style.display = "block";
-                document.getElementById("cold-output-body").innerHTML = `<p>${fullScript}</p>`;
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "cold_mail",
+                    role: role,
+                    connection: connection,
+                    ask: ask,
+                    context: context
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateColdBtn.innerHTML = btnOriginal;
                 generateColdBtn.disabled = false;
-            }, 600);
+                
+                if (data.error) {
+                    document.getElementById("cold-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("cold-output-container").style.display = "block";
+                } else {
+                    document.getElementById("cold-output-body").innerHTML = data.result;
+                    document.getElementById("cold-output-container").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateColdBtn.innerHTML = btnOriginal;
+                generateColdBtn.disabled = false;
+            });
         });
     }
 
@@ -3093,43 +3047,36 @@ Best regards,<br>
             generateEmailBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Polishing...';
             generateEmailBtn.disabled = true;
 
-            setTimeout(() => {
-                let polished = draft;
-                let explanation = "";
-
-                // Very basic heuristic replacements to simulate NLP tone polishing
-                if (tone === "Polite & Professional") {
-                    polished = polished.replace(/ASAP/gi, "at your earliest convenience");
-                    polished = polished.replace(/Hey/gi, "Dear");
-                    polished = polished.replace(/can't/gi, "am unable to");
-                    polished = polished.replace(/can we/gi, "would it be possible to");
-                    explanation = `We removed informal greetings ("Hey") and urgent acronyms ("ASAP") and replaced them with "Dear" and "at your earliest convenience" to establish a respectful, professional boundary. Formalized contractions for a cleaner tone.`;
-                } else if (tone === "Confident & Assertive") {
-                    polished = polished.replace(/I think/gi, "I believe");
-                    polished = polished.replace(/maybe/gi, "certainly");
-                    polished = polished.replace(/just wanted to/gi, "I am reaching out to");
-                    polished = polished.replace(/sorry for/gi, "thank you for your patience regarding");
-                    explanation = `Removed passive filler words ("just", "maybe", "I think") to project confidence. Swapped apologies ("sorry for") with gratitude ("thank you for your patience") to maintain strong positioning.`;
-                } else if (tone === "Gratitude & Acceptance") {
-                    polished = polished.replace(/thanks/gi, "Thank you sincerely");
-                    polished = polished.replace(/I want to accept/gi, "I am thrilled to formally accept");
-                    polished = polished.replace(/let me know/gi, "Please advise on the next steps");
-                    explanation = `Elevated basic thanks to formal gratitude ("Thank you sincerely"). Strengthened the acceptance phrasing to show enthusiasm, and replaced casual sign-offs ("let me know") with professional calls to action.`;
-                } else {
-                    polished = polished.replace(/can't make it/gi, "need to request a reschedule");
-                    polished = polished.replace(/sorry/gi, "I apologize for the inconvenience");
-                    polished = polished.replace(/ASAP/gi, "as soon as possible");
-                    explanation = `Softened the cancellation language to be polite but clear. Added a formal apology for the inconvenience and maintained a collaborative tone for rescheduling.`;
-                }
-
-                // Append the polished text safely
-                document.getElementById("email-output-body").textContent = polished;
-                document.getElementById("email-explanation").textContent = explanation;
-                document.getElementById("email-output-container").style.display = "block";
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "email_doctor",
+                    draft: draft,
+                    tone: tone,
+                    context: context
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateEmailBtn.innerHTML = btnOriginal;
                 generateEmailBtn.disabled = false;
-            }, 800);
+                
+                if (data.error) {
+                    document.getElementById("email-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("email-explanation-body").innerHTML = "<em>Polished by AI Email Doctor</em>";
+                    document.getElementById("email-output-container").style.display = "block";
+                } else {
+                    document.getElementById("email-output-body").innerHTML = data.result;
+                    document.getElementById("email-explanation-body").innerHTML = "<em>Polished by AI Email Doctor</em>";
+                    document.getElementById("email-output-container").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateEmailBtn.innerHTML = btnOriginal;
+                generateEmailBtn.disabled = false;
+            });
         });
     }
 
@@ -3151,57 +3098,33 @@ Best regards,<br>
             generateRadarBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Scanning...';
             generateRadarBtn.disabled = true;
 
-            setTimeout(() => {
-                const idealStacks = {
-                    "Frontend Engineer": ["html", "css", "javascript", "react", "typescript", "tailwind", "next"],
-                    "Backend Engineer": ["node", "python", "java", "sql", "mongodb", "docker", "redis", "aws"],
-                    "Full Stack Engineer": ["javascript", "react", "node", "sql", "mongodb", "docker", "typescript", "aws"],
-                    "Data Scientist": ["python", "sql", "pandas", "machine learning", "tensorflow", "pytorch", "statistics"],
-                    "DevOps Engineer": ["linux", "bash", "docker", "kubernetes", "aws", "ci/cd", "terraform"]
-                };
-
-                const targetStack = idealStacks[role] || idealStacks["Full Stack Engineer"];
-                let matchCount = 0;
-                let missingSkills = [];
-
-                targetStack.forEach(skill => {
-                    if (skillsRaw.includes(skill)) {
-                        matchCount++;
-                    } else {
-                        missingSkills.push(skill);
-                    }
-                });
-
-                const percentage = Math.round((matchCount / targetStack.length) * 100);
-                const radarScoreEl = document.getElementById("radar-score");
-                radarScoreEl.textContent = `${percentage}%`;
-
-                // Color coding based on percentage
-                if (percentage > 75) {
-                    radarScoreEl.style.color = "var(--neon-cyan)";
-                    radarScoreEl.parentElement.style.borderColor = "var(--neon-cyan)";
-                } else if (percentage > 40) {
-                    radarScoreEl.style.color = "var(--neon-yellow)";
-                    radarScoreEl.parentElement.style.borderColor = "var(--neon-yellow)";
-                } else {
-                    radarScoreEl.style.color = "var(--neon-pink)";
-                    radarScoreEl.parentElement.style.borderColor = "var(--neon-pink)";
-                }
-
-                let insight = "";
-                if (missingSkills.length > 0) {
-                    const topMissing = missingSkills[0].toUpperCase();
-                    insight = `You are a ${percentage}% match for ${role} roles. However, 80% of job descriptions in this tier currently require basic <strong>${topMissing}</strong> knowledge. Spend 3-5 days learning ${topMissing} basics to push your resume match rate to over 90%.`;
-                } else {
-                    insight = `You have a near-perfect tech stack match for ${role} roles! Your focus should now be on building complex portfolio projects combining these tools rather than learning new syntaxes.`;
-                }
-
-                document.getElementById("radar-insight").innerHTML = insight;
-                document.getElementById("radar-output-container").style.display = "block";
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "skill_radar",
+                    role: role,
+                    stack: stack
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateRadarBtn.innerHTML = btnOriginal;
                 generateRadarBtn.disabled = false;
-            }, 1000);
+                
+                if (data.error) {
+                    document.getElementById("radar-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("radar-output-container").style.display = "block";
+                } else {
+                    document.getElementById("radar-output-body").innerHTML = data.result;
+                    document.getElementById("radar-output-container").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateRadarBtn.innerHTML = btnOriginal;
+                generateRadarBtn.disabled = false;
+            });
         });
     }
 
@@ -3224,42 +3147,37 @@ Best regards,<br>
             generateGhostBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Diagnosing...';
             generateGhostBtn.disabled = true;
 
-            setTimeout(() => {
-                let medianThreshold = 14;
-                if (size === "Early Startup") medianThreshold = 7;
-                else if (size === "Mid-size Growth") medianThreshold = 10;
-                else if (size === "Large MNC") medianThreshold = 16;
-
-                const statusBox = document.getElementById("ghost-status-box");
-                const statusTitle = document.getElementById("ghost-status-title");
-                const statusDesc = document.getElementById("ghost-status-desc");
-                const scriptBody = document.getElementById("ghost-script-body");
-
-                let isStalled = days >= medianThreshold;
-
-                if (isStalled) {
-                    statusBox.style.background = "rgba(255, 77, 77, 0.1)";
-                    statusBox.style.borderLeft = "4px solid var(--neon-pink)";
-                    statusTitle.style.color = "var(--neon-pink)";
-                    statusTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Application Status: Stalled`;
-                    statusDesc.textContent = `You have been waiting ${days} days. The industry median for a ${size} to respond is ${medianThreshold} days. It is highly recommended that you send a polite follow-up immediately to force a resolution.`;
-
-                    scriptBody.innerHTML = `Hi [Recruiter/Manager Name],<br><br>I hope you're having a great week.<br><br>I'm following up on my application for the [Role Name] position. ${context ? context + '. ' : ''}I wanted to check if there are any updates regarding the next steps or if you need any additional information from my end.<br><br>I remain very interested in the opportunity to join the team at [Company Name].<br><br>Best regards,<br>[Your Name]`;
-                } else {
-                    statusBox.style.background = "rgba(100, 255, 218, 0.1)";
-                    statusBox.style.borderLeft = "4px solid var(--neon-cyan)";
-                    statusTitle.style.color = "var(--neon-cyan)";
-                    statusTitle.innerHTML = `<i class="fa-solid fa-circle-check"></i> Application Status: Normal / Processing`;
-                    statusDesc.textContent = `You have been waiting ${days} days. The industry median for a ${size} to respond is ${medianThreshold} days. You are well within the normal processing window. Do not double-text them yet.`;
-
-                    scriptBody.innerHTML = `<em>No follow-up required yet. Wait until Day ${medianThreshold} before sending an email. If you must send one due to a competing deadline, use this:</em><br><br>Hi [Recruiter Name],<br><br>I'm writing to let you know that I am still very interested in the [Role] position. ${context ? context + '. ' : ''}I am currently navigating another offer deadline but [Company] remains my top choice. Is there any timeline update you can share?<br><br>Best,<br>[Your Name]`;
-                }
-                
-                document.getElementById("ghost-output-container").style.display = "block";
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "ghost_detector",
+                    company: company,
+                    size: size,
+                    days: days,
+                    context: context
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateGhostBtn.innerHTML = btnOriginal;
                 generateGhostBtn.disabled = false;
-            }, 900);
+                
+                if (data.error) {
+                    document.getElementById("ghost-status-desc").innerHTML = "<strong>AI Analysis Complete.</strong>";
+                    document.getElementById("ghost-script-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("ghost-output-container").style.display = "block";
+                } else {
+                    document.getElementById("ghost-status-desc").innerHTML = "<strong>AI Analysis Complete.</strong>";
+                    document.getElementById("ghost-script-body").innerHTML = data.result;
+                    document.getElementById("ghost-output-container").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateGhostBtn.innerHTML = btnOriginal;
+                generateGhostBtn.disabled = false;
+            });
         });
     }
 
@@ -3278,42 +3196,37 @@ Best regards,<br>
             generateLiBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
             generateLiBtn.disabled = true;
 
-            setTimeout(() => {
-                let headline = "";
-                let about = "";
-
-                // Headline generation
-                headline = `${domain} | Building Scalable Systems with ${skills} | Seeking 2027 Opportunities`;
-                if (tone === "Action-Oriented") {
-                    headline = `Building high-performance ${domain} solutions with ${skills} | CS Undergrad`;
-                } else if (tone === "Thought Leader") {
-                    headline = `Aspiring ${domain} Leader | Passionate about ${skills} & Product Innovation`;
-                }
-
-                // About generation
-                let intro = `I am a Computer Science student deeply passionate about ${domain}. My technical foundation is built on ${skills}, and I love tackling complex engineering challenges.`;
-                if (context) intro += ` ${context}.`;
-                
-                let body = "";
-                if (tone === "Action-Oriented") {
-                    body = `\n\nWhat I bring to the table:\n🚀 Fast learner who thrives in agile environments.\n💻 Hands-on experience building full-stack applications.\n🔧 Obsessed with clean code and performance optimization.`;
-                } else if (tone === "Tech-Forward") {
-                    body = `\n\nCore Competencies:\n⚡ Deep expertise in building robust architectures.\n🧠 Strong foundation in Data Structures and Algorithms.\n🛠 Constantly exploring edge technologies and open-source ecosystems.`;
-                } else {
-                    body = `\n\nMy Philosophy:\n💡 I believe in building technology that solves real-world human problems.\n🤝 Strong collaborator bridging the gap between engineering and user experience.\n📈 Always looking for the "why" behind the code.`;
-                }
-
-                let cta = `\n\nI am currently looking for summer internship opportunities where I can contribute to impactful projects. Let's connect!`;
-                
-                about = intro + body + cta;
-
-                document.getElementById("li-headline-body").textContent = headline;
-                document.getElementById("li-about-body").textContent = about;
-                document.getElementById("li-output-container").style.display = "block";
-                
+            fetch("/api/networking/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "linkedin",
+                    domain: domain,
+                    keywords: skills,
+                    tone: tone,
+                    context: context
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 generateLiBtn.innerHTML = btnOriginal;
                 generateLiBtn.disabled = false;
-            }, 800);
+                
+                if (data.error) {
+                    document.getElementById("li-headline-body").innerHTML = "<strong>AI Generated Profile</strong>";
+                    document.getElementById("li-about-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("li-output-container").style.display = "block";
+                } else {
+                    document.getElementById("li-headline-body").innerHTML = "<strong>AI Generated Profile</strong>";
+                    document.getElementById("li-about-body").innerHTML = data.result;
+                    document.getElementById("li-output-container").style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                generateLiBtn.innerHTML = btnOriginal;
+                generateLiBtn.disabled = false;
+            });
         });
     }
 

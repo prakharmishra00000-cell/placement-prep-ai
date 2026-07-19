@@ -1587,6 +1587,27 @@ def trigger_cache_update_if_old(cache_file):
                 print(f"Background scraper update failed for {cache_file}: {e}")
         threading.Thread(target=update_task).start()
 
+
+def _map_branch(val):
+    val = val.lower()
+    if any(x in val for x in ["cse", "computer", "software", "it", "information", "tech"]): return "cse"
+    if any(x in val for x in ["ece", "electronic", "electrical", "eee", "iot"]): return "ece"
+    if any(x in val for x in ["mech", "automobile", "production"]): return "mechanical"
+    if any(x in val for x in ["civil", "construction", "infra"]): return "civil"
+    if any(x in val for x in ["chem"]): return "chemical"
+    return val # return as is if no match
+
+def _fuzzy_match(filter_val, target_val):
+    if filter_val == "all" or not filter_val: return True
+    f_val = filter_val.lower()
+    t_val = target_val.lower()
+    if f_val in t_val or t_val in f_val: return True
+    # Word level match
+    f_words = set(f_val.split())
+    t_words = set(t_val.split())
+    if f_words.intersection(t_words): return True
+    return False
+
 @app.route("/api/jobs", methods=["GET"])
 def get_jobs_feed():
     trigger_cache_update_if_old("jobs_cache.json")
@@ -1694,14 +1715,21 @@ def get_jobs_feed():
             }
         ]
         
-    # Apply filters
-    if branch_filter != "all":
-        jobs = [j for j in jobs if j["branch"] == branch_filter]
-    if exp_filter != "all":
-        # Check substring match (e.g. "fresher" matches "Fresher", "1" matches "1 Year")
-        jobs = [j for j in jobs if exp_filter in j["experience"].lower()]
-    if qual_filter != "all":
-        jobs = [j for j in jobs if qual_filter in j["qualification"].lower()]
+    # Apply filters with fuzzy mapping to prevent empty results for unstructured text
+    mapped_branch = _map_branch(branch_filter)
+    
+    filtered_jobs = []
+    for j in jobs:
+        b_match = mapped_branch == "all" or _fuzzy_match(mapped_branch, j.get("branch", ""))
+        e_match = exp_filter == "all" or _fuzzy_match(exp_filter, j.get("experience", ""))
+        q_match = qual_filter == "all" or _fuzzy_match(qual_filter, j.get("qualification", ""))
+        if b_match and e_match and q_match:
+            filtered_jobs.append(j)
+            
+    # If filters are too strict and return nothing, fallback to showing all latest data
+    if not filtered_jobs:
+        filtered_jobs = jobs
+    jobs = filtered_jobs
         
     return jsonify({"jobs": jobs})
 
@@ -1789,15 +1817,21 @@ def get_abroad_jobs_feed():
             }
         ]
         
-    # Apply filters
-    if branch_filter != "all":
-        jobs = [j for j in jobs if j["branch"] == branch_filter]
-    if country_filter != "all":
-        jobs = [j for j in jobs if j["country"] == country_filter]
-    if exp_filter != "all":
-        jobs = [j for j in jobs if exp_filter in j["experience"].lower()]
-    if qual_filter != "all":
-        jobs = [j for j in jobs if qual_filter in j["qualification"].lower()]
+    # Apply filters with fuzzy mapping to prevent empty results
+    mapped_branch = _map_branch(branch_filter)
+    
+    filtered_jobs = []
+    for j in jobs:
+        b_match = mapped_branch == "all" or _fuzzy_match(mapped_branch, j.get("branch", ""))
+        c_match = country_filter == "all" or _fuzzy_match(country_filter, j.get("country", ""))
+        e_match = exp_filter == "all" or _fuzzy_match(exp_filter, j.get("experience", ""))
+        q_match = qual_filter == "all" or _fuzzy_match(qual_filter, j.get("qualification", ""))
+        if b_match and c_match and e_match and q_match:
+            filtered_jobs.append(j)
+            
+    if not filtered_jobs:
+        filtered_jobs = jobs
+    jobs = filtered_jobs
         
     return jsonify({"jobs": jobs})
 
@@ -1868,12 +1902,20 @@ def get_exams_feed():
             }
         ]
         
-    if branch_filter != "all":
-        exams = [e for e in exams if e["branch"] == branch_filter]
-    if exp_filter != "all":
-        exams = [e for e in exams if exp_filter in e["experience"].lower()]
-    if qual_filter != "all":
-        exams = [e for e in exams if qual_filter in e["qualification"].lower()]
+    # Apply filters with fuzzy mapping to prevent empty results
+    mapped_branch = _map_branch(branch_filter)
+    
+    filtered_exams = []
+    for e in exams:
+        b_match = mapped_branch == "all" or _fuzzy_match(mapped_branch, e.get("branch", ""))
+        exp_match = exp_filter == "all" or _fuzzy_match(exp_filter, e.get("experience", ""))
+        q_match = qual_filter == "all" or _fuzzy_match(qual_filter, e.get("qualification", ""))
+        if b_match and exp_match and q_match:
+            filtered_exams.append(e)
+            
+    if not filtered_exams:
+        filtered_exams = exams
+    exams = filtered_exams
         
     return jsonify({"jobs": exams})
 
@@ -3970,6 +4012,114 @@ DEEP ANALYSIS REQUIRED:
 4. Ensure it highlights why the user is a strong fit implicitly, based on the context.
 
 Output ONLY the final message they should copy-paste. No extra conversational text from you. Format it nicely."""
+        elif tool_type == "script":
+            role = data.get("role", "").strip()
+            superpower = data.get("superpower", "").strip()
+            vibe = data.get("vibe", "").strip()
+            prompt = f"""You are an expert career coach. Generate a highly personalized 60-second elevator pitch (about 130 words) for a user.
+Target Role: {role}
+Superpower/Top Skill: {superpower}
+Desired Vibe/Tone: {vibe}
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the "Superpower" and "Target Role". Create a compelling narrative that connects the two seamlessly.
+2. The tone must exactly match the "Desired Vibe" provided by the user (e.g., if they asked for 'Aggressive and confident', make it punchy).
+3. Do not use generic filler. Make it sound like a real human speaking naturally.
+
+Output ONLY the final pitch text. Format it nicely."""
+
+        elif tool_type == "negotiation":
+            company = data.get("company", "").strip()
+            base = data.get("base", "").strip()
+            leverage = data.get("leverage", "").strip()
+            prompt = f"""You are a master salary negotiator. Generate a highly professional salary counter-offer email.
+Target Company: {company}
+Current Base Offer: {base}
+User's Leverage/Counter argument: {leverage}
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the user's leverage (e.g., competing offer, specialized skills, market average).
+2. Draft a polite, persuasive, and highly professional email to the recruiter negotiating a better package.
+3. Keep the tone collaborative, not combative. 
+
+Output ONLY the final email they should copy-paste. Format it nicely."""
+
+        elif tool_type == "cold_mail":
+            role = data.get("role", "").strip()
+            connection = data.get("connection", "").strip()
+            ask = data.get("ask", "").strip()
+            prompt = f"""You are an expert networking strategist. Generate a short, punchy cold email (max 75-100 words).
+Recipient's Role: {role}
+User's Connection to Recipient: {connection}
+The Ask/Goal: {ask}
+
+DEEP ANALYSIS REQUIRED:
+1. Analyze the connection level. If it's a completely cold connection, make it highly respectful of their time. If there is common ground (e.g., same alumni), leverage that warmly.
+2. The message must be optimized for a smartphone screen (punchy, skimmable).
+3. Highlight a placeholder where the user should insert a specific metric.
+
+Output ONLY the final email they should copy-paste."""
+
+        elif tool_type == "email_doctor":
+            draft = data.get("draft", "").strip()
+            tone = data.get("tone", "").strip()
+            prompt = f"""You are an expert executive communication coach.
+The user has provided a rough draft of an email: "{draft}"
+They want you to polish it into the following tone: "{tone}"
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the original intent of the rough draft.
+2. Completely rewrite the email to perfectly match the target tone while preserving the original intent.
+3. Ensure it is highly professional and grammatically perfect.
+
+Output ONLY the final polished email."""
+
+        elif tool_type == "skill_radar":
+            role = data.get("role", "").strip()
+            stack = data.get("stack", "").strip()
+            prompt = f"""You are a technical recruiter and engineering manager.
+Target Role: {role}
+User's Current Tech Stack: {stack}
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the provided tech stack against the current industry standard requirements for the specified target role.
+2. Identify exactly which critical skills or frameworks the user is missing.
+3. Provide a concise, actionable summary of what they need to learn next.
+
+Output the response in a clean, professional HTML format (e.g., unordered lists, bold text for emphasis). Do not use markdown backticks, just output raw HTML."""
+
+        elif tool_type == "ghost_detector":
+            company = data.get("company", "").strip()
+            size = data.get("size", "").strip()
+            days = data.get("days", "").strip()
+            prompt = f"""You are a technical recruiter.
+Company Name: {company}
+Company Size: {size}
+Days Since Last Interview: {days}
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the typical hiring pipeline speed for a company of this size and name.
+2. Determine if the user is likely being "ghosted", is on a waitlist, or if this delay is perfectly normal.
+3. Provide a highly professional follow-up email template the user can send to the recruiter.
+
+Output the response in a clean, professional HTML format. Do not use markdown backticks, just raw HTML."""
+
+        elif tool_type == "linkedin":
+            domain = data.get("domain", "").strip()
+            tone = data.get("tone", "").strip()
+            keywords = data.get("keywords", "").strip()
+            prompt = f"""You are an expert LinkedIn profile optimizer and career brand consultant.
+Target Domain/Industry: {domain}
+Desired Tone: {tone}
+Key Skills/Keywords: {keywords}
+
+DEEP ANALYSIS REQUIRED:
+1. Deeply analyze the keywords and domain to generate 3 highly optimized, keyword-rich LinkedIn Headlines.
+2. Generate a compelling, professional "About" section summary that matches the requested tone.
+3. The output must be tailored specifically to the unstructured text provided by the user.
+
+Output the response in a clean, professional HTML format. Do not use markdown backticks, just raw HTML."""
+
         else:
             return jsonify({"error": "Invalid tool type."}), 400
 
