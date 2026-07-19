@@ -343,16 +343,7 @@
 
                         <div class="input-group">
                             <label for="branch-select"><i class="fa-solid fa-code-branch"></i> Target Branch</label>
-                            <select id="branch-select">
-                                <option value="cse" selected>Computer Science Engineering (CSE)</option>
-                                <option value="it">Information Technology (IT)</option>
-                                <option value="ece">Electronics & Communication (ECE)</option>
-                                <option value="mechanical">Mechanical Engineering (Mechanical)</option>
-                                <option value="electrical">Electrical Engineering (Electrical)</option>
-                                <option value="civil">Civil Engineering (Civil)</option>
-                                <option value="chemical">Chemical Engineering (Chemical)</option>
-                                <option value="ece_iot">ECE IoT (Internet of Things)</option>
-                            </select>
+                            <input type="text" id="branch-select" placeholder="Enter branch (e.g., CSE, Mechanical)...">
                         </div>
                         
                         <div class="category-selector">
@@ -520,21 +511,11 @@
                             </div>
                             <div class="input-group">
                                 <label for="interview-role">Interview Role / Field</label>
-                                <select id="interview-role">
-                                    <option value="Software Engineer">Software Engineer (CSE/IT)</option>
-                                    <option value="Mechanical Engineer">Mechanical SDE (Core Mech)</option>
-                                    <option value="Electrical SDE">Electrical / Electronics Engineer (Core EEE/ECE)</option>
-                                    <option value="Civil Engineer">Civil SDE (Core Civil)</option>
-                                    <option value="Data Analyst">Data Analyst / Data Scientist</option>
-                                </select>
+                                <input type="text" id="interview-role" placeholder="Enter target role (e.g., SDE, Data Scientist)...">
                             </div>
                             <div class="input-group">
                                 <label for="interview-difficulty">Simulation Difficulty</label>
-                                <select id="interview-difficulty">
-                                    <option value="Easy">Easy (Conceptual Basic)</option>
-                                    <option value="Medium" selected>Medium (Standard Interview)</option>
-                                    <option value="Hard">Hard (FAANG / Technical Depth)</option>
-                                </select>
+                                <input type="text" id="interview-difficulty" placeholder="Enter difficulty (e.g., Hard, Beginner)...">
                             </div>
                             <button id="start-interview-btn" class="glow-btn">Start AI Simulation Round</button>
                         </div>
@@ -617,16 +598,7 @@
 
                         <div class="input-group" style="margin-bottom: 1.5rem;">
                             <label for="hiring-branch-select"><i class="fa-solid fa-code-branch"></i> Select Target Branch</label>
-                            <select id="hiring-branch-select">
-                                <option value="cse" selected>Computer Science Engineering (CSE)</option>
-                                <option value="it">Information Technology (IT)</option>
-                                <option value="ece">Electronics & Communication (ECE)</option>
-                                <option value="mechanical">Mechanical Engineering (Mechanical)</option>
-                                <option value="electrical">Electrical Engineering (Electrical)</option>
-                                <option value="civil">Civil Engineering (Civil)</option>
-                                <option value="chemical">Chemical Engineering (Chemical)</option>
-                                <option value="ece_iot">ECE IoT (Internet of Things)</option>
-                            </select>
+                            <input type="text" id="hiring-branch-select" placeholder="Enter branch (e.g., CSE, Mechanical)...">
                         </div>
 
                         <div class="hiring-flow">
@@ -760,16 +732,7 @@
 
                         <div class="input-group">
                             <label for="roadmap-branch"><i class="fa-solid fa-code-branch"></i> Target Branch</label>
-                            <select id="roadmap-branch">
-                                <option value="cse" selected>Computer Science Engineering (CSE)</option>
-                                <option value="it">Information Technology (IT)</option>
-                                <option value="ece">Electronics & Communication (ECE)</option>
-                                <option value="mechanical">Mechanical Engineering (Mechanical)</option>
-                                <option value="electrical">Electrical Engineering (Electrical)</option>
-                                <option value="civil">Civil Engineering (Civil)</option>
-                                <option value="chemical">Chemical Engineering (Chemical)</option>
-                                <option value="ece_iot">ECE IoT (Internet of Things)</option>
-                            </select>
+                            <input type="text" id="roadmap-branch" placeholder="Enter branch (e.g., CSE, Mechanical)...">
                         </div>
 
                         <button id="validate-eligibility-btn" class="glow-btn" style="margin-bottom: 1rem; width: 100%;">
@@ -785,18 +748,11 @@
                         <div id="roadmap-selection-container" class="hide" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                             <div class="input-group">
                                 <label for="roadmap-subject"><i class="fa-solid fa-book"></i> Select Subject</label>
-                                <select id="roadmap-subject">
-                                    <!-- Populated dynamically -->
-                                </select>
+                                <input type="text" id="roadmap-subject" placeholder="Enter custom roadmap subject...">
                             </div>
                             <div class="input-group">
                                 <label for="roadmap-time"><i class="fa-solid fa-clock"></i> Preparation Time Available</label>
-                                <select id="roadmap-time">
-                                    <option value="1 Month">1 Month</option>
-                                    <option value="3 Months" selected>3 Months</option>
-                                    <option value="4 Months">4 Months</option>
-                                    <option value="6 Months">6 Months</option>
-                                </select>
+                                <input type="text" id="roadmap-time" placeholder="Enter custom roadmap time...">
                             </div>
                             <button id="generate-roadmap-btn" class="glow-btn" style="margin-top: 1rem; width: 100%;">
                                 <i class="fa-solid fa-calendar-check"></i> Generate Detailed Study Routine
@@ -838,12 +794,7 @@
                         <div class="ide-header">
                             <div class="ide-lang-selector">
                                 <label for="ide-language">Language:</label>
-                                <select id="ide-language">
-                                    <option value="cpp">C++</option>
-                                    <option value="java">Java</option>
-                                    <option value="python" selected>Python</option>
-                                    <option value="javascript">JavaScript</option>
-                                </select>
+                                <input type="text" id="ide-language" placeholder="Enter custom ide language...">
                             </div>
                             <div class="ide-controls">
                                 <button id="ide-hint-btn" class="ide-ctrl-btn" title="Get AI Hint"><i class="fa-solid fa-lightbulb text-neon-yellow"></i> Get Hint</button>
@@ -910,34 +861,15 @@
                     <div class="search-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group">
                             <label for="job-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
-                            <select id="job-branch-filter">
-                                <option value="all">All Branches & Sectors</option>
-                                <option value="cse">Computer Science / Software (CSE/IT)</option>
-                                <option value="ece">Electronics & Communication (ECE/IoT)</option>
-                                <option value="mechanical">Mechanical Engineering (Mech/Automobile)</option>
-                                <option value="electrical">Electrical Engineering (EEE/Power)</option>
-                                <option value="civil">Civil & Structural Engineering</option>
-                            </select>
+                            <input type="text" id="job-branch-filter" placeholder="Enter branch (e.g., CSE, Mechanical)...">
                         </div>
                         <div class="input-group">
                             <label for="job-exp-filter"><i class="fa-solid fa-briefcase"></i> Experience Level</label>
-                            <select id="job-exp-filter">
-                                <option value="all">All Experience Levels</option>
-                                <option value="fresher">Freshers / Entry Level</option>
-                                <option value="1">1 Year Experience</option>
-                                <option value="2">2 Years Experience</option>
-                                <option value="3">3+ Years Experience</option>
-                            </select>
+                            <input type="text" id="job-exp-filter" placeholder="Enter custom job exp filter...">
                         </div>
                         <div class="input-group">
                             <label for="job-qual-filter"><i class="fa-solid fa-graduation-cap"></i> Qualification</label>
-                            <select id="job-qual-filter">
-                                <option value="all">All Qualifications</option>
-                                <option value="12th">12th Pass</option>
-                                <option value="diploma">Diploma</option>
-                                <option value="btech">B.Tech / B.E</option>
-                                <option value="mtech">M.Tech / M.E / MS</option>
-                            </select>
+                            <input type="text" id="job-qual-filter" placeholder="Enter custom job qual filter...">
                         </div>
                         <button id="refresh-jobs-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center;">
                             <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
@@ -964,46 +896,19 @@
                     <div class="search-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group">
                             <label for="abroad-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
-                            <select id="abroad-branch-filter">
-                                <option value="all">All Branches & Sectors</option>
-                                <option value="cse">Computer Science / Software (CSE/IT)</option>
-                                <option value="ece">Electronics & Communication (ECE/IoT)</option>
-                                <option value="mechanical">Mechanical Engineering (Mech/Automobile)</option>
-                                <option value="electrical">Electrical Engineering (EEE/Power)</option>
-                                <option value="civil">Civil & Structural Engineering</option>
-                            </select>
+                            <input type="text" id="abroad-branch-filter" placeholder="Enter branch (e.g., CSE, Mechanical)...">
                         </div>
                         <div class="input-group">
                             <label for="abroad-country-filter"><i class="fa-solid fa-earth-americas"></i> Target Country</label>
-                            <select id="abroad-country-filter">
-                                <option value="all">All Countries</option>
-                                <option value="usa">United States (USA)</option>
-                                <option value="uk">United Kingdom (UK)</option>
-                                <option value="germany">Germany</option>
-                                <option value="canada">Canada</option>
-                                <option value="japan">Japan</option>
-                                <option value="singapore">Singapore</option>
-                            </select>
+                            <input type="text" id="abroad-country-filter" placeholder="Enter custom abroad country filter...">
                         </div>
                         <div class="input-group">
                             <label for="abroad-exp-filter"><i class="fa-solid fa-briefcase"></i> Experience Level</label>
-                            <select id="abroad-exp-filter">
-                                <option value="all">All Experience Levels</option>
-                                <option value="fresher">Freshers / Entry Level</option>
-                                <option value="1">1 Year Experience</option>
-                                <option value="2">2 Years Experience</option>
-                                <option value="3">3+ Years Experience</option>
-                            </select>
+                            <input type="text" id="abroad-exp-filter" placeholder="Enter custom abroad exp filter...">
                         </div>
                         <div class="input-group">
                             <label for="abroad-qual-filter"><i class="fa-solid fa-graduation-cap"></i> Qualification</label>
-                            <select id="abroad-qual-filter">
-                                <option value="all">All Qualifications</option>
-                                <option value="12th">12th Pass</option>
-                                <option value="diploma">Diploma</option>
-                                <option value="btech">B.Tech / B.E</option>
-                                <option value="mtech">M.Tech / M.E / MS</option>
-                            </select>
+                            <input type="text" id="abroad-qual-filter" placeholder="Enter custom abroad qual filter...">
                         </div>
                         <button id="refresh-abroad-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center;">
                             <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
@@ -1030,32 +935,15 @@
                     <div class="search-inputs" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group">
                             <label for="exam-branch-filter"><i class="fa-solid fa-code-branch"></i> Filter by Branch</label>
-                            <select id="exam-branch-filter">
-                                <option value="all">All Branches & Sectors</option>
-                                <option value="cse">Computer Science (CSE/IT)</option>
-                                <option value="ece">Electronics (ECE/IoT)</option>
-                                <option value="mechanical">Mechanical Engineering</option>
-                                <option value="electrical">Electrical Engineering</option>
-                                <option value="civil">Civil Engineering</option>
-                            </select>
+                            <input type="text" id="exam-branch-filter" placeholder="Enter branch (e.g., CSE, Mechanical)...">
                         </div>
                         <div class="input-group">
                             <label for="exam-exp-filter"><i class="fa-solid fa-user-clock"></i> Eligibility Age/Exp</label>
-                            <select id="exam-exp-filter">
-                                <option value="all">All Eligibility Levels</option>
-                                <option value="fresher">Freshers / Final Year</option>
-                                <option value="1">1 Year Experience</option>
-                                <option value="2">2+ Years Experience</option>
-                            </select>
+                            <input type="text" id="exam-exp-filter" placeholder="Enter custom exam exp filter...">
                         </div>
                         <div class="input-group">
                             <label for="exam-qual-filter"><i class="fa-solid fa-graduation-cap"></i> Qualification</label>
-                            <select id="exam-qual-filter">
-                                <option value="all">All Qualifications</option>
-                                <option value="diploma">Diploma</option>
-                                <option value="btech">B.Tech / B.E</option>
-                                <option value="mtech">M.Tech / M.E / MS</option>
-                            </select>
+                            <input type="text" id="exam-qual-filter" placeholder="Enter custom exam qual filter...">
                         </div>
                         <button id="refresh-exams-btn" class="btn btn-primary" style="height: 42px; align-self: flex-end; justify-content: center;">
                             <i class="fa-solid fa-arrows-rotate"></i> Refresh Feed
@@ -1100,10 +988,7 @@
                     <div class="search-inputs" style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="input-group">
                             <label for="book-mode-select"><i class="fa-solid fa-gears"></i> Select Library Module</label>
-                            <select id="book-mode-select">
-                                <option value="search" selected>Search Reference Books (PDFs)</option>
-                                <option value="notes">AI Study Notes Generator</option>
-                            </select>
+                            <input type="text" id="book-mode-select" placeholder="Enter custom book mode select...">
                         </div>
                     </div>
 
@@ -1160,32 +1045,13 @@
 
                         <div class="interview-setup" style="margin-bottom: 2rem;">
                             <label for="script-role">Target Role</label>
-                            <select id="script-role">
-                                <option value="Backend Developer">Backend Developer</option>
-                                <option value="Frontend Developer">Frontend Developer</option>
-                                <option value="Data Scientist">Data Scientist</option>
-                                <option value="Product Manager">Product Manager</option>
-                                <option value="DevOps Engineer">DevOps Engineer</option>
-                                <option value="Business Analyst">Business Analyst</option>
-                            </select>
+                            <input type="text" id="script-role" placeholder="Enter target role (e.g., SDE, Data Scientist)...">
 
                             <label for="script-superpower">Primary Superpower</label>
-                            <select id="script-superpower">
-                                <option value="High-performance coding">High-performance coding & System Design</option>
-                                <option value="Data-driven decision making">Data-driven decision making</option>
-                                <option value="User-centric UI/UX">User-centric UI/UX</option>
-                                <option value="Cross-functional Leadership">Cross-functional Leadership</option>
-                                <option value="Cloud Infrastructure Automation">Cloud Infrastructure Automation</option>
-                                <option value="Agile execution">Agile execution & Delivery</option>
-                            </select>
+                            <input type="text" id="script-superpower" placeholder="Enter custom script superpower...">
 
                             <label for="script-vibe">Pitch Vibe</label>
-                            <select id="script-vibe">
-                                <option value="Corporate Professional">Corporate Professional</option>
-                                <option value="Fast-paced Startup">Fast-paced Startup</option>
-                                <option value="Academic/Research focused">Academic/Research focused</option>
-                                <option value="Creative & Visionary">Creative & Visionary</option>
-                            </select>
+                            <input type="text" id="script-vibe" placeholder="Enter custom script vibe...">
                             
                             <button id="generate-script-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate 60-Second Script</button>
                         </div>
@@ -1223,13 +1089,7 @@
                             <textarea id="nego-situation" rows="3" placeholder="e.g. I have a higher competing offer from Wipro, but I want to join your startup if you match the base pay..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; resize: vertical; margin-bottom: 1rem; font-family: inherit;"></textarea>
 
                             <label for="nego-leverage">Primary Leverage Point</label>
-                            <select id="nego-leverage">
-                                <option value="Competing Offer">I have a competing offer</option>
-                                <option value="Top Scores">Top 10% Interview / Assessment Scores</option>
-                                <option value="Relocation">High relocation costs / Need bonus</option>
-                                <option value="Niche Skills">I possess highly niche / specialized skills</option>
-                                <option value="Market Rate">Current offer is below standard market rate</option>
-                            </select>
+                            <input type="text" id="nego-leverage" placeholder="Enter custom nego leverage...">
 
                             <button id="generate-nego-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Negotiation Scripts</button>
                         </div>
@@ -1272,29 +1132,13 @@
 
                         <div class="interview-setup" style="margin-bottom: 2rem;">
                             <label for="cold-recipient">Who You're Writing To</label>
-                            <select id="cold-recipient">
-                                <option value="Company Alum">Company Alum</option>
-                                <option value="Engineering Manager">Engineering Manager</option>
-                                <option value="Recruiter">Recruiter</option>
-                                <option value="Senior Software Engineer">Senior Software Engineer</option>
-                                <option value="Product Manager">Product Manager</option>
-                            </select>
+                            <input type="text" id="cold-recipient" placeholder="Enter custom cold recipient...">
 
                             <label for="cold-connection">Your Connection</label>
-                            <select id="cold-connection">
-                                <option value="Same College">Same College / Alma Mater</option>
-                                <option value="Met at Hackathon">Met at Hackathon / Event</option>
-                                <option value="Mutual Connection">Mutual Connection</option>
-                                <option value="No Connection">No Connection (Completely Cold)</option>
-                            </select>
+                            <input type="text" id="cold-connection" placeholder="Enter custom cold connection...">
 
                             <label for="cold-ask">The Ask / Goal</label>
-                            <select id="cold-ask">
-                                <option value="15-min Coffee Chat">15-min Coffee Chat / Quick advice</option>
-                                <option value="Referral for Specific Job">Referral for a specific Job ID</option>
-                                <option value="Resume Review">Quick Resume Review (1-2 pointers)</option>
-                                <option value="Insights on Team">Insights on their team culture</option>
-                            </select>
+                            <input type="text" id="cold-ask" placeholder="Enter custom cold ask...">
 
                             <label for="cold-custom">Custom Context (Optional)</label>
                             <input type="text" id="cold-custom" placeholder="e.g. Applying to Job ID #40924 or Interested in your recent post..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
@@ -1332,12 +1176,7 @@
                             <textarea id="email-draft" rows="4" placeholder="e.g. Hey, I can't make the interview today can we do tomorrow ASAP..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; resize: vertical; margin-bottom: 1rem; font-family: inherit;"></textarea>
                             
                             <label for="email-tone">Desired Tone</label>
-                            <select id="email-tone">
-                                <option value="Polite & Professional">Polite & Professional</option>
-                                <option value="Confident & Assertive">Confident & Assertive</option>
-                                <option value="Gratitude & Acceptance">Gratitude & Acceptance</option>
-                                <option value="Apologetic & Rescheduling">Apologetic & Rescheduling</option>
-                            </select>
+                            <input type="text" id="email-tone" placeholder="Enter tone (e.g., Professional, Confident)...">
 
                             <button id="generate-email-btn" class="glow-btn" style="margin-top: 1rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Polish Email</button>
                         </div>
@@ -1365,13 +1204,7 @@
                         <p style="color: var(--text-muted); margin-bottom: 2rem;">Compare your current tech stack against your target role to find the highest-ROI skill you are missing.</p>
                         <div class="interview-setup" style="margin-bottom: 2rem;">
                             <label for="radar-role">Target Role</label>
-                            <select id="radar-role">
-                                <option value="Frontend Engineer">Frontend Engineer</option>
-                                <option value="Backend Engineer">Backend Engineer</option>
-                                <option value="Full Stack Engineer">Full Stack Engineer</option>
-                                <option value="Data Scientist">Data Scientist</option>
-                                <option value="DevOps Engineer">DevOps Engineer</option>
-                            </select>
+                            <input type="text" id="radar-role" placeholder="Enter target role (e.g., SDE, Data Scientist)...">
                             
                             <label for="radar-skills">Your Current Mastered Skills (Comma separated)</label>
                             <input type="text" id="radar-skills" placeholder="e.g. HTML, CSS, JavaScript, React, Python..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
@@ -1402,11 +1235,7 @@
                         <p style="color: var(--text-muted); margin-bottom: 2rem;">Diagnose your wait time and generate a polite follow-up script if your application is stalled.</p>
                         <div class="interview-setup" style="margin-bottom: 2rem;">
                             <label for="ghost-size">Company Size / Tier</label>
-                            <select id="ghost-size">
-                                <option value="Early Startup">Early Startup (1-50 employees)</option>
-                                <option value="Mid-size Growth">Mid-size Growth (50-500 employees)</option>
-                                <option value="Large MNC">Large MNC / FAANG (500+ employees)</option>
-                            </select>
+                            <input type="text" id="ghost-size" placeholder="Enter custom ghost size...">
                             
                             <label for="ghost-days">Days Since Last Contact</label>
                             <input type="number" id="ghost-days" min="1" max="100" value="7" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
@@ -1440,23 +1269,13 @@
                         <p style="color: var(--text-muted); margin-bottom: 2rem;">Generate a recruiter-optimized, keyword-rich headline and an engaging "About" section to drive inbound messages.</p>
                         <div class="interview-setup" style="margin-bottom: 2rem;">
                             <label for="li-domain">Target Domain</label>
-                            <select id="li-domain">
-                                <option value="Software Engineering">Software Engineering</option>
-                                <option value="Backend Engineering">Backend Engineering</option>
-                                <option value="Data Science">Data Science</option>
-                                <option value="Product Management">Product Management</option>
-                                <option value="UI/UX Design">UI/UX Design</option>
-                            </select>
+                            <input type="text" id="li-domain" placeholder="Enter custom li domain...">
                             
                             <label for="li-skills">Core Skills (2-3 max)</label>
                             <input type="text" id="li-skills" placeholder="e.g. Node.js & Docker, Python & Machine Learning" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
                             
                             <label for="li-tone">Tone</label>
-                            <select id="li-tone">
-                                <option value="Action-Oriented">Action-Oriented (Best for Builders)</option>
-                                <option value="Tech-Forward">Tech-Forward (Best for Deep Tech)</option>
-                                <option value="Thought Leader">Thought Leader (Best for PMs/Designers)</option>
-                            </select>
+                            <input type="text" id="li-tone" placeholder="Enter tone (e.g., Professional, Confident)...">
 
                             <label for="li-context">Custom Context (Optional)</label>
                             <input type="text" id="li-context" placeholder="e.g. Interned at Amazon, love open-source..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
@@ -1487,18 +1306,10 @@
                         <p style="color: var(--text-muted); margin-bottom: 2rem;">Draft a low-friction request for a Letter of Recommendation or LinkedIn Endorsement, including a pre-written "Draft Snippet".</p>
                         <div class="interview-setup" style="margin-bottom: 2rem;">
                             <label for="lor-relationship">Relationship</label>
-                            <select id="lor-relationship">
-                                <option value="Professor">College Professor</option>
-                                <option value="Manager">Internship Manager</option>
-                                <option value="Teammate">Hackathon/Project Teammate</option>
-                            </select>
+                            <input type="text" id="lor-relationship" placeholder="Enter custom lor relationship...">
                             
                             <label for="lor-platform">Target Platform</label>
-                            <select id="lor-platform">
-                                <option value="LinkedIn Endorsement">LinkedIn Recommendation</option>
-                                <option value="Grad School LoR">Grad School LoR</option>
-                                <option value="Company Referral">General Company Referral</option>
-                            </select>
+                            <input type="text" id="lor-platform" placeholder="Enter custom lor platform...">
                             
                             <label for="lor-achievements">Shared Project / Achievements</label>
                             <input type="text" id="lor-achievements" placeholder="e.g. Topping the OS class, building the ML attendance system..." style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
@@ -1528,11 +1339,7 @@
                             <input type="text" id="ref-role" placeholder="e.g. Junior Backend Engineer" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
                             
                             <label for="ref-connection">Connection Level</label>
-                            <select id="ref-connection">
-                                <option value="Company Alum">College Alum at Company</option>
-                                <option value="Former Intern">Former Intern / Colleague</option>
-                                <option value="No Connection">No Connection (Cold Outreach)</option>
-                            </select>
+                            <input type="text" id="ref-connection" placeholder="Enter custom ref connection...">
                             
                             <label for="ref-goal">Referral Goal (e.g., Job ID)</label>
                             <input type="text" id="ref-goal" placeholder="e.g. Job ID #12345" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; margin-bottom: 1rem; font-family: inherit;">
@@ -2140,33 +1947,17 @@
                             
                             <div class="input-group" style="margin-bottom: 1.25rem;">
                                 <label for="select-pf">Provident Fund (PF) Settings</label>
-                                <select id="select-pf">
-                                    <option value="12basic">12% of Basic Salary (Standard)</option>
-                                    <option value="capped">Capped at ₹1,800/month</option>
-                                    <option value="none">No PF Deduction</option>
-                                </select>
+                                <input type="text" id="select-pf" placeholder="Enter custom select pf...">
                             </div>
                             
                             <div class="input-group" style="margin-bottom: 1.25rem;">
                                 <label for="select-regime">Tax Regime Comparison</label>
-                                <select id="select-regime">
-                                    <option value="compare">Compare & Suggest Best Regime</option>
-                                    <option value="new">New Tax Regime Only (FY 2026-27)</option>
-                                    <option value="old">Old Tax Regime Only</option>
-                                </select>
+                                <input type="text" id="select-regime" placeholder="Enter custom select regime...">
                             </div>
                             
                             <div class="input-group" style="margin-bottom: 1.25rem;">
                                 <label for="select-state">State for Professional Tax (PT)</label>
-                                <select id="select-state">
-                                    <option value="kar" selected>Karnataka</option>
-                                    <option value="mah">Maharashtra</option>
-                                    <option value="tam">Tamil Nadu</option>
-                                    <option value="tel">Telangana / Andhra Pradesh</option>
-                                    <option value="wbe">West Bengal</option>
-                                    <option value="guj">Gujarat</option>
-                                    <option value="other">Other State (Flat ₹2,500/yr)</option>
-                                </select>
+                                <input type="text" id="select-state" placeholder="Enter custom select state...">
                             </div>
                             
                             <!-- Advanced parameters accordion -->
@@ -2209,21 +2000,14 @@
                                         </div>
                                         <div class="adv-input-group">
                                             <label for="select-city-type">City Type for HRA</label>
-                                            <select id="select-city-type" style="padding: 0.4rem; width: 140px;">
-                                                <option value="metro">Metro (50%)</option>
-                                                <option value="nonmetro" selected>Non-Metro (40%)</option>
-                                            </select>
+                                            <input type="text" id="select-city-type" style="padding: 0.4rem; width: 140px;" placeholder="Enter custom select city type...">
                                         </div>
                                         
                                         <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
                                         <span class="sub-section-title">Company Provided Car (Sec 17(2))</span>
                                         <div class="adv-input-group">
                                             <label for="select-car-engine">Car Engine Capacity</label>
-                                            <select id="select-car-engine" style="padding: 0.4rem; width: 140px;">
-                                                <option value="none" selected>No Car</option>
-                                                <option value="small">Engine <= 1.6L</option>
-                                                <option value="large">Engine > 1.6L</option>
-                                            </select>
+                                            <input type="text" id="select-car-engine" style="padding: 0.4rem; width: 140px;" placeholder="Enter custom select car engine...">
                                         </div>
                                         <div class="adv-input-group" style="justify-content: flex-start;">
                                             <label class="checkbox-label">
@@ -2686,14 +2470,7 @@
                         </div>
                         <div>
                             <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Engineering Branch</label>
-                            <select id="placeiq-branch" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none; height: 38px;">
-                                <option value="cse">Computer Science (CSE / IT)</option>
-                                <option value="ece">Electronics & Comm (ECE)</option>
-                                <option value="mechanical">Mechanical Engineering</option>
-                                <option value="electrical">Electrical Engineering</option>
-                                <option value="civil">Civil Engineering</option>
-                                <option value="chemical">Chemical Engineering</option>
-                            </select>
+                            <input type="text" id="placeiq-branch" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 0.6rem 0.8rem; font-size: 0.85rem; outline: none; height: 38px;" placeholder="Enter branch (e.g., CSE, Mechanical)...">
                         </div>
                         <div>
                             <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Current CGPA</label>

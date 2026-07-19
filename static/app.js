@@ -902,16 +902,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 roadmapEligibilityError.classList.add("hide");
                 roadmapSelectionContainer.classList.remove("hide");
-                
-                // Populate subjects dynamically
-                roadmapSubject.innerHTML = "";
-                const subjects = branchSubjects[branch] || branchSubjects.cse;
-                subjects.forEach(sub => {
-                    const opt = document.createElement("option");
-                    opt.value = sub;
-                    opt.textContent = sub;
-                    roadmapSubject.appendChild(opt);
-                });
             }
         });
     }
