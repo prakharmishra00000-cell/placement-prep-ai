@@ -4160,6 +4160,12 @@ Sitemap: https://placement-prep-ai-nqhm.onrender.com/sitemap.xml'''
     return app.response_class(txt, mimetype='text/plain')
 
 
+
+@app.route('/googlef348f482c7865d61.html', methods=['GET'])
+def google_verification():
+    return app.response_class('google-site-verification: googlef348f482c7865d61.html', mimetype='text/html')
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 9876))
     app.run(host="0.0.0.0", port=port)
