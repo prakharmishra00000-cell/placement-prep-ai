@@ -4136,6 +4136,30 @@ Output the response in a clean, professional HTML format. Do not use markdown ba
         return jsonify({"error": str(e)}), 500
 
 
+
+@app.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+    import datetime
+    now = datetime.datetime.now().strftime('%Y-%m-%d')
+    xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://placement-prep-ai-nqhm.onrender.com/</loc>
+    <lastmod>{now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>'''
+    return app.response_class(xml, mimetype='application/xml')
+
+@app.route('/robots.txt', methods=['GET'])
+def robots():
+    txt = '''User-agent: *
+Allow: /
+Sitemap: https://placement-prep-ai-nqhm.onrender.com/sitemap.xml'''
+    return app.response_class(txt, mimetype='text/plain')
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 9876))
     app.run(host="0.0.0.0", port=port)
