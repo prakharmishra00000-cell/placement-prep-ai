@@ -4089,9 +4089,9 @@ DEEP ANALYSIS REQUIRED:
 Output the response in a clean, professional HTML format (e.g., unordered lists, bold text for emphasis). Do not use markdown backticks, just output raw HTML."""
 
         elif tool_type == "ghost_detector":
-            company = data.get("company", "").strip()
-            size = data.get("size", "").strip()
-            days = data.get("days", "").strip()
+            company = str(data.get("company", "")).strip()
+            size = str(data.get("size", "")).strip()
+            days = str(data.get("days", "")).strip()
             prompt = f"""You are a technical recruiter.
 Company Name: {company}
 Company Size: {size}
