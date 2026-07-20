@@ -3448,7 +3448,7 @@ if (gpsAnalyzeBtn) {
             if (data.error) {
                 content.innerHTML = `<p style="color: var(--neon-pink)">Error: ${data.error || "Unknown Error"}</p>`;
             } else {
-                content.innerHTML = marked.parse(data.strategy);
+                content.innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.strategy || "No output generated.");
             }
         } catch (err) {
             content.innerHTML = `<p style="color: var(--neon-pink)">Connection error: ${err.message || "Failed to connect"}</p>`;
@@ -3489,7 +3489,7 @@ if (meshBtn) {
                 body: JSON.stringify({ jd, stack })
             });
             const data = await res.json();
-            document.getElementById('mesh-content').innerHTML = marked.parse(data.result);
+            document.getElementById('mesh-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('mesh-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3518,7 +3518,7 @@ if (rehabBtn) {
                 body: JSON.stringify({ email })
             });
             const data = await res.json();
-            document.getElementById('rehab-content').innerHTML = marked.parse(data.result);
+            document.getElementById('rehab-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('rehab-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3659,7 +3659,7 @@ if (gdBtn) {
                 body: JSON.stringify({ topic })
             });
             const data = await res.json();
-            document.getElementById('gd-content').innerHTML = marked.parse(data.result);
+            document.getElementById('gd-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('gd-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3690,7 +3690,7 @@ if (tyBtn) {
                 body: JSON.stringify({ name, topic, takeaway })
             });
             const data = await res.json();
-            document.getElementById('ty-content').innerHTML = marked.parse(data.result);
+            document.getElementById('ty-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('ty-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3719,7 +3719,7 @@ if (bulletBtn) {
                 body: JSON.stringify({ bullet })
             });
             const data = await res.json();
-            document.getElementById('bullet-content').innerHTML = marked.parse(data.result);
+            document.getElementById('bullet-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('bullet-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3753,7 +3753,7 @@ if (certBtn) {
                 body: JSON.stringify({ text })
             });
             const data = await res.json();
-            document.getElementById('cert-content').innerHTML = marked.parse(data.result);
+            document.getElementById('cert-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('cert-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3782,7 +3782,7 @@ if (scalerBtn) {
                 body: JSON.stringify({ project })
             });
             const data = await res.json();
-            document.getElementById('scaler-content').innerHTML = marked.parse(data.result);
+            document.getElementById('scaler-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('scaler-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3811,7 +3811,7 @@ if (riBtn) {
                 body: JSON.stringify({ round })
             });
             const data = await res.json();
-            document.getElementById('ri-content').innerHTML = marked.parse(data.result);
+            document.getElementById('ri-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('ri-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3840,7 +3840,7 @@ if (acronymBtn) {
                 body: JSON.stringify({ jargon })
             });
             const data = await res.json();
-            document.getElementById('acronym-content').innerHTML = marked.parse(data.result);
+            document.getElementById('acronym-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('acronym-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3871,7 +3871,7 @@ if (hackBtn) {
                 body: JSON.stringify({ problem, solution, impact })
             });
             const data = await res.json();
-            document.getElementById('hack-content').innerHTML = marked.parse(data.result);
+            document.getElementById('hack-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('hack-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3900,7 +3900,7 @@ if (imposterBtn) {
                 body: JSON.stringify({ doubt })
             });
             const data = await res.json();
-            document.getElementById('imposter-content').innerHTML = marked.parse(data.result);
+            document.getElementById('imposter-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('imposter-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3934,7 +3934,7 @@ if (takehomeBtn) {
                 body: JSON.stringify({ prompt })
             });
             const data = await res.json();
-            document.getElementById('takehome-content').innerHTML = marked.parse(data.result);
+            document.getElementById('takehome-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('takehome-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3963,7 +3963,7 @@ if (aptitudeBtn) {
                 body: JSON.stringify({ topic })
             });
             const data = await res.json();
-            document.getElementById('aptitude-content').innerHTML = marked.parse(data.result);
+            document.getElementById('aptitude-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('aptitude-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -3992,7 +3992,7 @@ if (companyBtn) {
                 body: JSON.stringify({ company })
             });
             const data = await res.json();
-            document.getElementById('company-content').innerHTML = marked.parse(data.result);
+            document.getElementById('company-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('company-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -4021,7 +4021,7 @@ if (starBtn) {
                 body: JSON.stringify({ anecdote })
             });
             const data = await res.json();
-            document.getElementById('star-content').innerHTML = marked.parse(data.result);
+            document.getElementById('star-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('star-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
@@ -4083,7 +4083,7 @@ if (gdShieldBtn) {
                 body: JSON.stringify({ stance })
             });
             const data = await res.json();
-            document.getElementById('gd-shield-content').innerHTML = marked.parse(data.result);
+            document.getElementById('gd-shield-content').innerHTML = data.error ? `<p style="color:var(--neon-pink)">Error: ${data.error}</p>` : marked.parse(data.result || "No output generated.");
         } catch (e) {
             document.getElementById('gd-shield-content').innerHTML = `<p style="color:var(--neon-pink)">Error: ${e.message}</p>`;
         } finally {
