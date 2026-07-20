@@ -3446,12 +3446,12 @@ if (gpsAnalyzeBtn) {
             const data = await res.json();
             
             if (data.error) {
-                content.innerHTML = <p style="color: var(--neon-pink)">Error: </p>;
+                content.innerHTML = `<p style="color: var(--neon-pink)">Error: ${data.error || "Unknown Error"}</p>`;
             } else {
                 content.innerHTML = marked.parse(data.strategy);
             }
         } catch (err) {
-            content.innerHTML = <p style="color: var(--neon-pink)">Connection error: </p>;
+            content.innerHTML = `<p style="color: var(--neon-pink)">Connection error: ${err.message || "Failed to connect"}</p>`;
         } finally {
             loading.style.display = 'none';
             result.style.display = 'block';
