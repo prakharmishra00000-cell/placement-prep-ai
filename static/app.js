@@ -3372,7 +3372,7 @@ function renderGPSContacts() {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
         
-        tr.innerHTML = 
+        tr.innerHTML = `
             <td style="padding: 0.75rem;"></td>
             <td style="padding: 0.75rem;"></td>
             <td style="padding: 0.75rem;"></td>
@@ -3381,7 +3381,7 @@ function renderGPSContacts() {
             <td style="padding: 0.75rem;">
                 <button class="btn btn-sm" onclick="deleteGPSContact()" style="background: transparent; color: var(--neon-pink); padding: 0.2rem 0.5rem;"><i class="fa-solid fa-trash"></i></button>
             </td>
-        ;
+        `;
         tbody.appendChild(tr);
     });
 }
