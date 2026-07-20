@@ -89,36 +89,9 @@
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar" style="position: fixed; top: 75px; height: calc(100vh - 75px); width: var(--sidebar-width); background: rgba(7, 9, 19, 0.85); border-right: 1px solid var(--border-color); backdrop-filter: blur(15px); display: flex; flex-direction: column; padding: 1.5rem; left: 0; z-index: 10; overflow-y: auto;">
             <div class="sidebar-nav" style="display: flex; flex-direction: column; gap: 1.25rem;">
-                <!-- Global Search Trigger -->
-                <div class="search-trigger" onclick="openCommandPalette()" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.3s ease; margin-bottom: 1.5rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
-                        <i class="fa-solid fa-search"></i>
-                        <span style="font-size: 0.9rem;">Search Tools...</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.25rem;">
-                        <span style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-family: monospace; color: var(--text-muted);">⌘K</span>
-                    </div>
-                </div>
-                
-                <!-- Workspace Mode Switcher -->
-                <div class="workspace-switcher" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 2rem;">
-                    <button class="mode-btn active" data-mode="prep" style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                        <i class="fa-solid fa-dumbbell"></i> Prep
-                    </button>
-                    <button class="mode-btn" data-mode="apply" style="background: rgba(255,255,255,0.05); border: 1px solid transparent; color: var(--text-muted); padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                        <i class="fa-solid fa-paper-plane"></i> Apply
-                    </button>
-                    <button class="mode-btn" data-mode="interview" style="background: rgba(255,255,255,0.05); border: 1px solid transparent; color: var(--text-muted); padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                        <i class="fa-solid fa-microphone"></i> Interview
-                    </button>
-                    <button class="mode-btn" data-mode="post" style="background: rgba(255,255,255,0.05); border: 1px solid transparent; color: var(--text-muted); padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                        <i class="fa-solid fa-handshake"></i> Post-Offer
-                    </button>
-                </div>
-
                 
                 <!-- Category 1: AI Workspaces -->
-                <div class="mode-group" data-mode-group="prep">
+                <div>
                     <h4 style="font-family: var(--font-heading); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--neon-cyan); margin-bottom: 0.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-solid fa-robot"></i> AI Workspaces</h4>
                     <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                         <a href="#" class="nav-item" data-tab="twin"><i class="fa-solid fa-user-gear"></i> Digital Twin</a>
@@ -129,7 +102,7 @@
                 </div>
 
                 <!-- Category 2: Analyzers -->
-                <div class="mode-group" data-mode-group="prep">
+                <div>
                     <h4 style="font-family: var(--font-heading); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--neon-blue); margin-bottom: 0.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-solid fa-chart-line"></i> Core Analyzers</h4>
                     <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                         <a href="#" class="nav-item" data-tab="placeiq"><i class="fa-solid fa-chart-line text-neon-cyan"></i> PrepOS Predictor</a>
@@ -3400,20 +3373,5 @@
 
     <script src="/static/vocal-analysis.js"></script>
     <script src="/static/app.js"></script>
-
-    <!-- Global Command Palette -->
-    <div id="command-palette-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 9999; align-items: flex-start; justify-content: center; padding-top: 15vh;">
-        <div style="width: 90%; max-width: 600px; background: rgba(10, 14, 28, 0.95); border: 1px solid var(--neon-cyan); border-radius: 12px; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); overflow: hidden; display: flex; flex-direction: column;">
-            <div style="display: flex; align-items: center; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <i class="fa-solid fa-search" style="color: var(--neon-cyan); font-size: 1.2rem; margin-right: 1rem;"></i>
-                <input type="text" id="command-palette-input" placeholder="Search 50+ tools (e.g. 'resume', 'tax', 'salary')..." style="flex: 1; background: transparent; border: none; color: #fff; font-size: 1.1rem; outline: none; font-family: var(--font-body);">
-                <span style="font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">ESC to close</span>
-            </div>
-            <div id="command-palette-results" style="max-height: 350px; overflow-y: auto; padding: 0.5rem;">
-                <!-- Results populated by JS -->
-            </div>
-        </div>
-    </div>
-
 </body>
 </html>
