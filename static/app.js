@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "gd-shield": { title: "GD Counter-Shield", sub: "Predict opposing arguments and generate data-driven defensive pivots" },
         "imposter-reframe": { title: "Imposter Reframer", sub: "Convert self-doubt into a logical, objective skill-acquisition roadmap" },
         "bullet-polish": { title: "Bullet Polish", sub: "Upgrade weak resume bullets with high-impact action verbs instantly" },
-        "networking-gps": { title: "Networking GPS", sub: "Map relationships, categorize connections by tiers, and get AI strategy to reactivate stale referrals" },,
+        "networking-gps": { title: "Networking GPS", sub: "Map relationships, categorize connections by tiers, and get AI strategy to reactivate stale referrals" },
         "docs": { title: "PrepOS AI User Guide", sub: "Detailed reference manual explaining how all 230 flagship features work" }
     };
 
@@ -2987,10 +2987,10 @@ class Solution {
                 generateNegoBtn.disabled = false;
                 
                 if (data.error) {
-                    document.getElementById("nego-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("nego-email-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
                     document.getElementById("nego-output-container").style.display = "block";
                 } else {
-                    document.getElementById("nego-output-body").innerHTML = data.result;
+                    document.getElementById("nego-email-body").innerHTML = data.result;
                     document.getElementById("nego-output-container").style.display = "block";
                 }
             })
@@ -3084,11 +3084,11 @@ class Solution {
                 
                 if (data.error) {
                     document.getElementById("email-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
-                    document.getElementById("email-explanation-body").innerHTML = "<em>Polished by AI Email Doctor</em>";
+                    document.getElementById("email-explanation").innerHTML = "<em>Polished by AI Email Doctor</em>";
                     document.getElementById("email-output-container").style.display = "block";
                 } else {
                     document.getElementById("email-output-body").innerHTML = data.result;
-                    document.getElementById("email-explanation-body").innerHTML = "<em>Polished by AI Email Doctor</em>";
+                    document.getElementById("email-explanation").innerHTML = "<em>Polished by AI Email Doctor</em>";
                     document.getElementById("email-output-container").style.display = "block";
                 }
             })
@@ -3133,10 +3133,10 @@ class Solution {
                 generateRadarBtn.disabled = false;
                 
                 if (data.error) {
-                    document.getElementById("radar-output-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
+                    document.getElementById("radar-insight").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
                     document.getElementById("radar-output-container").style.display = "block";
                 } else {
-                    document.getElementById("radar-output-body").innerHTML = data.result;
+                    document.getElementById("radar-insight").innerHTML = data.result;
                     document.getElementById("radar-output-container").style.display = "block";
                 }
             })
