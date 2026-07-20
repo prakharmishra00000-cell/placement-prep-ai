@@ -816,42 +816,67 @@ def get_generic_pyqs(company_name):
 
 import google.generativeai as genai
 
-def call_gemini_api(prompt, api_key, system_instruction=None):
+# --- Robust Load Balancer Monkey Patch ---
+_OriginalGenerativeModel = genai.GenerativeModel
+
+class RobustGenerativeModel:
+    def __init__(self, model_name, **kwargs):
+        self.model_name = model_name
+        self.kwargs = kwargs
+
+    def generate_content(self, *args, **kwargs):
+        global _api_key_pool
+        max_retries = max(1, len(_api_key_pool))
+        last_error = None
+        
+        for attempt in range(max_retries):
+            key = get_backend_gemini_key()
+            try:
+                real_model = _OriginalGenerativeModel(self.model_name, **self.kwargs)
+                res = real_model.generate_content(*args, **kwargs)
+                return res
+            except Exception as e:
+                err_str = str(e).lower()
+                if '429' in err_str or 'quota' in err_str or 'exhausted' in err_str or '503' in err_str or '500' in err_str:
+                    print(f"[SDK] Rate limit or server error on attempt {attempt+1}. Retrying with next key...")
+                    last_error = e
+                    continue
+                else:
+                    raise e
+        return type('obj', (object,), {'text' : f'Error: AI Engine overloaded. Please try again later. ({last_error})'})
+
+genai.GenerativeModel = RobustGenerativeModel
+# -----------------------------------------
+
+def call_gemini_api(prompt, initial_api_key, system_instruction=None):
     payload = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ]
+        "contents": [{"parts": [{"text": prompt}]}]
     }
     if system_instruction:
-        payload["systemInstruction"] = {
-            "parts": [
-                {"text": system_instruction}
-            ]
+        payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
+        
+    global _api_key_pool
+    max_retries = max(1, len(_api_key_pool))
+    
+    for attempt in range(max_retries):
+        current_key = get_backend_gemini_key()
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": current_key
         }
         
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": api_key
-    }
-    
-    # Try 3.5 flash first, then 1.5 flash, then 1.5 pro
-    models = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-1.5-pro", "gemini-pro"]
-    versions = ["v1", "v1beta"]
-    
-    for version in versions:
+        models = ["gemini-2.5-flash", "gemini-1.5-pro"]
         for model in models:
-            url = f"https://generativelanguage.googleapis.com/{version}/models/{model}:generateContent"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
             try:
                 r = requests.post(url, json=payload, headers=headers, timeout=20)
                 if r.status_code == 200:
-                    res_data = r.json()
-                    return res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                elif r.status_code in [429, 500, 503]:
+                    print(f"[REST] Rate limit on {model}. Retrying...")
+                    break # Break inner loop, try next key in outer loop
             except Exception as e:
-                print(f"REST query failed for {version}/{model}: {e}")
+                pass
     return None
 
 def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
