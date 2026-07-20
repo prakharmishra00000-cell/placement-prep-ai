@@ -839,7 +839,7 @@ def call_gemini_api(prompt, api_key, system_instruction=None):
     }
     
     # Try 3.5 flash first, then 1.5 flash, then 1.5 pro
-    models = ["gemini-3.5-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+    models = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-1.5-pro", "gemini-pro"]
     versions = ["v1", "v1beta"]
     
     for version in versions:
@@ -929,7 +929,7 @@ def fetch_company_data_via_gemini(company, category, api_key, branch="cse"):
         "x-goog-api-key": api_key
     }
     
-    for model in ["gemini-3.5-flash", "gemini-1.5-flash"]:
+    for model in ["gemini-3.5-flash", "gemini-2.5-flash"]:
         url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent"
         try:
             r = requests.post(url, json=payload, headers=headers, timeout=9)
@@ -1051,7 +1051,7 @@ def analyze_resume():
     if api_key:
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             
             prompt = f"""
             You are a professional ATS resume auditor.
@@ -2171,8 +2171,8 @@ def test_gemini_endpoints():
     }
     
     fallback_matrix = [
-        ("v1", "gemini-1.5-flash"),
-        ("v1beta", "gemini-1.5-flash"),
+        ("v1", "gemini-2.5-flash"),
+        ("v1beta", "gemini-2.5-flash"),
         ("v1", "gemini-1.5-pro"),
         ("v1beta", "gemini-1.5-pro")
     ]
@@ -2699,7 +2699,7 @@ def get_interview_questions():
     if api_key:
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             prompt = f"""
             You are an expert technical interviewer at {company} interviewing for the role of "{role}" at a "{difficulty}" difficulty tier.
             Use the following real-time Google search context as a reference to frame exactly 3 highly realistic, role-specific, and branch-dedicated questions representing actual interview experiences at {company}:
@@ -2765,7 +2765,7 @@ def evaluate_interview():
     if api_key and len(questions) == len(responses):
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             
             transcript_str = ""
             for q, r in zip(questions, responses):
@@ -4192,7 +4192,7 @@ Your task:
 
 Output your strategy in clean Markdown. Use bullet points and bold text for readability.'''
         
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         
         return jsonify({
@@ -4222,7 +4222,7 @@ User's Current Stack:
 {stack}
 
 Cross-reference the overlap percentage. Generate a 48-hour micro-upskilling sprint plan to bridge the missing secondary competencies that recruiters are actively filtering for. Use markdown, bolding, and bullet points.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4240,7 +4240,7 @@ Here is an automated rejection email the user received:
 
 Diagnose the rejection. Strip away the emotional sting. Analyze if the rejection was due to a skills gap or sheer market volume (ATS filtering). 
 Output a one-sentence perspective shift, and then give the user an immediate, constructive next action to bounce back. Use markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4260,7 +4260,7 @@ Generate three structured talking points to help the user speak with authority:
 2. Core data/logical angle (a unique perspective)
 3. Conclusion summary (how to wrap it up professionally)
 Keep it sharp, actionable, and formatted in markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4280,7 +4280,7 @@ Key Topic Discussed: {topic}
 One Specific Takeaway: {takeaway}
 
 Write a sharp, genuine, and professional post-interview thank you email. It must sound human, not robotic or desperate. It must reinforce the candidate's technical alignment based on the topic discussed. Output the email directly in plain text (no markdown code blocks, just the email body).'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4297,7 +4297,7 @@ Weak bullet point: {bullet}
 
 Instantly rewrite this bullet point into 3 high-impact variations using strong action verbs (e.g. Spearheaded, Engineered, Optimized) and technical metrics structure (e.g. XYZ format).
 Format the output in markdown, bolding the action verbs.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4320,7 +4320,7 @@ A student has pasted the description or syllabus of a certificate they completed
 {text}
 
 Extract the core skills and summarize this credential into a single, crisp, high-impact bullet point ready for a resume or LinkedIn credentials section. Output ONLY the bullet point (formatted in markdown).'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4337,7 +4337,7 @@ A student has provided a simple, basic description of their college project:
 {project}
 
 Rewrite this project description to emphasize advanced engineering concepts (like concurrency handling, modular components, API integrations, and database optimization). Make it sound like a robust enterprise system without lying about the core technology. Format it as 3 high-impact resume bullet points in markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4354,7 +4354,7 @@ The candidate is preparing for a **{round_type}**.
 At the end of the interview, they will be asked: "Do you have any questions for us?"
 
 Provide exactly 3 sharp, high-impact, and intelligent questions tailored specifically to this interviewer persona that demonstrate genuine business insight and technical maturity. Format the output in clean markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4370,7 +4370,7 @@ def acronym_decoder():
 The jargon/acronym they need to decode is: **{jargon}**
 
 Give a crisp, 2-sentence technical definition paired with a relatable, real-world system design example (e.g., comparing it to a restaurant, a post office, or an everyday tech product). Format in markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4391,7 +4391,7 @@ Solution: {solution}
 Impact: {impact}
 
 Synthesize this into a punchy, results-oriented 30-second elevator pitch narrative ready for a recruiter or LinkedIn post. Make it sound highly impressive and action-driven. Use markdown formatting.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4412,7 +4412,7 @@ Convert this emotional self-doubt into an objective, foundational skill-acquisit
 2. Highlight the foundational/transferable skills they probably already have that are related to this.
 3. Give them a logical, 2-step micro-plan to start closing the gap today to restore their confidence. 
 Use markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4439,7 +4439,7 @@ Break this assignment down into a clear, stress-free 24-hour milestone timeline.
 2. Key Deliverables for Hour 4, Hour 12, and Hour 24.
 3. One "Bonus / Show-off" feature they can add to impress the hiring manager.
 Format the output in clean markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(system_prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4459,7 +4459,7 @@ Include:
 1. The 30-second mental trick.
 2. A fast memory mnemonic.
 Keep it extremely concise and format it in markdown with bolding for emphasis.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(system_prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4479,7 +4479,7 @@ Simulate crowdsourced alumni intelligence for this company. Detail:
 2. What their engineering team heavily prioritizes (e.g., speed over perfection, extreme testing, customer obsession).
 3. One "hidden quirk" or red flag they test for.
 Format the output cleanly in markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(system_prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4502,7 +4502,7 @@ Provide headings for:
 **Action:**
 **Result:**
 Ensure it sounds professional but authentic. Use markdown.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(system_prompt)
         return jsonify({'result': response.text})
     except Exception as e:
@@ -4519,7 +4519,7 @@ The candidate's primary stance is: "{stance}"
 
 Predict the top two most likely opposing arguments that other candidates will throw at them in a GD.
 For each predicted attack, provide a polite, data-driven, and authoritative rebuttal framework they can use to pivot and maintain dominance in the conversation. Use markdown formatting.'''
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(system_prompt)
         return jsonify({'result': response.text})
     except Exception as e:
