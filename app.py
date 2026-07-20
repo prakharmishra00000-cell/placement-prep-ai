@@ -975,30 +975,53 @@ def get_credential(key_name):
             pass
     return ""
 
+
+_api_key_pool = []
+_pool_index = 0
+
 def get_backend_gemini_key():
-    key = get_credential("GEMINI_API_KEY")
-    if is_valid_key(key):
-        return key
-    if os.path.exists("config.json"):
+    global _api_key_pool, _pool_index
+    import os, json
+    
+    if not _api_key_pool:
+        keys_to_check = []
         try:
-            with open("config.json", "r") as f:
-                cfg = json.load(f)
-                val = cfg.get("GEMINI_API_KEY", "").strip()
-                if is_valid_key(val):
-                    return val
-        except:
-            pass
-    if os.path.exists(".env"):
-        try:
-            with open(".env", "r") as f:
-                for line in f:
-                    if line.strip().startswith("GEMINI_API_KEY="):
-                        val = line.split("GEMINI_API_KEY=")[1].strip()
-                        if is_valid_key(val):
-                            return val
-        except:
-            pass
-    return ""
+            keys_to_check.append(get_credential("GEMINI_API_KEY"))
+        except: pass
+        
+        # Pull standard and multiple Render variables
+        keys_to_check.append(os.environ.get("GEMINI_API_KEY"))
+        for i in range(1, 10):
+            keys_to_check.append(os.environ.get(f"GEMINI_API_KEY_{i}"))
+            
+        # Optional file fallbacks
+        if os.path.exists("config.json"):
+            try:
+                with open("config.json", "r") as f:
+                    cfg = json.load(f)
+                    keys_to_check.append(cfg.get("GEMINI_API_KEY", "").strip())
+            except: pass
+            
+        valid_keys = []
+        for k in keys_to_check:
+            if k and len(k) > 20 and k not in valid_keys:
+                valid_keys.append(k)
+                
+        _api_key_pool = valid_keys
+
+    if not _api_key_pool:
+        return ""
+        
+    # Round-Robin Load Balancing
+    key = _api_key_pool[_pool_index % len(_api_key_pool)]
+    _pool_index = (_pool_index + 1) % len(_api_key_pool)
+    
+    # Configure the global genai SDK instance with the chosen key for this request
+    try:
+        genai.configure(api_key=key)
+    except: pass
+        
+    return key
 
 @app.route("/")
 def home():
