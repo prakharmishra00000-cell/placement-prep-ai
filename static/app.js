@@ -4093,3 +4093,152 @@ if (gdShieldBtn) {
         }
     });
 }
+
+
+// --- NAVIGATION ARCHITECTURE OVERHAUL ---
+
+// 1. Workspace Mode Switcher
+const modeBtns = document.querySelectorAll('.mode-btn');
+const modeGroups = document.querySelectorAll('.mode-group');
+
+modeBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Reset all buttons
+        modeBtns.forEach(b => {
+            b.classList.remove('active');
+            b.style.background = 'rgba(255,255,255,0.05)';
+            b.style.border = '1px solid transparent';
+            b.style.color = 'var(--text-muted)';
+        });
+        
+        // Activate clicked
+        btn.classList.add('active');
+        btn.style.background = 'rgba(0, 240, 255, 0.1)';
+        btn.style.border = '1px solid var(--neon-cyan)';
+        btn.style.color = 'var(--neon-cyan)';
+        
+        // Show corresponding groups
+        const targetMode = btn.dataset.mode;
+        modeGroups.forEach(group => {
+            if (group.dataset.modeGroup === targetMode) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        });
+    });
+});
+
+// 2. Global Command Palette
+const paletteOverlay = document.getElementById('command-palette-overlay');
+const paletteInput = document.getElementById('command-palette-input');
+const paletteResults = document.getElementById('command-palette-results');
+
+window.openCommandPalette = () => {
+    paletteOverlay.style.display = 'flex';
+    paletteInput.value = '';
+    setTimeout(() => paletteInput.focus(), 50);
+    renderPaletteResults('');
+};
+
+window.closeCommandPalette = () => {
+    paletteOverlay.style.display = 'none';
+};
+
+// Listen for Cmd+K / Ctrl+K and ESC
+document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (paletteOverlay.style.display === 'flex') {
+            closeCommandPalette();
+        } else {
+            openCommandPalette();
+        }
+    }
+    if (e.key === 'Escape' && paletteOverlay.style.display === 'flex') {
+        closeCommandPalette();
+    }
+});
+
+// Build search index from tabMeta dynamically to avoid hardcoding 50 tools twice
+let searchIndex = [];
+for (const [key, value] of Object.entries(tabMeta)) {
+    searchIndex.push({
+        id: key,
+        title: value.title,
+        desc: value.desc,
+        icon: value.icon || '<i class="fa-solid fa-robot"></i>' // Default icon fallback
+    });
+}
+
+function renderPaletteResults(query) {
+    paletteResults.innerHTML = '';
+    const q = query.toLowerCase();
+    
+    let filtered = searchIndex.filter(item => 
+        item.title.toLowerCase().includes(q) || 
+        item.desc.toLowerCase().includes(q) ||
+        item.id.toLowerCase().includes(q)
+    );
+    
+    // Sort logic to keep most relevant first
+    
+    if (filtered.length === 0) {
+        paletteResults.innerHTML = `<div style="padding: 1rem; color: var(--text-muted); text-align: center;">No tools found matching "${query}".</div>`;
+        return;
+    }
+    
+    filtered.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'palette-item';
+        div.style.padding = '0.75rem 1rem';
+        div.style.borderRadius = '8px';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '1rem';
+        div.style.cursor = 'pointer';
+        div.style.transition = 'background 0.2s ease';
+        div.style.marginBottom = '0.25rem';
+        
+        // Highlight first item slightly differently to imply "Enter to select"
+        if (index === 0 && q.length > 0) {
+            div.style.background = 'rgba(255,255,255,0.05)';
+        }
+        
+        div.onmouseover = () => div.style.background = 'rgba(0, 240, 255, 0.05)';
+        div.onmouseout = () => div.style.background = index === 0 && q.length > 0 ? 'rgba(255,255,255,0.05)' : 'transparent';
+        
+        div.onclick = () => {
+            closeCommandPalette();
+            // Automatically switch sidebar to the correct mode?
+            // Optional enhancement: We just trigger the tab switch directly!
+            const navLink = document.querySelector(`.nav-item[data-tab="${item.id}"]`);
+            if (navLink) navLink.click();
+        };
+        
+        div.innerHTML = `
+            <div style="font-size: 1.2rem; color: var(--neon-cyan); width: 30px; text-align: center;">
+                ${item.icon}
+            </div>
+            <div style="flex: 1;">
+                <div style="color: #fff; font-weight: 600; font-size: 0.95rem;">${item.title}</div>
+                <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px;">${item.desc}</div>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.2); font-size: 0.8rem;"></i>
+        `;
+        paletteResults.appendChild(div);
+    });
+}
+
+paletteInput.addEventListener('input', (e) => {
+    renderPaletteResults(e.target.value);
+});
+
+paletteInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const firstItem = paletteResults.querySelector('.palette-item');
+        if (firstItem) {
+            firstItem.click();
+        }
+    }
+});
