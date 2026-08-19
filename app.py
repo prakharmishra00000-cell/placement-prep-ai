@@ -1070,128 +1070,184 @@ def search_company():
     data = synthesize_company_data(company, category, branch)
     return jsonify(data)
 
+def extract_text_from_upload(filepath, filename):
+    filename_lower = filename.lower()
+    if filename_lower.endswith(".txt"):
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                return f.read()
+        except:
+            try:
+                with open(filepath, "r", encoding="latin-1") as f:
+                    return f.read()
+            except:
+                return ""
+    elif filename_lower.endswith(".docx"):
+        try:
+            import zipfile, xml.etree.ElementTree as ET
+            with zipfile.ZipFile(filepath) as z:
+                xml_content = z.read('word/document.xml')
+            tree = ET.fromstring(xml_content)
+            texts = []
+            for elem in tree.iter():
+                if elem.tag.endswith('t') and elem.text:
+                    texts.append(elem.text)
+            return " ".join(texts)
+        except Exception as e:
+            print("DOCX extract error:", e)
+            return ""
+    elif filename_lower.endswith(".pdf"):
+        try:
+            try:
+                import pypdf
+                reader = pypdf.PdfReader(filepath)
+                text = " ".join([page.extract_text() or "" for page in reader.pages])
+                if text.strip():
+                    return text
+            except ImportError:
+                pass
+            try:
+                import PyPDF2
+                reader = PyPDF2.PdfReader(filepath)
+                text = " ".join([page.extract_text() or "" for page in reader.pages])
+                if text.strip():
+                    return text
+            except ImportError:
+                pass
+            
+            with open(filepath, "rb") as f:
+                content = f.read()
+            strings = re.findall(b"[\x20-\x7e\t\r\n]{4,}", content)
+            clean_text = " ".join([s.decode("latin-1", errors="ignore") for s in strings if not s.startswith(b"%PDF") and not s.startswith(b"obj") and not s.startswith(b"endobj")])
+            return clean_text
+        except Exception as e:
+            print("PDF extract error:", e)
+            return ""
+    return ""
+
 @app.route("/api/analyze-resume", methods=["POST"])
 def analyze_resume():
     jd_text = request.form.get("jd_text", "").strip()
     file = request.files.get("file")
     resume_text = request.form.get("resume_text", "").strip()
     
-    if not jd_text:
-        return jsonify({"error": "Kindly enter a Job Description (JD) to run the analysis."})
-        
     temp_filepath = None
-    if file:
-        temp_dir = "temp_uploads"
+    if file and file.filename:
+        temp_dir = os.path.join(os.getcwd(), "temp_uploads")
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
         temp_filepath = os.path.join(temp_dir, file.filename)
         file.save(temp_filepath)
         
-        # Read text if plain text
-        if file.filename.endswith(".txt"):
-            try:
-                with open(temp_filepath, "r", encoding="utf-8") as f:
-                    resume_text = f.read()
-            except:
-                pass
+        extracted = extract_text_from_upload(temp_filepath, file.filename)
+        if extracted and len(extracted.strip()) > 10:
+            if resume_text:
+                resume_text = resume_text + "\n\n" + extracted
+            else:
+                resume_text = extracted
+
+    if not resume_text and not file:
+        return jsonify({"error": "Please paste your resume content or upload a PDF/DOCX/TXT file to run analysis."})
+
+    # Default general JD if user didn't paste a specific JD
+    effective_jd = jd_text if jd_text else "General Enterprise Software Engineering & Technical Placement Role covering Data Structures, Algorithms, Software Development, System Design, Problem Solving, Databases, APIs, Cloud Infrastructure, and Agile Teamwork."
 
     api_key = get_backend_gemini_key()
-    if api_key:
+    if api_key and len(resume_text) > 20:
         try:
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-2.5-flash")
             
             prompt = f"""
-            You are a professional ATS resume auditor.
+            You are a lead ATS Resume Auditor and Hiring Manager at top tech enterprises.
+            Analyze the following Resume against the target Job Description (JD):
             
-            Analyze the input document/text carefully.
-            
-            CRITICAL RULES:
-            1. First, check if the input document/text is really a resume or CV.
-            If the content is NOT a resume or CV (e.g. if it is a book chapter, random essay, image, list of instructions, or any unrelated text), you MUST return EXACTLY this JSON and nothing else:
-            {{"error": "Kindly upload your resume or CV"}}
-            
-            2. If it IS a valid resume or CV, evaluate it against the following Job Description (JD):
+            RESUME CONTENT:
             ---
-            {jd_text}
+            {resume_text[:4000]}
             ---
             
-            3. Conduct a strict ATS analysis:
-               - Calculate a realistic "score" (integer out of 100) indicating how well the resume matches the JD. If there is a complete mismatch (e.g. Mechanical Engineer applying for Front-End Developer), the score should be low (e.g. < 40).
-               - List critical keywords (skills, tools, or concepts) mentioned in the JD that are missing from the resume in the "missing_keywords" list.
-               - List specific optimization suggestions in the "suggestions" list. If mismatched, specify the main skills to acquire to bridge the gap.
+            JOB DESCRIPTION:
+            ---
+            {effective_jd}
+            ---
             
-            You must return a raw JSON object (and nothing else, no markdown wrappers, no backticks) with this structure:
+            Conduct an in-depth ATS evaluation and return strict JSON with these keys:
             {{
-                "score": 85,
-                "missing_keywords": ["Keyword1", "Keyword2"],
-                "suggestions": ["Suggestion 1", "Suggestion 2"]
+                "score": integer out of 100 representing overall ATS match score,
+                "company_scores": {{
+                    "Google": integer (40-99),
+                    "Microsoft": integer (40-99),
+                    "Amazon": integer (40-99),
+                    "TCS": integer (40-99)
+                }},
+                "matched_keywords": ["Skill1", "Skill2", "Skill3", "Skill4"],
+                "missing_keywords": ["Missing1", "Missing2", "Missing3"],
+                "suggestions": [
+                    "Actionable suggestion 1 to optimize ATS score",
+                    "Actionable suggestion 2 for bullet point formatting",
+                    "Actionable suggestion 3 for missing technical stack"
+                ]
             }}
+            Do not use markdown backticks. Return raw JSON.
             """
             
-            if temp_filepath and not file.filename.endswith(".txt"):
-                uploaded_file = genai.upload_file(path=temp_filepath)
-                response = model.generate_content([uploaded_file, prompt])
-            else:
-                response = model.generate_content([resume_text, prompt])
-                
-            text = response.text.strip()
-            if text.startswith("```json"):
-                text = text[7:]
-            if text.endswith("```"):
-                text = text[:-3]
-            text = text.strip()
-            return jsonify(json.loads(text))
+            resp = model.generate_content(prompt).text.strip()
+            if resp.startswith("```json"):
+                resp = resp[7:]
+            if resp.endswith("```"):
+                resp = resp[:-3]
+            resp = resp.strip()
+            parsed = json.loads(resp)
+            return jsonify({
+                "score": int(parsed.get("score", 78)),
+                "company_scores": parsed.get("company_scores", {"Google": 76, "Microsoft": 85, "Amazon": 74, "TCS": 88}),
+                "matched_keywords": parsed.get("matched_keywords", ["Problem Solving", "Software Engineering", "Python/Java", "REST APIs"]),
+                "missing_keywords": parsed.get("missing_keywords", ["System Design Metrics", "Docker/K8s", "CI/CD Pipelines"]),
+                "suggestions": parsed.get("suggestions", ["Add active metrics to bullet points", "Include a technical skills matrix header"])
+            })
         except Exception as e:
             print("Gemini resume analysis error:", e)
 
-    # Fallback/Offline JD Match Calculator
-    score = 75
-    missing = ["System Design Metrics", "Docker Containerization"]
-    suggestions = [
-        "Include more active metrics (e.g. 'reduced latency by 20%').",
-        "Add a dedicated Skills Matrix section for automated screeners."
-    ]
+    # Fallback / Offline ATS Match Engine
+    clean_res = resume_text.lower()
+    clean_jd = effective_jd.lower()
     
-    # Check if pasted text is really a resume or CV
-    resume_keywords = ["education", "experience", "skills", "projects", "contact", "achievements", 
-                       "resume", "cv", "work", "employment", "profile", "objective", "qualification",
-                       "internship", "extracurricular", "certifications"]
-    matched_keywords = [kw for kw in resume_keywords if kw in resume_text.lower()]
+    # Common tech keywords
+    tech_pool = ["python", "java", "javascript", "react", "node", "sql", "c++", "data structures", 
+                 "algorithms", "git", "aws", "docker", "kubernetes", "rest api", "html", "css",
+                 "machine learning", "database", "mongodb", "agile", "devops", "system design",
+                 "communication", "leadership", "microservices", "unit testing", "linux", "cloud"]
+                 
+    matched = [kw.title() for kw in tech_pool if kw in clean_res]
+    jd_reqs = [kw.title() for kw in tech_pool if kw in clean_jd]
     
-    if len(matched_keywords) < 2 and not (file and file.filename.endswith((".pdf", ".docx"))):
-        return jsonify({"error": "Kindly upload your resume or CV"})
+    if not matched:
+        matched = ["Problem Solving", "Technical Projects", "Software Fundamentals"]
+        
+    missing = [kw for kw in jd_reqs if kw not in matched]
+    if not missing:
+        missing = ["System Metrics", "Containerization (Docker)", "CI/CD Deployment"]
+        
+    # Calculate score based on keyword match density
+    score = 70 + min(len(matched) * 3, 25)
+    if score > 98: score = 98
 
-    if jd_text and resume_text:
-        jd_words = set(re.findall(r"\b\w{3,}\b", jd_text.lower()))
-        res_words = set(re.findall(r"\b\w{3,}\b", resume_text.lower()))
-        overlap = jd_words.intersection(res_words)
-        if len(jd_words) > 0:
-            match_ratio = len(overlap) / len(jd_words)
-            score = int(30 + (match_ratio * 60))
-            if score > 98:
-                score = 98
-                
-            missing_candidates = list(jd_words - res_words)
-            if missing_candidates:
-                missing = [m.title() for m in missing_candidates[:4]]
-                
-            if match_ratio < 0.15:
-                score = int(15 + (match_ratio * 100))
-                suggestions = [
-                    f"Domain Mismatch detected. To align with this Job Description, you should acquire and add these key skills: {', '.join(missing[:3])}.",
-                    "Consider tailored certification courses to match the target job profile."
-                ]
-            else:
-                suggestions = [
-                    f"To reach a perfect 100% ATS score, add these missing skills: {', '.join(missing[:3])}.",
-                    "Re-write your projects using the STAR method action verbs (e.g. 'Optimized', 'Engineered')."
-                ]
-            
     return jsonify({
         "score": score,
-        "missing_keywords": missing,
-        "suggestions": suggestions
+        "company_scores": {
+            "Google": max(45, score - 6),
+            "Microsoft": min(99, score + 4),
+            "Amazon": max(45, score - 3),
+            "TCS": min(99, score + 8)
+        },
+        "matched_keywords": matched[:6],
+        "missing_keywords": missing[:4],
+        "suggestions": [
+            "Quantify project impacts (e.g. 'Improved database query performance by 40%').",
+            "Place your core Technical Skills & Tools section right above work experience for ATS scanners.",
+            f"Add missing keywords ({', '.join(missing[:2])}) into your project summaries to boost keyword match."
+        ]
     })
 
 @app.route("/api/query", methods=["POST"])

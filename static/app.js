@@ -924,11 +924,29 @@ document.addEventListener("DOMContentLoaded", () => {
             const score = data.score || 75;
             document.getElementById("ats-score-num").textContent = score;
 
-            document.getElementById("match-google").textContent = `${Math.max(50, score - 5)}%`;
-            document.getElementById("match-microsoft").textContent = `${Math.min(99, score + 4)}%`;
-            document.getElementById("match-amazon").textContent = `${Math.max(50, score - 2)}%`;
+            const compScores = data.company_scores || {};
+            document.getElementById("match-google").textContent = `${compScores.Google || Math.max(45, score - 5)}%`;
+            document.getElementById("match-microsoft").textContent = `${compScores.Microsoft || Math.min(99, score + 4)}%`;
+            document.getElementById("match-amazon").textContent = `${compScores.Amazon || Math.max(45, score - 2)}%`;
 
-            // Keywords suggestions
+            // Render Matched Strong Skills Pills
+            const matchedContainer = document.getElementById("ats-matched-keywords");
+            if (matchedContainer) {
+                matchedContainer.innerHTML = "";
+                if (data.matched_keywords && data.matched_keywords.length > 0) {
+                    data.matched_keywords.forEach(kw => {
+                        const span = document.createElement("span");
+                        span.className = "matched-tag";
+                        span.style.cssText = "background: rgba(0, 230, 118, 0.12); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 0.25rem 0.6rem; border-radius: 14px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem;";
+                        span.innerHTML = `<i class="fa-solid fa-check" style="font-size: 0.75rem;"></i> ${kw}`;
+                        matchedContainer.appendChild(span);
+                    });
+                } else {
+                    matchedContainer.innerHTML = "<span style='font-size: 0.85rem; color: var(--text-muted);'>No matching skills detected in uploaded resume.</span>";
+                }
+            }
+
+            // Missing Keywords
             const missingContainer = document.getElementById("ats-missing-keywords");
             missingContainer.innerHTML = "";
             if (data.missing_keywords && data.missing_keywords.length > 0) {
@@ -938,9 +956,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     missingContainer.appendChild(li);
                 });
             } else {
-                missingContainer.innerHTML = "<li>No missing keywords found! Excellent job.</li>";
+                missingContainer.innerHTML = "<li>No missing critical keywords found! Excellent alignment.</li>";
             }
 
+            // Suggestions
             const suggestionsContainer = document.getElementById("ats-suggestions");
             suggestionsContainer.innerHTML = "";
             if (data.suggestions && data.suggestions.length > 0) {
@@ -950,7 +969,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     suggestionsContainer.appendChild(li);
                 });
             } else {
-                suggestionsContainer.innerHTML = "<li>Formatting looks great. Ready to apply!</li>";
+                suggestionsContainer.innerHTML = "<li>Formatting and content look strong for ATS screening.</li>";
             }
 
             // Sync with Digital Twin Profile
