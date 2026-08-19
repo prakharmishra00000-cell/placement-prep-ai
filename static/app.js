@@ -433,6 +433,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    window.continueInterviewNextQuestion = function() {
+        // Disable clicked continue buttons to avoid duplicate triggers
+        const btns = document.querySelectorAll(".continue-interview-btn");
+        btns.forEach(b => {
+            b.disabled = true;
+            b.style.opacity = "0.5";
+            b.style.cursor = "default";
+            b.innerHTML = '<i class="fa-solid fa-check"></i> Loading Next Question...';
+        });
+
+        interviewStep++;
+        if (interviewStep < interviewQuestions.length) {
+            appendInterviewMsg("system", `<strong>Next Question (Q${interviewStep+1} of ${interviewQuestions.length}):</strong><br>${interviewQuestions[interviewStep]}`);
+        } else {
+            endAndEvaluateInterview(false);
+        }
+    };
+
     function processAnswerSubmission(text, isSkipped = false) {
         if (window.vocalAnalyzer && window.vocalAnalyzer.isRecording) {
             window.vocalAnalyzer.stopRecording();
@@ -440,7 +458,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (vocalVisualizer) vocalVisualizer.style.display = "none";
         }
 
-        const userText = isSkipped ? "[Candidate clicked 'Don't Know / Reveal Answer']" : text.trim();
+        const userText = isSkipped ? "[Candidate requested: 'Show Answer / Reveal Correct Response']" : text.trim();
         if (!userText) return;
 
         appendInterviewMsg("user", userText);
@@ -485,17 +503,20 @@ document.addEventListener("DOMContentLoaded", () => {
             // Formatted AI Feedback & Correct Answer Card
             let statusBanner = "";
             if (isSkipped) {
-                statusBanner = `<div style="color: var(--neon-yellow); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem;"><i class="fa-solid fa-lightbulb"></i> Answer Revealed by Candidate Request</div>`;
+                statusBanner = `<div style="color: var(--neon-yellow); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem;"><i class="fa-solid fa-lightbulb"></i> Correct Answer Revealed</div>`;
             } else if (result.is_correct) {
                 statusBanner = `<div style="color: var(--neon-cyan); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem;"><i class="fa-solid fa-circle-check"></i> Score: ${result.score}/100 - Good Understanding!</div>`;
             } else {
                 statusBanner = `<div style="color: #ff4d4d; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem;"><i class="fa-solid fa-triangle-exclamation"></i> Score: ${result.score}/100 - Incomplete / Incorrect</div>`;
             }
 
+            const isLastQ = (interviewStep + 1) >= interviewQuestions.length;
+            const continueBtnLabel = isLastQ ? "Finish Interview & View Scorecard" : "Continue Interview";
+
             const feedbackBody = `
-                <div class="ai-answer-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-top: 0.4rem;">
+                <div class="ai-answer-card" style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-top: 0.4rem;">
                     ${statusBanner}
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;"><strong>AI Review:</strong> ${result.feedback}</p>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;"><strong>AI Evaluation:</strong> ${result.feedback}</p>
                     
                     <div style="background: rgba(0, 210, 255, 0.08); border-left: 3px solid var(--neon-blue); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
                         <strong style="color: var(--neon-blue); font-size: 0.88rem;"><i class="fa-solid fa-book-open"></i> Correct Answer & Key Technical Concepts:</strong>
@@ -504,26 +525,20 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                     </div>
 
-                    <div style="background: rgba(0, 230, 118, 0.08); border-left: 3px solid var(--neon-cyan); padding: 0.75rem; border-radius: 6px;">
+                    <div style="background: rgba(0, 230, 118, 0.08); border-left: 3px solid var(--neon-cyan); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.85rem;">
                         <strong style="color: var(--neon-cyan); font-size: 0.88rem;"><i class="fa-solid fa-comments"></i> Ideal Candidate Response in Interview:</strong>
                         <p style="font-size: 0.87rem; font-style: italic; color: var(--text-color); margin-top: 0.3rem;">"${result.sample_response}"</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; margin-top: 0.8rem;">
+                        <button class="continue-interview-btn glow-btn" onclick="window.continueInterviewNextQuestion()" style="background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); color: white; padding: 0.6rem 1.4rem; font-size: 0.88rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 0 12px rgba(0, 210, 255, 0.3); transition: all 0.2s ease;">
+                            ${continueBtnLabel} <i class="fa-solid fa-arrow-right"></i>
+                        </button>
                     </div>
                 </div>
             `;
 
             appendInterviewMsg("system", feedbackBody);
-
-            // Move to next question or complete interview
-            interviewStep++;
-            if (interviewStep < interviewQuestions.length) {
-                setTimeout(() => {
-                    appendInterviewMsg("system", `<strong>Next Question (Q${interviewStep+1} of ${interviewQuestions.length}):</strong><br>${interviewQuestions[interviewStep]}`);
-                }, 1500);
-            } else {
-                setTimeout(() => {
-                    endAndEvaluateInterview(false);
-                }, 1500);
-            }
         })
         .catch(err => {
             console.error(err);
@@ -532,12 +547,14 @@ document.addEventListener("DOMContentLoaded", () => {
             submitResponseBtn.disabled = false;
             if (skipRevealBtn) skipRevealBtn.disabled = false;
 
-            interviewStep++;
-            if (interviewStep < interviewQuestions.length) {
-                appendInterviewMsg("system", interviewQuestions[interviewStep]);
-            } else {
-                endAndEvaluateInterview(false);
-            }
+            appendInterviewMsg("system", `
+                <div style="margin-top: 0.5rem;">
+                    <p style="color: var(--neon-yellow);">Response analyzed. Ready for the next question?</p>
+                    <button class="continue-interview-btn glow-btn" onclick="window.continueInterviewNextQuestion()" style="background: var(--neon-blue); color: white; padding: 0.5rem 1.2rem; font-size: 0.85rem; border: none; border-radius: 6px; margin-top: 0.4rem; cursor: pointer;">
+                        Continue Interview <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `);
         });
     }
 
