@@ -663,27 +663,45 @@
                         <div class="interview-setup">
                             <div class="input-group">
                                 <label for="interview-company">Target Company</label>
-                                <input type="text" id="interview-company" value="TCS" placeholder="Enter company name">
+                                <input type="text" id="interview-company" value="TCS" placeholder="Enter company name (e.g., TCS, Google, L&T, Tata Motors)">
+                            </div>
+                            <div class="input-group">
+                                <label for="interview-branch"><i class="fa-solid fa-graduation-cap text-neon-cyan"></i> Engineering / Academic Branch</label>
+                                <select id="interview-branch" style="background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-color); color: var(--text-color); padding: 0.7rem 0.8rem; border-radius: 8px; width: 100%; font-size: 0.9rem; font-family: inherit;">
+                                    <option value="Computer Science & Engineering">Computer Science & Engineering (CSE)</option>
+                                    <option value="Information Technology">Information Technology (IT)</option>
+                                    <option value="Electronics & Communication">Electronics & Communication (ECE)</option>
+                                    <option value="Electrical Engineering">Electrical Engineering (EE)</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering (ME)</option>
+                                    <option value="Civil Engineering">Civil Engineering (CE)</option>
+                                    <option value="Chemical Engineering">Chemical Engineering</option>
+                                    <option value="Data Science & AI">Data Science & AI / ML</option>
+                                    <option value="Biotechnology / Biomedical">Biotechnology / Biomedical</option>
+                                    <option value="General Core Engineering">General Core Engineering</option>
+                                </select>
                             </div>
                             <div class="input-group">
                                 <label for="interview-role">Interview Role / Field</label>
-                                <input type="text" id="interview-role" placeholder="Enter target role (e.g., SDE, Data Scientist)...">
+                                <input type="text" id="interview-role" placeholder="Enter target role (e.g., SDE, Systems Engineer, Design Engineer)...">
                             </div>
                             <div class="input-group">
                                 <label for="interview-difficulty">Simulation Difficulty</label>
-                                <input type="text" id="interview-difficulty" placeholder="Enter difficulty (e.g., Hard, Beginner)...">
+                                <input type="text" id="interview-difficulty" placeholder="Enter difficulty (e.g., Medium, Hard, Beginner)...">
                             </div>
                             <button id="start-interview-btn" class="glow-btn">Start AI Simulation Round</button>
                         </div>
 
-                        <div class="simulated-avatar hide" id="interview-avatar-panel">
+                        <div class="simulated-avatar hide" id="interview-avatar-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;">
                             <div class="avatar-feed">
                                 <i class="fa-solid fa-user-tie avatar-icon animate-pulse"></i>
-                                <span class="avatar-status">AI Interviewer Listening...</span>
+                                <span class="avatar-status">AI Technical Interviewer Active</span>
                             </div>
                             <div class="voice-wave">
                                 <span></span><span></span><span></span><span></span><span></span>
                             </div>
+                            <button id="stop-interview-btn" class="glow-btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c); font-size: 0.85rem; padding: 0.5rem 1.2rem; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); font-weight: 700; transition: all 0.2s ease;">
+                                <i class="fa-solid fa-circle-stop"></i> Stop Interview
+                            </button>
                         </div>
                     </div>
 
@@ -695,16 +713,17 @@
                             <div class="message system-msg">
                                 <div class="msg-avatar"><i class="fa-solid fa-user-ninja"></i></div>
                                 <div class="msg-body">
-                                    Click "Start AI Simulation" to begin the interview. The AI will ask role-specific questions and score your answers dynamically.
+                                    Select your target company & branch, then click "Start AI Simulation". If you get stuck or don't know an answer, click "Don't Know / Reveal Answer" for instant step-by-step solutions!
                                 </div>
                             </div>
                         </div>
 
-                        <div class="interview-input-bar hide" id="interview-input-container">
+                        <div class="interview-input-bar hide" id="interview-input-container" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                             <button id="mic-record-btn" class="send-btn" style="background: var(--bg-card); color: var(--text-muted);"><i class="fa-solid fa-microphone"></i></button>
                             <canvas id="vocal-visualizer" width="100" height="30" style="display: none; background: rgba(0,0,0,0.2); border-radius: 4px; margin-right: 0.5rem;"></canvas>
-                            <input type="text" id="interview-response-input" placeholder="Type or speak your answer here...">
-                            <button id="submit-response-btn" class="send-btn"><i class="fa-solid fa-check"></i> Submit</button>
+                            <input type="text" id="interview-response-input" placeholder="Type or speak your answer here..." style="flex: 1; min-width: 180px;">
+                            <button id="submit-response-btn" class="send-btn" style="background: var(--neon-blue); color: white;"><i class="fa-solid fa-paper-plane"></i> Submit</button>
+                            <button id="skip-reveal-btn" class="send-btn" style="background: rgba(255, 193, 7, 0.15); border: 1px solid #ffc107; color: #ffc107; font-weight: 600; padding: 0 0.8rem; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;" title="Reveal correct answer if you don't know"><i class="fa-solid fa-lightbulb"></i> Don't Know / Reveal Answer</button>
                         </div>
 
                         <!-- Feedback Scorecard -->

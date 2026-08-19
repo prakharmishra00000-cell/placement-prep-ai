@@ -2730,17 +2730,45 @@ def calculate_indian_tax(ctc, basic_pct, vpf_pct, rent_paid, car_perk, other_ded
 def get_interview_questions():
     company = request.args.get("company", "TCS").strip()
     role = request.args.get("role", "Software Engineer").strip()
+    branch = request.args.get("branch", "Computer Science & Engineering").strip()
     difficulty = request.args.get("difficulty", "Medium").strip()
     
     api_key = get_backend_gemini_key()
-    fallback_questions = [
-        f"Welcome. Let's start the technical round. Can you explain the difference between a process and a thread?",
-        f"Good. How would you design a database schema to support a ride-sharing app? What indexes are critical?",
-        f"Finally, tell me about a time you resolved a major logic deadlock in your project. How did you diagnose it?"
-    ]
     
-    # Fetch live search experiences for company and role (tech or core)
-    search_query = f"{company} {role} interview questions technical test process round"
+    # Branch-aware fallback question sets
+    if "Mechanical" in branch:
+        fallback_questions = [
+            f"Welcome to the technical round at {company}. Can you explain the 2nd Law of Thermodynamics and how entropy applies to heat exchangers?",
+            f"For mechanical components under cyclic loading, how do you determine the endurance limit and fatigue failure using S-N curves?",
+            f"Describe how you would select materials and fluid flow velocity to minimize cavitation in a centrifugal pump design."
+        ]
+    elif "Electrical" in branch:
+        fallback_questions = [
+            f"Welcome. In power systems engineering at {company}, how do vector groups in 3-phase transformers affect phase displacement and grounding?",
+            f"Explain the operation of a Synchronous Motor during over-excitation and how it improves power factor correction.",
+            f"How do you implement pulse-width modulation (PWM) control for VFD speed control in AC induction motors?"
+        ]
+    elif "Electronics" in branch or "ECE" in branch:
+        fallback_questions = [
+            f"Welcome. In embedded systems at {company}, can you explain interrupt latency and how interrupt service routines (ISRs) handle race conditions?",
+            f"Differentiate between Harvard and Von Neumann architecture in microcontroller design. Where is cache memory leveraged?",
+            f"How does Nyquist sampling rate prevent aliasing in digital signal processing (DSP), and what is the role of an anti-aliasing filter?"
+        ]
+    elif "Civil" in branch:
+        fallback_questions = [
+            f"Welcome to {company}. Explain the difference between Limit State Method and Working Stress Method in Reinforced Concrete Structure (RCC) design.",
+            f"How do soil bearing capacity test results (e.g. Standard Penetration Test N-value) influence shallow vs deep foundation selection?",
+            f"Walk me through how shear force and bending moment diagrams are derived for a continuous beam under moving point loads."
+        ]
+    else:
+        fallback_questions = [
+            f"Welcome to the technical round at {company} for the {branch} stream. Can you explain the difference between a process and a thread in modern operating systems?",
+            f"How would you design an efficient database schema and indexing strategy for high-concurrency transactions at {company}?",
+            f"Tell me about a complex logic deadlock or technical challenge you solved in your recent projects. How did you diagnose it?"
+        ]
+    
+    # Fetch live search experiences for company, branch and role
+    search_query = f"{company} {branch} {role} interview questions technical test process round"
     search_results = fetch_google_search_snippets(search_query)
     web_context = " ".join(search_results) if search_results else "No live search context available."
 
@@ -2749,8 +2777,8 @@ def get_interview_questions():
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-2.5-flash")
             prompt = f"""
-            You are an expert technical interviewer at {company} interviewing for the role of "{role}" at a "{difficulty}" difficulty tier.
-            Use the following real-time Google search context as a reference to frame exactly 3 highly realistic, role-specific, and branch-dedicated questions representing actual interview experiences at {company}:
+            You are an expert technical interviewer at {company} interviewing a candidate from the "{branch}" branch applying for the role of "{role}" at "{difficulty}" difficulty.
+            Use the following real-time Google search context as a reference to frame exactly 3 highly realistic, role-specific, and branch-dedicated core questions representing actual interview rounds at {company}:
             ---
             {web_context}
             ---
@@ -2770,7 +2798,6 @@ def get_interview_questions():
             resp = resp.strip()
             parsed = json.loads(resp)
             
-            # Normalize dictionary payloads to list
             if isinstance(parsed, dict):
                 found_list = None
                 for val in parsed.values():
@@ -2785,7 +2812,7 @@ def get_interview_questions():
             if isinstance(parsed, list):
                 parsed = [str(x) for x in parsed]
                 while len(parsed) < 3:
-                    parsed.append("Can you describe a challenging technical problem you solved recently?")
+                    parsed.append(f"Can you explain a core domain concept from {branch} that you applied in a project?")
                 parsed = parsed[:3]
                 return jsonify(parsed)
         except Exception as e:
@@ -2793,11 +2820,82 @@ def get_interview_questions():
             
     return jsonify(fallback_questions)
 
+@app.route("/api/interview/check-answer", methods=["POST"])
+def check_interview_answer():
+    data = request.get_json() or {}
+    company = data.get("company", "TCS").strip()
+    role = data.get("role", "Software Engineer").strip()
+    branch = data.get("branch", "Computer Science & Engineering").strip()
+    question = data.get("question", "").strip()
+    user_response = data.get("user_response", "").strip()
+    
+    is_skipped = not user_response or user_response.lower() in ["don't know", "no idea", "i don't know", "skip", "skipped", "pass", "reveal answer"]
+    
+    api_key = get_backend_gemini_key()
+    
+    if api_key:
+        try:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel("gemini-2.5-flash")
+            
+            prompt = f"""
+            You are a Senior Technical Lead and Hiring Director at {company} evaluating an interview response for a candidate from the {branch} branch applying for {role}.
+            
+            Question asked: "{question}"
+            Candidate Response: "{'CANDIDATE SKIPPED / DID NOT KNOW ANSWER' if is_skipped else user_response}"
+            
+            Provide an authoritative evaluation and the accurate correct answer.
+            Return strict JSON with these keys:
+            {{
+                "is_correct": bool (true if user response demonstrates solid understanding, false if wrong/skipped/vague),
+                "score": integer (0 to 100),
+                "feedback": "Concise feedback directly evaluating candidate response",
+                "correct_answer": "Complete, step-by-step correct answer explaining key concepts clearly with code/formulas if relevant",
+                "sample_response": "Ideal 2-3 sentence verbal response a candidate should give in a live interview"
+            }}
+            Do not use markdown wrappers. Return raw JSON.
+            """
+            resp = model.generate_content(prompt).text.strip()
+            if resp.startswith("```json"):
+                resp = resp[7:]
+            if resp.endswith("```"):
+                resp = resp[:-3]
+            resp = resp.strip()
+            parsed = json.loads(resp)
+            return jsonify({
+                "is_correct": bool(parsed.get("is_correct", False)),
+                "score": int(parsed.get("score", 0 if is_skipped else 70)),
+                "feedback": str(parsed.get("feedback", "Candidate requested answer reveal." if is_skipped else "Good attempt.")),
+                "correct_answer": str(parsed.get("correct_answer", "The question tests fundamental principles required at " + company + ". See detailed explanation.")),
+                "sample_response": str(parsed.get("sample_response", "Structure your answer by stating the primary definition, key trade-offs, and a practical example."))
+            })
+        except Exception as e:
+            print("Gemini check_interview_answer error:", e)
+            
+    # Fallback answer evaluation
+    if is_skipped:
+        return jsonify({
+            "is_correct": False,
+            "score": 0,
+            "feedback": "Candidate requested answer reveal.",
+            "correct_answer": f"**Core Answer for {company} ({branch})**: To answer '{question}', start by defining the primary technical principle involved, list the top 2 trade-offs/advantages, and mention how it is implemented in real-world engineering projects at {company}.",
+            "sample_response": f"In a live interview at {company}, answer: 'This concept relies on fundamental {branch} principles. Specifically, it ensures system stability, optimal resource utilization, and prevents failure under high load.'"
+        })
+    else:
+        return jsonify({
+            "is_correct": True,
+            "score": 75,
+            "feedback": "Good attempt! You captured the core concept. Ensure you mention specific technical terminology.",
+            "correct_answer": f"**Comprehensive Answer**: '{question}' requires explaining the underlying mechanism, practical application, and performance implications in {branch}.",
+            "sample_response": f"An ideal response: 'At {company}, we approach this by analyzing the system requirements, selecting appropriate architectural patterns, and validating against benchmark metrics.'"
+        })
+
 @app.route("/api/interview/evaluate", methods=["POST"])
 def evaluate_interview():
     data = request.get_json() or {}
     company = data.get("company", "TCS").strip()
     role = data.get("role", "Software Engineer").strip()
+    branch = data.get("branch", "Computer Science & Engineering").strip()
     questions = data.get("questions", [])
     responses = data.get("responses", [])
     
@@ -2807,33 +2905,33 @@ def evaluate_interview():
         "comm": 80,
         "speed": 82,
         "vocab": 85,
-        "remarks": "Excellent communication skills. Suggest revising system design paradigms and memory cache edge cases."
+        "remarks": f"Strong attempt for {branch} role at {company}. Recommend reviewing domain fundamentals, edge cases, and structured problem-solving frameworks."
     }
     
-    if api_key and len(questions) == len(responses):
+    if api_key and questions and responses:
         try:
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-2.5-flash")
             
             transcript_str = ""
             for q, r in zip(questions, responses):
-                transcript_str += f"Interviewer: {q}\nCandidate: {r}\n\n"
+                transcript_str += f"Interviewer: {q}\nCandidate ({branch}): {r}\n\n"
                 
             prompt = f"""
             You are a professional HR and Technical lead at {company}.
-            Evaluate the following interview transcript for the role of "{role}":
+            Evaluate the following interview transcript for a candidate from the "{branch}" branch applying for "{role}":
             
             ---
             {transcript_str}
             ---
             
             Please score the candidate out of 100 on these four parameters:
-            1. Technical Depth (tech): Accuracy of technical terms, logic, and frameworks.
+            1. Technical Depth (tech): Accuracy of technical terms, domain concepts from {branch}, and logic.
             2. Communication (comm): Clarity, structuring, and articulation.
             3. Thinking Speed (speed): How structured and fast their flow is.
             4. Vocabulary & Grammar (vocab): Grammar, wording, and professional tone.
             
-            Also, provide a short, constructive, and actionable summary remarks highlighting strengths and areas to improve.
+            Also, provide a short, constructive, and actionable summary remarks highlighting candidate strengths and domain gaps.
             
             Return the output in strict JSON format. Do not use markdown wrappers or backticks. Return a raw JSON object with these keys:
             {{

@@ -366,16 +366,23 @@ document.addEventListener("DOMContentLoaded", () => {
     let interviewStep = 0;
     let interviewQuestions = [];
     let responses = [];
+    let currentBranch = "Computer Science & Engineering";
+
+    const skipRevealBtn = document.getElementById("skip-reveal-btn");
+    const stopInterviewBtn = document.getElementById("stop-interview-btn");
 
     startInterviewBtn.addEventListener("click", () => {
         const company = document.getElementById("interview-company").value.trim() || "TCS";
-        const role = document.getElementById("interview-role").value;
-        const diff = document.getElementById("interview-difficulty").value;
+        const branch = document.getElementById("interview-branch").value || "Computer Science & Engineering";
+        const role = document.getElementById("interview-role").value.trim() || "Technical Engineer";
+        const diff = document.getElementById("interview-difficulty").value.trim() || "Medium";
+
+        currentBranch = branch;
 
         startInterviewBtn.disabled = true;
-        startInterviewBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating Questions...';
+        startInterviewBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating Core Questions...';
 
-        fetch(`/api/interview/questions?company=${encodeURIComponent(company)}&role=${encodeURIComponent(role)}&difficulty=${encodeURIComponent(diff)}`)
+        fetch(`/api/interview/questions?company=${encodeURIComponent(company)}&role=${encodeURIComponent(role)}&branch=${encodeURIComponent(branch)}&difficulty=${encodeURIComponent(diff)}`)
             .then(res => res.json())
             .then(questions => {
                 interviewQuestions = questions;
@@ -393,7 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 interviewChatMessages.innerHTML = "";
 
-                appendInterviewMsg("system", interviewQuestions[0]);
+                appendInterviewMsg("system", `<strong>Interviewer (${company} - ${branch}):</strong><br>${interviewQuestions[0]}`);
             })
             .catch(err => {
                 console.error(err);
@@ -402,6 +409,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 startInterviewBtn.innerHTML = 'Start AI Simulation Round';
             });
     });
+
+    if (stopInterviewBtn) {
+        stopInterviewBtn.addEventListener("click", () => {
+            if (confirm("Are you sure you want to stop the interview session? Performance feedback will be calculated for completed questions.")) {
+                endAndEvaluateInterview(true);
+            }
+        });
+    }
 
     if (micRecordBtn) {
         micRecordBtn.addEventListener("click", () => {
@@ -418,124 +433,229 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    submitResponseBtn.addEventListener("click", () => {
+    function processAnswerSubmission(text, isSkipped = false) {
         if (window.vocalAnalyzer && window.vocalAnalyzer.isRecording) {
             window.vocalAnalyzer.stopRecording();
             if (micRecordBtn) micRecordBtn.style.color = "var(--text-muted)";
             if (vocalVisualizer) vocalVisualizer.style.display = "none";
         }
 
-        const text = interviewResponseInput.value.trim();
-        if (!text) return;
+        const userText = isSkipped ? "[Candidate clicked 'Don't Know / Reveal Answer']" : text.trim();
+        if (!userText) return;
 
-        appendInterviewMsg("user", text);
-        responses.push(text);
+        appendInterviewMsg("user", userText);
+        responses.push(userText);
         interviewResponseInput.value = "";
 
-        interviewStep++;
-        if (interviewStep < interviewQuestions.length) {
-            setTimeout(() => {
-                appendInterviewMsg("system", interviewQuestions[interviewStep]);
-            }, 1000);
-        } else {
-            interviewAvatarPanel.classList.add("hide");
-            interviewInputContainer.classList.add("hide");
-            
-            appendInterviewMsg("system", "Thank you for completing the interview. Evaluating your performance scorecard...");
+        const currentQ = interviewQuestions[interviewStep];
+        const company = document.getElementById("interview-company").value.trim() || "TCS";
+        const role = document.getElementById("interview-role").value.trim() || "Engineer";
 
-            const company = document.getElementById("interview-company").value.trim() || "TCS";
-            const role = document.getElementById("interview-role").value;
+        // Show evaluating indicator in stream
+        const evalLoadingDiv = document.createElement("div");
+        evalLoadingDiv.className = "message system-msg";
+        evalLoadingDiv.id = "eval-loading-msg";
+        evalLoadingDiv.innerHTML = `<div class="msg-avatar"><i class="fa-solid fa-spinner fa-spin text-neon-cyan"></i></div><div class="msg-body">AI Technical Lead is analyzing your response & preparing the detailed correct answer...</div>`;
+        interviewChatMessages.appendChild(evalLoadingDiv);
+        interviewChatMessages.scrollTop = interviewChatMessages.scrollHeight;
 
-            fetch("/api/interview/evaluate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    company: company,
-                    role: role,
-                    questions: interviewQuestions,
-                    responses: responses
-                })
+        // Disable input buttons during checking
+        submitResponseBtn.disabled = true;
+        if (skipRevealBtn) skipRevealBtn.disabled = true;
+
+        fetch("/api/interview/check-answer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                company: company,
+                role: role,
+                branch: currentBranch,
+                question: currentQ,
+                user_response: isSkipped ? "don't know" : text
             })
-            .then(res => res.json())
-            .then(evaluation => {
-                interviewFeedbackScore.classList.remove("hide");
-                interviewSetup.classList.remove("hide");
+        })
+        .then(res => res.json())
+        .then(result => {
+            const loadingMsg = document.getElementById("eval-loading-msg");
+            if (loadingMsg) loadingMsg.remove();
 
-                document.querySelector("#score-tech span").style.width = `${evaluation.tech}%`;
-                document.querySelector("#score-comm span").style.width = `${evaluation.comm}%`;
-                document.querySelector("#score-speed span").style.width = `${evaluation.speed}%`;
-                document.querySelector("#score-vocab span").style.width = `${evaluation.vocab}%`;
+            submitResponseBtn.disabled = false;
+            if (skipRevealBtn) skipRevealBtn.disabled = false;
 
-                document.getElementById("interview-remarks").textContent = evaluation.remarks;
+            // Formatted AI Feedback & Correct Answer Card
+            let statusBanner = "";
+            if (isSkipped) {
+                statusBanner = `<div style="color: var(--neon-yellow); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem;"><i class="fa-solid fa-lightbulb"></i> Answer Revealed by Candidate Request</div>`;
+            } else if (result.is_correct) {
+                statusBanner = `<div style="color: var(--neon-cyan); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem;"><i class="fa-solid fa-circle-check"></i> Score: ${result.score}/100 - Good Understanding!</div>`;
+            } else {
+                statusBanner = `<div style="color: #ff4d4d; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.95rem;"><i class="fa-solid fa-triangle-exclamation"></i> Score: ${result.score}/100 - Incomplete / Incorrect</div>`;
+            }
 
-                // Render Heatmap
-                if (window.vocalAnalyzer && window.vocalAnalyzer.metrics.topicData.length > 0) {
-                    const ctx = document.getElementById('vocal-heatmap-canvas');
-                    if (ctx) {
-                        if (heatmapChart) heatmapChart.destroy();
-                        
-                        const labels = window.vocalAnalyzer.metrics.topicData.map(d => d.topic);
-                        const latencies = window.vocalAnalyzer.metrics.topicData.map(d => parseFloat(d.latency));
-                        const wpms = window.vocalAnalyzer.metrics.topicData.map(d => d.wpm);
-                        const stresses = window.vocalAnalyzer.metrics.topicData.map(d => d.stressIndex);
-                        const fillers = window.vocalAnalyzer.metrics.topicData.map(d => d.fillerCount);
+            const feedbackBody = `
+                <div class="ai-answer-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-top: 0.4rem;">
+                    ${statusBanner}
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;"><strong>AI Review:</strong> ${result.feedback}</p>
+                    
+                    <div style="background: rgba(0, 210, 255, 0.08); border-left: 3px solid var(--neon-blue); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
+                        <strong style="color: var(--neon-blue); font-size: 0.88rem;"><i class="fa-solid fa-book-open"></i> Correct Answer & Key Technical Concepts:</strong>
+                        <div style="font-size: 0.87rem; line-height: 1.5; color: var(--text-color); margin-top: 0.3rem;">
+                            ${typeof marked !== 'undefined' ? marked.parse(result.correct_answer) : result.correct_answer}
+                        </div>
+                    </div>
 
-                        heatmapChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: labels,
-                                datasets: [
-                                    {
-                                        label: 'Latency (s)',
-                                        data: latencies,
-                                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                                        yAxisID: 'y'
-                                    },
-                                    {
-                                        label: 'WPM',
-                                        data: wpms,
-                                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                                        yAxisID: 'y1'
-                                    },
-                                    {
-                                        label: 'Stress Index',
-                                        data: stresses,
-                                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                                        yAxisID: 'y2'
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Latency (s)', color: 'rgba(255,255,255,0.7)'}, ticks: {color: 'rgba(255,255,255,0.7)'} },
-                                    y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'WPM', color: 'rgba(255,255,255,0.7)'}, grid: {drawOnChartArea: false}, ticks: {color: 'rgba(255,255,255,0.7)'} },
-                                    y2: { type: 'linear', display: false, position: 'right', max: 100 }
+                    <div style="background: rgba(0, 230, 118, 0.08); border-left: 3px solid var(--neon-cyan); padding: 0.75rem; border-radius: 6px;">
+                        <strong style="color: var(--neon-cyan); font-size: 0.88rem;"><i class="fa-solid fa-comments"></i> Ideal Candidate Response in Interview:</strong>
+                        <p style="font-size: 0.87rem; font-style: italic; color: var(--text-color); margin-top: 0.3rem;">"${result.sample_response}"</p>
+                    </div>
+                </div>
+            `;
+
+            appendInterviewMsg("system", feedbackBody);
+
+            // Move to next question or complete interview
+            interviewStep++;
+            if (interviewStep < interviewQuestions.length) {
+                setTimeout(() => {
+                    appendInterviewMsg("system", `<strong>Next Question (Q${interviewStep+1} of ${interviewQuestions.length}):</strong><br>${interviewQuestions[interviewStep]}`);
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    endAndEvaluateInterview(false);
+                }, 1500);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            const loadingMsg = document.getElementById("eval-loading-msg");
+            if (loadingMsg) loadingMsg.remove();
+            submitResponseBtn.disabled = false;
+            if (skipRevealBtn) skipRevealBtn.disabled = false;
+
+            interviewStep++;
+            if (interviewStep < interviewQuestions.length) {
+                appendInterviewMsg("system", interviewQuestions[interviewStep]);
+            } else {
+                endAndEvaluateInterview(false);
+            }
+        });
+    }
+
+    submitResponseBtn.addEventListener("click", () => {
+        const text = interviewResponseInput.value.trim();
+        if (!text) return;
+        processAnswerSubmission(text, false);
+    });
+
+    if (skipRevealBtn) {
+        skipRevealBtn.addEventListener("click", () => {
+            processAnswerSubmission("I don't know this answer.", true);
+        });
+    }
+
+    function endAndEvaluateInterview(isStopped = false) {
+        interviewAvatarPanel.classList.add("hide");
+        interviewInputContainer.classList.add("hide");
+        
+        const stopText = isStopped ? "Interview stopped by candidate." : "Thank you for completing all interview questions.";
+        appendInterviewMsg("system", `${stopText} Compiling overall performance scorecard & heatmap...`);
+
+        const company = document.getElementById("interview-company").value.trim() || "TCS";
+        const role = document.getElementById("interview-role").value.trim() || "Engineer";
+
+        fetch("/api/interview/evaluate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                company: company,
+                role: role,
+                branch: currentBranch,
+                questions: interviewQuestions.slice(0, responses.length),
+                responses: responses
+            })
+        })
+        .then(res => res.json())
+        .then(evaluation => {
+            interviewFeedbackScore.classList.remove("hide");
+            interviewSetup.classList.remove("hide");
+
+            document.querySelector("#score-tech span").style.width = `${evaluation.tech}%`;
+            document.querySelector("#score-comm span").style.width = `${evaluation.comm}%`;
+            document.querySelector("#score-speed span").style.width = `${evaluation.speed}%`;
+            document.querySelector("#score-vocab span").style.width = `${evaluation.vocab}%`;
+
+            document.getElementById("interview-remarks").innerHTML = `
+                <div style="margin-bottom: 0.5rem;"><strong>Branch:</strong> ${currentBranch} | <strong>Company:</strong> ${company}</div>
+                <div>${evaluation.remarks}</div>
+            `;
+
+            // Render Heatmap
+            if (window.vocalAnalyzer && window.vocalAnalyzer.metrics.topicData.length > 0) {
+                const ctx = document.getElementById('vocal-heatmap-canvas');
+                if (ctx) {
+                    if (heatmapChart) heatmapChart.destroy();
+                    
+                    const labels = window.vocalAnalyzer.metrics.topicData.map(d => d.topic);
+                    const latencies = window.vocalAnalyzer.metrics.topicData.map(d => parseFloat(d.latency));
+                    const wpms = window.vocalAnalyzer.metrics.topicData.map(d => d.wpm);
+                    const stresses = window.vocalAnalyzer.metrics.topicData.map(d => d.stressIndex);
+                    const fillers = window.vocalAnalyzer.metrics.topicData.map(d => d.fillerCount);
+
+                    heatmapChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Latency (s)',
+                                    data: latencies,
+                                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                                    yAxisID: 'y'
                                 },
-                                plugins: {
-                                    legend: { labels: { color: 'rgba(255,255,255,0.8)' } },
-                                    tooltip: {
-                                        callbacks: {
-                                            afterBody: function(context) {
-                                                const idx = context[0].dataIndex;
-                                                return `Filler Words: ${fillers[idx]}`;
-                                            }
+                                {
+                                    label: 'WPM',
+                                    data: wpms,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                                    yAxisID: 'y1'
+                                },
+                                {
+                                    label: 'Stress Index',
+                                    data: stresses,
+                                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                                    yAxisID: 'y2'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Latency (s)', color: 'rgba(255,255,255,0.7)'}, ticks: {color: 'rgba(255,255,255,0.7)'} },
+                                y1: { type: 'linear', display: true, position: 'right', title: {display: true, text: 'WPM', color: 'rgba(255,255,255,0.7)'}, grid: {drawOnChartArea: false}, ticks: {color: 'rgba(255,255,255,0.7)'} },
+                                y2: { type: 'linear', display: false, position: 'right', max: 100 }
+                            },
+                            plugins: {
+                                legend: { labels: { color: 'rgba(255,255,255,0.8)' } },
+                                tooltip: {
+                                    callbacks: {
+                                        afterBody: function(context) {
+                                            const idx = context[0].dataIndex;
+                                            return `Filler Words: ${fillers[idx]}`;
                                         }
                                     }
                                 }
                             }
-                        });
-                    }
+                        }
+                    });
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Failed to compile evaluation scorecard.");
-                interviewSetup.classList.remove("hide");
-            });
-        }
-    });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Failed to compile evaluation scorecard.");
+            interviewSetup.classList.remove("hide");
+        });
+    }
 
     interviewResponseInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") submitResponseBtn.click();
