@@ -7,8 +7,9 @@ import urllib.parse
 import random
 import requests
 import tempfile
+import io
 from bs4 import BeautifulSoup
-from flask import Flask, jsonify, request, render_template, Response
+from flask import Flask, jsonify, request, render_template, Response, send_file, send_from_directory
 from pyq_generator import generate_55_pyqs
 
 app = Flask(__name__)
@@ -3383,21 +3384,16 @@ def sanitize_for_pdf(text):
     text = "".join(c for c in text if ord(c) < 128)
     return text
 
-def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
-    import os
+def generate_pdf_bytes(company_name, overview, process, ctc, eligibility):
     import html
+    import io
     from reportlab.lib.pagesizes import letter
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib import colors
 
-    static_folder = app.static_folder if app.static_folder else "static"
-    sheets_dir = os.path.join(static_folder, "sheets")
-    os.makedirs(sheets_dir, exist_ok=True)
-    filename = f"{company_name.lower().replace(' ', '_')}_placement_sheet.pdf"
-    file_path = os.path.join(sheets_dir, filename)
-
-    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
     styles = getSampleStyleSheet()
     
     title_style = ParagraphStyle(
@@ -3464,7 +3460,20 @@ def generate_pdf_sheet(company_name, overview, process, ctc, eligibility):
     story.append(footer_text)
 
     doc.build(story)
-    return f"/static/sheets/{filename}"
+    buffer.seek(0)
+    return buffer
+
+@app.route("/api/sheets/download", methods=["GET"])
+def download_company_sheet_pdf():
+    company_name = request.args.get("company", "Company").strip()
+    overview = request.args.get("overview", "Overview unavailable.").strip()
+    process = request.args.get("process", "Process details.").strip()
+    ctc = request.args.get("ctc", "CTC details.").strip()
+    eligibility = request.args.get("eligibility", "Eligibility criteria.").strip()
+    
+    filename = f"{company_name.lower().replace(' ', '_')}_placement_sheet.pdf"
+    buffer = generate_pdf_bytes(company_name, overview, process, ctc, eligibility)
+    return send_file(buffer, mimetype="application/pdf", as_attachment=True, download_name=filename)
 
 @app.route("/api/sheets/generate", methods=["POST"])
 def generate_company_sheet():
@@ -3531,7 +3540,6 @@ def generate_company_sheet():
         try:
             resp = call_gemini_api(prompt, api_key)
             if resp:
-                # Cleanup potential backtick wraps
                 cleaned = resp.strip()
                 if cleaned.startswith("```json"):
                     cleaned = cleaned[7:]
@@ -3547,10 +3555,10 @@ def generate_company_sheet():
         except Exception as e:
             print("Gemini sheet synthesis error:", e)
             
-    # 3. Create PDF
+    # 3. Create PDF download URL
     try:
-        pdf_url = generate_pdf_sheet(company_name, overview, process, ctc, eligibility)
-        return jsonify({"success": True, "pdf_url": pdf_url})
+        pdf_url = f"/api/sheets/download?company={urllib.parse.quote(company_name)}"
+        return jsonify({"success": True, "pdf_url": pdf_url, "data": {"overview": overview, "process": process, "ctc": ctc, "eligibility": eligibility}})
     except Exception as e:
         return jsonify({"error": f"Failed to compile PDF sheet: {str(e)}"}), 500
 
@@ -3625,7 +3633,6 @@ def get_relocation_assistant():
 
 @app.route("/api/relocation/pdf", methods=["GET"])
 def get_relocation_pdf():
-    from flask import send_from_directory
     city = request.args.get("city", "").strip()
     if not city:
         return "City name is required", 400
@@ -3636,20 +3643,18 @@ def get_relocation_pdf():
         return "Failed to analyze city", 500
     data = res.get_json()
     
-    # ReportLab PDF compile
+    # ReportLab PDF compile in memory
     import html
+    import io
     from reportlab.lib.pagesizes import letter
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib import colors
     
-    static_folder = app.static_folder if app.static_folder else "static"
-    sheets_dir = os.path.join(static_folder, "sheets")
-    os.makedirs(sheets_dir, exist_ok=True)
     filename = f"{city.lower().replace(' ', '_')}_relocation_guide.pdf"
-    file_path = os.path.join(sheets_dir, filename)
+    buffer = io.BytesIO()
     
-    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
     styles = getSampleStyleSheet()
     
     title_style = ParagraphStyle(
@@ -3711,8 +3716,9 @@ def get_relocation_pdf():
         story.append(Spacer(1, 8))
         
     doc.build(story)
+    buffer.seek(0)
     
-    return send_from_directory(sheets_dir, filename, as_attachment=True)
+    return send_file(buffer, mimetype="application/pdf", as_attachment=True, download_name=filename)
 
 @app.route("/api/cheatsheet", methods=["GET"])
 def get_company_cheatsheet():
@@ -3804,7 +3810,6 @@ def get_company_cheatsheet():
 
 @app.route("/api/cheatsheet/pdf", methods=["GET"])
 def get_company_cheatsheet_pdf():
-    from flask import send_from_directory
     company = request.args.get("company", "").strip()
     if not company:
         return "Company name is required", 400
@@ -3814,21 +3819,19 @@ def get_company_cheatsheet_pdf():
         return "Failed to generate cheatsheet", 500
     data = res.get_json()
     
-    # ReportLab single-page PDF generation
+    # ReportLab single-page PDF generation in memory
     import html
+    import io
     from reportlab.lib.pagesizes import letter
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib import colors
     
-    static_folder = app.static_folder if app.static_folder else "static"
-    sheets_dir = os.path.join(static_folder, "sheets")
-    os.makedirs(sheets_dir, exist_ok=True)
     filename = f"{company.lower().replace(' ', '_')}_cheatsheet.pdf"
-    file_path = os.path.join(sheets_dir, filename)
+    buffer = io.BytesIO()
     
     # Tight margins to force 1-page layout
-    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=35, leftMargin=35, topMargin=35, bottomMargin=35)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=35, leftMargin=35, topMargin=35, bottomMargin=35)
     styles = getSampleStyleSheet()
     
     title_style = ParagraphStyle(
@@ -3919,8 +3922,9 @@ def get_company_cheatsheet_pdf():
     story.append(grid_table)
     
     doc.build(story)
+    buffer.seek(0)
     
-    return send_from_directory(sheets_dir, filename, as_attachment=True)
+    return send_file(buffer, mimetype="application/pdf", as_attachment=True, download_name=filename)
 
 @app.route("/api/placeiq/predict", methods=["POST"])
 def get_placeiq_prediction():
@@ -4081,7 +4085,6 @@ def get_placeiq_prediction():
 
 @app.route("/api/placeiq/pdf", methods=["GET"])
 def get_placeiq_pdf():
-    from flask import send_from_directory
     college = request.args.get("college", "").strip()
     branch = request.args.get("branch", "cse").strip()
     cgpa = request.args.get("cgpa", "7.5")
@@ -4114,20 +4117,18 @@ def get_placeiq_pdf():
             return "Failed to analyze profile", 500
         data = res.get_json()
         
-    # ReportLab single-page PDF generation
+    # ReportLab single-page PDF generation in memory
     import html
+    import io
     from reportlab.lib.pagesizes import letter
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib import colors
     
-    static_folder = app.static_folder if app.static_folder else "static"
-    sheets_dir = os.path.join(static_folder, "sheets")
-    os.makedirs(sheets_dir, exist_ok=True)
     filename = f"{college.lower().replace(' ', '_')}_placeiq_scorecard.pdf"
-    file_path = os.path.join(sheets_dir, filename)
+    buffer = io.BytesIO()
     
-    doc = SimpleDocTemplate(file_path, pagesize=letter, rightMargin=35, leftMargin=35, topMargin=35, bottomMargin=35)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=35, leftMargin=35, topMargin=35, bottomMargin=35)
     styles = getSampleStyleSheet()
     
     title_style = ParagraphStyle(
@@ -4203,8 +4204,9 @@ def get_placeiq_pdf():
     story.append(Paragraph(html.escape(sanitize_for_pdf(data.get("milestones", ""))), body_style))
     
     doc.build(story)
+    buffer.seek(0)
     
-    return send_from_directory(sheets_dir, filename, as_attachment=True)
+    return send_file(buffer, mimetype="application/pdf", as_attachment=True, download_name=filename)
 
 
 @app.route("/api/networking/generate", methods=["POST"])
