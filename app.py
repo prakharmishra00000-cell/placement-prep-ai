@@ -6,11 +6,14 @@ import json
 import urllib.parse
 import random
 import requests
+import tempfile
 from bs4 import BeautifulSoup
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, Response
 from pyq_generator import generate_55_pyqs
 
 app = Flask(__name__)
+
+PORTFOLIO_CACHE = {}
 
 # Cache of mock/real pre-defined high-quality placement data for top companies
 COMPANY_KNOWLEDGE = {
@@ -1133,9 +1136,9 @@ def analyze_resume():
     
     temp_filepath = None
     if file and file.filename:
-        temp_dir = os.path.join(os.getcwd(), "temp_uploads")
+        temp_dir = os.path.join(tempfile.gettempdir(), "temp_uploads")
         if not os.path.exists(temp_dir):
-            os.makedirs(temp_dir)
+            os.makedirs(temp_dir, exist_ok=True)
         temp_filepath = os.path.join(temp_dir, file.filename)
         file.save(temp_filepath)
         
@@ -2703,16 +2706,59 @@ def generate_portfolio():
 </body>
 </html>"""
     
-    os.makedirs(os.path.join("static", "portfolios"), exist_ok=True)
-    file_path = os.path.join("static", "portfolios", f"{portfolio_id}.html")
+    PORTFOLIO_CACHE[portfolio_id] = html
     
+    # 1. Attempt writing to /tmp directory (always writable on Vercel)
     try:
-        with open(file_path, "w", encoding="utf-8") as f:
+        tmp_dir = os.path.join(tempfile.gettempdir(), "portfolios")
+        os.makedirs(tmp_dir, exist_ok=True)
+        tmp_file = os.path.join(tmp_dir, f"{portfolio_id}.html")
+        with open(tmp_file, "w", encoding="utf-8") as f:
             f.write(html)
-        shareable_url = f"/static/portfolios/{portfolio_id}.html"
-        return jsonify({"success": True, "shareable_url": shareable_url})
     except Exception as e:
-        return jsonify({"error": f"Failed to save portfolio website: {str(e)}"}), 500
+        print("Warning: Could not save portfolio to tmp dir:", e)
+
+    # 2. Attempt writing to static/portfolios directory if filesystem is writable
+    try:
+        static_dir = os.path.join("static", "portfolios")
+        os.makedirs(static_dir, exist_ok=True)
+        static_file = os.path.join(static_dir, f"{portfolio_id}.html")
+        with open(static_file, "w", encoding="utf-8") as f:
+            f.write(html)
+    except Exception as e:
+        print("Note: Read-only filesystem prevented static file save:", e)
+
+    shareable_url = f"/portfolio/{portfolio_id}"
+    return jsonify({"success": True, "shareable_url": shareable_url})
+
+@app.route("/portfolio/<portfolio_id>", methods=["GET"])
+@app.route("/static/portfolios/<path:portfolio_id>", methods=["GET"])
+def view_portfolio(portfolio_id):
+    clean_id = portfolio_id.replace(".html", "").strip()
+    
+    # 1. Check in-memory cache
+    if clean_id in PORTFOLIO_CACHE:
+        return Response(PORTFOLIO_CACHE[clean_id], mimetype="text/html")
+        
+    # 2. Check /tmp directory
+    try:
+        tmp_file = os.path.join(tempfile.gettempdir(), "portfolios", f"{clean_id}.html")
+        if os.path.exists(tmp_file):
+            with open(tmp_file, "r", encoding="utf-8") as f:
+                return Response(f.read(), mimetype="text/html")
+    except Exception as e:
+        print("Error reading portfolio from tmp:", e)
+        
+    # 3. Check static directory
+    try:
+        static_file = os.path.join("static", "portfolios", f"{clean_id}.html")
+        if os.path.exists(static_file):
+            with open(static_file, "r", encoding="utf-8") as f:
+                return Response(f.read(), mimetype="text/html")
+    except Exception as e:
+        print("Error reading portfolio from static:", e)
+        
+    return "<h1>Portfolio Not Found or Expired</h1><p>Please regenerate your portfolio on PrepOS AI workspace.</p>", 404
 
 def calculate_indian_tax(ctc, basic_pct, vpf_pct, rent_paid, car_perk, other_deductions):
     basic = ctc * (basic_pct / 100)
