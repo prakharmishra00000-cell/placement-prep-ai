@@ -3389,12 +3389,16 @@ class Solution {
                 generateLiBtn.disabled = false;
                 
                 if (data.error) {
-                    document.getElementById("li-headline-body").innerHTML = "<strong>AI Generated Profile</strong>";
                     document.getElementById("li-about-body").innerHTML = `<span style="color:var(--neon-pink)">Error: ${data.error}</span>`;
                     document.getElementById("li-output-container").style.display = "block";
                 } else {
-                    document.getElementById("li-headline-body").innerHTML = "<strong>AI Generated Profile</strong>";
-                    document.getElementById("li-about-body").innerHTML = data.result;
+                    let cleanRes = data.result || "";
+                    // Strip any residual codeblock markdown wrappers
+                    cleanRes = cleanRes.replace(/```(?:html|markdown|json)?/gi, "").replace(/```/g, "");
+                    // Strip DOCTYPE and HTML document body wrappers
+                    cleanRes = cleanRes.replace(/<!DOCTYPE[^>]*>/gi, "").replace(/<\/?(html|head|body|meta|style)[^>]*>/gi, "");
+                    
+                    document.getElementById("li-about-body").innerHTML = cleanRes.trim();
                     document.getElementById("li-output-container").style.display = "block";
                 }
             })

@@ -4121,47 +4121,79 @@ def generate_networking_message():
                 prompt = f"""Analyze hiring delay at {company} (size {size}, {days} days since interview). Provide recruiter follow-up email in clean HTML."""
 
             elif tool_type == "linkedin":
-                domain = data.get("domain", "").strip()
-                tone = data.get("tone", "").strip()
-                keywords = data.get("keywords", "").strip()
-                prompt = f"""Generate 3 keyword-rich LinkedIn Headlines and a polished "About" summary ({tone} tone) for {domain} focusing on {keywords}. Output in clean HTML."""
+                domain = data.get("domain", "").strip() or "Node.js & Software Engineering"
+                tone = data.get("tone", "").strip() or "Executive & High Impact"
+                keywords = data.get("keywords", "").strip() or "Node.js, TypeScript, Microservices, NestJS, Docker, AWS"
+                prompt = f"""You are an expert LinkedIn profile consultant.
+Create a profile makeover for a candidate in {domain} specializing in {keywords} with a {tone} tone.
+
+DO NOT output raw HTML boilerplate like <!DOCTYPE html>, <html>, <head>, or <body> tags. DO NOT wrap output in markdown code blocks like ```html.
+
+Provide the response in clean, crisp Markdown with two clear sections:
+
+### 3 Recruiter-Optimized LinkedIn Headlines
+1. **Executive & Brand Focused:** [Headline 1]
+2. **Results & Technical Impact:** [Headline 2]
+3. **ATS & Recruiter Search:** [Headline 3]
+
+### Polished "About" Section
+[Paragraph 1: Core background, passion, and specialization]
+
+[Paragraph 2: Technical architecture expertise (Microservices, NestJS, TypeScript, REST/GraphQL APIs)]
+
+[Paragraph 3: Cloud, containerization, databases (AWS/Azure, Docker, K8s, PostgreSQL, MongoDB), and clean code/CI-CD principles]
+
+[Paragraph 4: Call to action for connecting]
+"""
 
             if prompt:
                 response = model.generate_content(prompt)
                 if response and response.text:
                     import markdown
-                    return jsonify({"result": markdown.markdown(response.text)})
+                    raw_text = response.text
+                    raw_text = re.sub(r'```(?:html|markdown|json)?', '', raw_text)
+                    raw_text = raw_text.replace('```', '')
+                    raw_text = re.sub(r'<!DOCTYPE[^>]*>', '', raw_text, flags=re.IGNORECASE)
+                    raw_text = re.sub(r'</?(?:html|head|body|meta|title|style)[^>]*>', '', raw_text, flags=re.IGNORECASE)
+                    return jsonify({"result": markdown.markdown(raw_text.strip())})
         except Exception as e:
             print(f"Gemini API call failed in generate_networking_message: {e}")
 
     # Fallback Synthesizer Engine (guarantees ZERO 403 / 500 errors for all tools)
     if tool_type == "linkedin":
-        domain_val = data.get("domain", "").strip() or "Engineering & Technology"
+        domain_val = data.get("domain", "").strip() or "Node.js & Backend Engineering"
         tone_val = data.get("tone", "").strip() or "Executive & High Impact"
-        keywords_val = data.get("keywords", "").strip() or "Software Architecture, System Design, Cloud, Python, Full-Stack"
+        keywords_val = data.get("keywords", "").strip() or "Node.js, TypeScript, NestJS, Microservices, Docker, AWS"
         
         fallback_html = f"""
-        <div class="linkedin-makeover-results" style="line-height: 1.6;">
-            <h4 style="color: var(--neon-cyan); margin-bottom: 0.5rem;"><i class="fa-brands fa-linkedin"></i> 3 High-Impact LinkedIn Headlines for {domain_val}</h4>
-            <div style="background: rgba(0, 210, 255, 0.06); border-left: 3px solid var(--neon-blue); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
-                <strong>1. Executive & Brand Focused:</strong><br>
-                <em>{domain_val} Leader | Specialist in {keywords_val} | Building Scalable Enterprise Solutions</em>
+        <div style="line-height: 1.7; font-family: 'Inter', sans-serif;">
+            <h4 style="color: var(--neon-cyan); margin-bottom: 0.75rem;"><i class="fa-brands fa-linkedin"></i> 3 Keyword-Rich Headlines</h4>
+            
+            <div style="background: rgba(0, 210, 255, 0.06); border-left: 4px solid var(--neon-blue); padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+                <strong style="color: var(--neon-blue);">1. Executive & Architecture Focused:</strong><br>
+                <span>{domain_val} Engineer | Architecting Scalable Microservices with {keywords_val}</span>
             </div>
-            <div style="background: rgba(0, 210, 255, 0.06); border-left: 3px solid var(--neon-purple); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
-                <strong>2. Results & Metrics Driven:</strong><br>
-                <em>Engineered Enterprise Systems in {domain_val} | Skilled in {keywords_val} | Driving 35%+ Performance Gains</em>
+            
+            <div style="background: rgba(0, 210, 255, 0.06); border-left: 4px solid var(--neon-purple); padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+                <strong style="color: var(--neon-purple);">2. Results & Performance Driven:</strong><br>
+                <span>Senior {domain_val} Specialist | Driving Innovation with Cloud (AWS/GCP), Containerization & High-Throughput APIs</span>
             </div>
-            <div style="background: rgba(0, 210, 255, 0.06); border-left: 3px solid var(--neon-cyan); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
-                <strong>3. Recruiter Search Optimized (ATS):</strong><br>
-                <em>{keywords_val} Specialist | {domain_val} Professional | Open to High-Growth Engineering Roles</em>
+            
+            <div style="background: rgba(0, 210, 255, 0.06); border-left: 4px solid var(--neon-cyan); padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+                <strong style="color: var(--neon-cyan);">3. ATS & Recruiter Search Optimized:</strong><br>
+                <span>Lead {domain_val} Engineer | Building Resilient Backend Platforms | {keywords_val}</span>
             </div>
 
-            <h4 style="color: var(--neon-yellow); margin-top: 1rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-user"></i> Polished "About" Section Summary ({tone_val} Tone)</h4>
-            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
-                <p>I am a passionate <strong>{domain_val}</strong> professional dedicated to delivering high-performance engineering solutions and scalable architecture.</p>
-                <p>Throughout my work, I have specialized in <strong>{keywords_val}</strong>, focusing on robust design, clean code standards, and agile collaboration.</p>
-                <p><strong>Core Technical Stack:</strong> {keywords_val}</p>
-                <p>📩 Open to connecting for technical consultations, engineering leadership, and career opportunities.</p>
+            <h4 style="color: var(--neon-yellow); margin-bottom: 0.75rem;"><i class="fa-solid fa-user"></i> Polished "About" Section ({tone_val} Tone)</h4>
+            
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; line-height: 1.7;">
+                <p style="margin-bottom: 1rem;">As a dedicated <strong>{domain_val}</strong> professional, I am passionate about architecting and developing high-performance, scalable backend systems leveraging modern technology stacks. With a focus on clean code and robust design, I specialize in transforming complex business requirements into elegant, production-grade software solutions.</p>
+                
+                <p style="margin-bottom: 1rem;">My core technical expertise lies in building resilient microservices and high-throughput APIs using <strong>{keywords_val}</strong>. I excel in optimizing server response times, designing scalable schemas, and facilitating real-time data processing for enterprise applications.</p>
+                
+                <p style="margin-bottom: 1rem;">I am proficient in deploying cloud-native services across AWS, Azure, and GCP, containerizing applications with Docker and Kubernetes, and implementing CI/CD automation pipelines for continuous delivery. My database experience spans relational (PostgreSQL, MySQL) and NoSQL (MongoDB, Redis) platforms.</p>
+                
+                <p style="margin-bottom: 0;">📩 Open to connecting for technical consultations, engineering leadership, and high-impact career opportunities.</p>
             </div>
         </div>
         """
